@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.0.0
+# version: 1.0.1
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0
@@ -13,13 +13,71 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
+  BASE_PLUGIN_NAME = "discourse-user-cosmetics"
+  BASE_PLUGIN_RUBY_FILES = %w[
+    app/models/discourse_user_cosmetics/item.rb
+    app/models/discourse_user_cosmetics/item_group.rb
+    app/models/discourse_user_cosmetics/user_item.rb
+    app/models/discourse_user_cosmetics/user_selection.rb
+    app/models/discourse_user_cosmetics/effect_layer.rb
+    lib/discourse_user_cosmetics/presenter.rb
+  ].freeze
+
+  def self.base_plugin_ready?
+    defined?(::DiscourseUserCosmetics::Item) &&
+      defined?(::DiscourseUserCosmetics::UserItem) &&
+      defined?(::DiscourseUserCosmetics::UserSelection) &&
+      defined?(::DiscourseUserCosmetics::Presenter)
+  end
+
+  def self.base_plugin_root
+    if defined?(::DiscourseUserCosmetics) &&
+         ::DiscourseUserCosmetics.respond_to?(:const_source_location)
+      source = ::DiscourseUserCosmetics.const_source_location(:PLUGIN_NAME)&.first
+      return File.dirname(source) if source.present?
+    end
+
+    File.expand_path("../#{BASE_PLUGIN_NAME}", __dir__)
+  end
+
+  # Plugin initializers are not a dependency graph. During `db:migrate`, a
+  # companion plugin can be initialized before the base plugin's own
+  # `after_initialize` callback has required its models. Load only the public
+  # model/presenter files we integrate with so rebuilds do not depend on plugin
+  # callback order.
+  def self.load_base_plugin!
+    return true if base_plugin_ready?
+    return false unless defined?(::DiscourseUserCosmetics)
+
+    root = base_plugin_root
+    return false unless File.directory?(root)
+
+    BASE_PLUGIN_RUBY_FILES.each do |relative_path|
+      absolute_path = File.join(root, relative_path)
+      return false unless File.file?(absolute_path)
+
+      require absolute_path
+    end
+
+    base_plugin_ready?
+  rescue StandardError, LoadError => error
+    Rails.logger.error(
+      "[#{PLUGIN_NAME}] could not load #{BASE_PLUGIN_NAME}: " \
+        "#{error.class}: #{error.message}",
+    )
+    false
+  end
+
+  def self.install_item_access_extension!
+    return false unless load_base_plugin!
+    return true if ::DiscourseUserCosmetics::Item < ItemAccessExtension
+
+    ::DiscourseUserCosmetics::Item.prepend(ItemAccessExtension)
+    true
+  end
 end
 
 after_initialize do
-  unless defined?(::DiscourseUserCosmetics::Item)
-    raise "#{DiscourseCosmeticsStore::PLUGIN_NAME} requires discourse-user-cosmetics"
-  end
-
   require_relative "app/models/discourse_cosmetics_store/product"
   require_relative "app/models/discourse_cosmetics_store/product_item"
   require_relative "app/models/discourse_cosmetics_store/wallet"
@@ -38,7 +96,19 @@ after_initialize do
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
 
-  ::DiscourseUserCosmetics::Item.prepend(::DiscourseCosmeticsStore::ItemAccessExtension)
+  unless DiscourseCosmeticsStore.install_item_access_extension!
+    Rails.logger.error(
+      "[#{DiscourseCosmeticsStore::PLUGIN_NAME}] #{DiscourseCosmeticsStore::BASE_PLUGIN_NAME} " \
+        "is missing or could not be loaded. The store will stay unavailable until the dependency is fixed.",
+    )
+  end
+
+  # Try once more after Rails finishes preparing application classes. This is
+  # idempotent and covers installations where plugin callbacks are evaluated in
+  # a non-alphabetical order.
+  Rails.application.reloader.to_prepare do
+    DiscourseCosmeticsStore.install_item_access_extension!
+  end
 
   add_admin_route "discourse_cosmetics_store.admin.title", "user-cosmetics-store"
 

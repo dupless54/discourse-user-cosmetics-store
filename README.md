@@ -20,7 +20,7 @@ Bu eklenti kozmetik verilerini kopyalamaz. Ürün ve paketleri mevcut kozmetik k
 
 ## Gereksinim
 
-Önce `discourse-user-cosmetics` kurulmuş ve etkin olmalıdır. Mağaza eklentisi açılışta bu bağımlılığı kontrol eder; eksikse açık bir hata vererek başlatmayı durdurur.
+Önce `discourse-user-cosmetics` kurulmuş ve etkin olmalıdır. Mağaza eklentisi bu bağımlılığı açılışta kontrol eder. Discourse migrasyonlarında eklenti callback sırası garanti edilmediği için mağaza, ihtiyaç duyduğu ana eklenti modellerini güvenli ve idempotent biçimde yükler; bağımlılık gerçekten yoksa rebuild'i kilitlemek yerine sunucu günlüğüne açık bir hata yazar ve mağazayı kullanılamaz bırakır.
 
 ## Kurulum
 
@@ -99,5 +99,10 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.0`
-"# discourse-user-cosmetics-store" 
+`1.0.1`
+
+### 1.0.1
+
+- `db:migrate` sırasında ana kozmetik eklentisinin `after_initialize` sırasına bağlı olan sert başlangıç hatası kaldırıldı.
+- Ana eklentinin gerekli model ve sunum katmanı dosyaları açıkça, yalnızca eksik olduklarında yükleniyor.
+- Kozmetik erişim entegrasyonu tekrar çalıştırılabilir hâle getirildi; aynı modül ikinci kez eklenmiyor.
