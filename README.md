@@ -99,7 +99,13 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.2`
+`1.0.3`
+
+### 1.0.3
+
+- Yönetim bağlantısı Discourse 2026'nın `adminPlugins.show` eklenti yapılandırma rotasına taşındı.
+- Eklenti sayfasına otomatik **Ayarlar** sekmesinin yanında **Mağaza yönetimi** sekmesi eklendi.
+- Ürün, görev ve cüzdan yönetim ekranı yeni admin asset dizinine taşındı; eski ve yapılandırılamayan bağlantı kaldırıldı.
 
 ### 1.0.2
 

@@ -4,3 +4,5 @@ tr:
       title: "Cosmetics Store"
       admin:
         title: "Cosmetics Store"
+        catalog: "Mağaza yönetimi"
+        catalog_description: "Kozmetik ürünlerini, Orbs görevlerini ve kullanıcı cüzdanlarını yönetin."

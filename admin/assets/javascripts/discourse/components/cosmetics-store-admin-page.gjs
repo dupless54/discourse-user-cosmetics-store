@@ -7,6 +7,8 @@ import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
 
+const ADMIN_API_BASE = "/admin/plugins/user-cosmetics-store";
+
 const EMPTY_PRODUCT = {
   name: "",
   slug: "",
@@ -150,8 +152,8 @@ export default class CosmeticsStoreAdminPage extends Component {
       available_until: product.available_until || null,
     };
     const url = product.id
-      ? `/admin/plugins/user-cosmetics-store/products/${product.id}.json`
-      : "/admin/plugins/user-cosmetics-store/products.json";
+      ? `${ADMIN_API_BASE}/products/${product.id}.json`
+      : `${ADMIN_API_BASE}/products.json`;
     try {
       const saved = await ajax(url, {
         type: product.id ? "PUT" : "POST",
@@ -175,7 +177,7 @@ export default class CosmeticsStoreAdminPage extends Component {
       return;
     }
     try {
-      await ajax(`/admin/plugins/user-cosmetics-store/products/${product.id}.json`, {
+      await ajax(`${ADMIN_API_BASE}/products/${product.id}.json`, {
         type: "DELETE",
       });
       this.products = this.products.filter((row) => row.id !== product.id);
@@ -225,8 +227,8 @@ export default class CosmeticsStoreAdminPage extends Component {
       available_until: mission.available_until || null,
     };
     const url = mission.id
-      ? `/admin/plugins/user-cosmetics-store/missions/${mission.id}.json`
-      : "/admin/plugins/user-cosmetics-store/missions.json";
+      ? `${ADMIN_API_BASE}/missions/${mission.id}.json`
+      : `${ADMIN_API_BASE}/missions.json`;
     try {
       const saved = await ajax(url, {
         type: mission.id ? "PUT" : "POST",
@@ -250,7 +252,7 @@ export default class CosmeticsStoreAdminPage extends Component {
       return;
     }
     try {
-      await ajax(`/admin/plugins/user-cosmetics-store/missions/${mission.id}.json`, {
+      await ajax(`${ADMIN_API_BASE}/missions/${mission.id}.json`, {
         type: "DELETE",
       });
       if (mission.claim_count > 0) {
@@ -289,7 +291,7 @@ export default class CosmeticsStoreAdminPage extends Component {
     }
     try {
       this.walletResult = await ajax(
-        `/admin/plugins/user-cosmetics-store/wallet.json?username=${encodeURIComponent(this.walletUsername.trim())}`
+        `${ADMIN_API_BASE}/wallet.json?username=${encodeURIComponent(this.walletUsername.trim())}`
       );
     } catch (error) {
       popupAjaxError(error);
@@ -303,7 +305,7 @@ export default class CosmeticsStoreAdminPage extends Component {
       return;
     }
     try {
-      this.walletResult = await ajax("/admin/plugins/user-cosmetics-store/wallet/adjust.json", {
+      this.walletResult = await ajax(`${ADMIN_API_BASE}/wallet/adjust.json`, {
         type: "POST",
         data: {
           username: this.walletResult.user.username,

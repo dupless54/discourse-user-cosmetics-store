@@ -4,3 +4,5 @@ en:
       title: "Cosmetics Store"
       admin:
         title: "Cosmetics Store"
+        catalog: "Store management"
+        catalog_description: "Manage cosmetic products, Orbs missions, and user wallets."

@@ -15,6 +15,8 @@ tr:
   discourse_cosmetics_store:
     admin:
       title: "Cosmetics Store"
+      catalog: "Mağaza yönetimi"
+      catalog_description: "Kozmetik ürünlerini, Orbs görevlerini ve kullanıcı cüzdanlarını yönetin."
     errors:
       disabled: "Kozmetik mağazası kapalı."
       login_required: "Bu işlem için giriş yapmalısın."

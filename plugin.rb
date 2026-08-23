@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.0.2
+# version: 1.0.3
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0
@@ -110,12 +110,14 @@ after_initialize do
     DiscourseCosmeticsStore.install_item_access_extension!
   end
 
-  add_admin_route "discourse_cosmetics_store.admin.title", "user-cosmetics-store"
+  add_admin_route(
+    "discourse_cosmetics_store.admin.title",
+    DiscourseCosmeticsStore::PLUGIN_NAME,
+    { use_new_show_route: true },
+  )
 
   Discourse::Application.routes.append do
     get "/store" => "list#latest"
-    get "/admin/plugins/user-cosmetics-store" => "admin/plugins#index",
-        constraints: StaffConstraint.new
 
     defaults format: :json do
       get "/cosmetics-store" => "discourse_cosmetics_store/store#index"
