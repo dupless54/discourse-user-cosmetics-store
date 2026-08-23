@@ -1,0 +1,51 @@
+plugins:
+  discourse_cosmetics_store_enabled:
+    default: true
+    client: true
+
+  discourse_cosmetics_store_currency_name:
+    default: "Orbs"
+    client: true
+
+  discourse_cosmetics_store_currency_symbol:
+    default: "◈"
+    client: true
+
+  discourse_cosmetics_store_starting_balance:
+    default: 0
+    min: 0
+    max: 1000000
+
+  discourse_cosmetics_store_max_balance:
+    default: 1000000000
+    min: 1000
+    max: 2000000000
+
+  discourse_cosmetics_store_products_limit:
+    default: 100
+    min: 12
+    max: 300
+
+  discourse_cosmetics_store_missions_enabled:
+    default: true
+    client: true
+
+  discourse_cosmetics_store_favorites_enabled:
+    default: true
+    client: true
+
+  discourse_cosmetics_store_hover_preview_enabled:
+    default: true
+    client: true
+
+  discourse_cosmetics_store_editor_title:
+    default: "Editörün Seçtikleri"
+    client: true
+
+  discourse_cosmetics_store_hero_title:
+    default: "Tarzını Orbs ile tamamla"
+    client: true
+
+  discourse_cosmetics_store_hero_subtitle:
+    default: "Görevleri tamamla, Orbs kazan ve topluluğa özel kozmetikleri aç."
+    client: true

@@ -1,0 +1,34 @@
+tr:
+  site_settings:
+    discourse_cosmetics_store_enabled: "Orbs kozmetik mağazasını etkinleştir."
+    discourse_cosmetics_store_currency_name: "Mağaza para biriminin adı."
+    discourse_cosmetics_store_currency_symbol: "Mağaza para birimi simgesi."
+    discourse_cosmetics_store_starting_balance: "Yeni açılan cüzdanlara verilecek başlangıç bakiyesi."
+    discourse_cosmetics_store_max_balance: "Bir cüzdanda tutulabilecek en yüksek bakiye."
+    discourse_cosmetics_store_products_limit: "Mağaza kataloğunda döndürülecek en yüksek ürün sayısı."
+    discourse_cosmetics_store_missions_enabled: "Orbs görevlerini etkinleştir."
+    discourse_cosmetics_store_favorites_enabled: "Favori ürünleri etkinleştir."
+    discourse_cosmetics_store_hover_preview_enabled: "Ürün kartlarında fareyle önizlemeyi etkinleştir."
+    discourse_cosmetics_store_editor_title: "Editör seçimi bölüm başlığı."
+    discourse_cosmetics_store_hero_title: "Mağaza kahraman alanı başlığı."
+    discourse_cosmetics_store_hero_subtitle: "Mağaza kahraman alanı açıklaması."
+  discourse_cosmetics_store:
+    admin:
+      title: "Cosmetics Store"
+    errors:
+      disabled: "Kozmetik mağazası kapalı."
+      login_required: "Bu işlem için giriş yapmalısın."
+      unavailable: "Bu ürün şu anda satın alınamıyor."
+      already_owned: "Bu ürün zaten koleksiyonunda."
+      insufficient_balance: "Yeterli Orbs bakiyen yok."
+      mission_unavailable: "Bu görev şu anda kullanılamıyor."
+      mission_incomplete: "Görevi henüz tamamlamadın."
+      mission_claimed: "Bu görevin ödülünü daha önce aldın."
+      invalid_amount: "Geçersiz bakiye değişikliği."
+      product_has_purchases: "Satın alma geçmişi olan ürün silinemez; ürünü pasifleştir."
+    messages:
+      purchased: "Ürün koleksiyonuna eklendi."
+      mission_claimed: "Görev ödülü cüzdanına eklendi."
+      favorite_added: "Ürün favorilerine eklendi."
+      favorite_removed: "Ürün favorilerinden çıkarıldı."
+      wallet_adjusted: "Kullanıcı bakiyesi güncellendi."

@@ -1,0 +1,34 @@
+en:
+  site_settings:
+    discourse_cosmetics_store_enabled: "Enable the Orbs cosmetics store."
+    discourse_cosmetics_store_currency_name: "Store currency name."
+    discourse_cosmetics_store_currency_symbol: "Store currency symbol."
+    discourse_cosmetics_store_starting_balance: "Starting balance for newly created wallets."
+    discourse_cosmetics_store_max_balance: "Maximum wallet balance."
+    discourse_cosmetics_store_products_limit: "Maximum products returned by the catalogue."
+    discourse_cosmetics_store_missions_enabled: "Enable Orbs missions."
+    discourse_cosmetics_store_favorites_enabled: "Enable product favorites."
+    discourse_cosmetics_store_hover_preview_enabled: "Enable product hover previews."
+    discourse_cosmetics_store_editor_title: "Editor picks section title."
+    discourse_cosmetics_store_hero_title: "Store hero title."
+    discourse_cosmetics_store_hero_subtitle: "Store hero subtitle."
+  discourse_cosmetics_store:
+    admin:
+      title: "Cosmetics Store"
+    errors:
+      disabled: "The cosmetics store is disabled."
+      login_required: "You must sign in to do that."
+      unavailable: "This product is currently unavailable."
+      already_owned: "You already own this product."
+      insufficient_balance: "You do not have enough Orbs."
+      mission_unavailable: "This mission is not available."
+      mission_incomplete: "You have not completed this mission yet."
+      mission_claimed: "You already claimed this mission."
+      invalid_amount: "Invalid wallet adjustment."
+      product_has_purchases: "Products with purchase history cannot be deleted; disable the product instead."
+    messages:
+      purchased: "The product was added to your collection."
+      mission_claimed: "The mission reward was added to your wallet."
+      favorite_added: "Product added to favorites."
+      favorite_removed: "Product removed from favorites."
+      wallet_adjusted: "The user balance was updated."

@@ -1,0 +1,57 @@
+import Component from "@glimmer/component";
+import { htmlSafe } from "@ember/template";
+import { eq } from "discourse/truth-helpers";
+
+export default class CosmeticsStorePreview extends Component {
+  get previewItems() {
+    return (this.args.product?.items || []).slice(0, 4).map((item) => ({
+      ...item,
+      visualStyle: htmlSafe(
+        `--cstore-from:${item.gradient_from || "#5865f2"};` +
+          `--cstore-to:${item.gradient_to || "#eb459e"};` +
+          `--cstore-glow:${item.glow_color || "transparent"}`,
+      ),
+    }));
+  }
+
+  get isBundle() {
+    return this.args.product?.product_type === "bundle";
+  }
+
+  <template>
+    <div class="cstore-preview {{if this.isBundle 'cstore-preview--bundle' 'cstore-preview--single'}}">
+      {{#if @product.preview_background_url}}
+        <img class="cstore-preview__background" src={{@product.preview_background_url}} alt="" loading="lazy" />
+      {{else if @product.card_image_url}}
+        <img class="cstore-preview__background cstore-preview__background--card" src={{@product.card_image_url}} alt="" loading="lazy" />
+      {{/if}}
+      <div class="cstore-preview__surface">
+        {{#each this.previewItems as |item|}}
+          <div class="cstore-preview-item cstore-preview-item--{{item.kind}}" style={{item.visualStyle}} title={{item.name}}>
+            {{#if (eq item.kind "avatar_frame")}}
+              <span class="cstore-preview__avatar"><i></i></span>
+              {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+            {{else if (eq item.kind "nameplate")}}
+              <span class="cstore-preview__nameplate">
+                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                <b>Senin.me</b>
+              </span>
+            {{else if (eq item.kind "card_decoration")}}
+              <span class="cstore-preview__card">
+                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                <i></i><b>Kullanıcı kartı</b>
+              </span>
+            {{else}}
+              <span class="cstore-preview__effect">
+                <i></i>
+                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+              </span>
+            {{/if}}
+            {{#if this.isBundle}}<small>{{item.name}}</small>{{/if}}
+          </div>
+        {{/each}}
+      </div>
+      {{#if this.isBundle}}<span class="cstore-preview__count">{{@product.item_count}} parça</span>{{/if}}
+    </div>
+  </template>
+}
