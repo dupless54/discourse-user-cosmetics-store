@@ -99,7 +99,11 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.1`
+`1.0.2`
+
+### 1.0.2
+
+- İlk migrasyonun zaman damgası `20260824000001` yerine `20260823000123` olarak değiştirildi. Böylece UTC tarihi hâlâ 23 Ağustos olan Discourse sunucularında "timestamped in the future" hatası oluşmaz.
 
 ### 1.0.1
 
