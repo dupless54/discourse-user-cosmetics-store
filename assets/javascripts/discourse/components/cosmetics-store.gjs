@@ -36,6 +36,7 @@ export default class CosmeticsStore extends Component {
   @tracked missions = this.args.model?.missions ?? [];
   @tracked wallet = this.args.model?.wallet ?? {
     balance: 0,
+    debt: 0,
     lifetime_earned: 0,
     lifetime_spent: 0,
     ledger: [],
@@ -302,7 +303,7 @@ export default class CosmeticsStore extends Component {
         type: "POST",
         data: { username },
       });
-      this.wallet = { ...this.wallet, balance: response.balance };
+      this.wallet = { ...this.wallet, balance: response.balance, debt: response.debt };
       this.replaceProduct(product.id, {
         purchase_count: product.purchase_count + 1,
         popularity_score: product.popularity_score + 10,
@@ -327,7 +328,7 @@ export default class CosmeticsStore extends Component {
       const response = await ajax(`/cosmetics-store/products/${product.id}/purchase.json`, {
         type: "POST",
       });
-      this.wallet = { ...this.wallet, balance: response.balance };
+      this.wallet = { ...this.wallet, balance: response.balance, debt: response.debt };
       this.replaceProduct(product.id, {
         purchased: true,
         owned: true,
@@ -369,7 +370,7 @@ export default class CosmeticsStore extends Component {
       const response = await ajax(`/cosmetics-store/missions/${mission.id}/claim.json`, {
         type: "POST",
       });
-      this.wallet = { ...this.wallet, balance: response.balance };
+      this.wallet = { ...this.wallet, balance: response.balance, debt: response.debt };
       this.missions = this.missions.map((row) =>
         row.id === mission.id ? { ...row, claimed: true } : row
       );
@@ -576,7 +577,7 @@ export default class CosmeticsStore extends Component {
         </main>
       {{else if (eq this.activeTab "orbs")}}
         <main class="cstore-orbs">
-          <section class="cstore-orbs__hero"><div><p class="cstore-eyebrow">TOPLULUK ÖDÜLLERİ</p><h1>Katıl, katkı sağla, Orbs kazan.</h1><p>Görevlerin ilerlemesi sunucuda doğrulanır. Kazandığın Orbs yalnızca bu mağazada kullanılır.</p></div><div class="cstore-orb-balance"><span>{{this.settings.currency_symbol}}</span><strong>{{this.wallet.balance}}</strong><small>mevcut {{this.settings.currency_name}}</small><a class="cstore-orb-balance__topup" href="#orb-yukle">+ Orb Yükle</a></div></section>
+          <section class="cstore-orbs__hero"><div><p class="cstore-eyebrow">TOPLULUK ÖDÜLLERİ</p><h1>Katıl, katkı sağla, Orbs kazan.</h1><p>Görevlerin ilerlemesi sunucuda doğrulanır. Kazandığın Orbs yalnızca bu mağazada kullanılır.</p>{{#if this.wallet.debt}}<div class="cstore-refund-debt" role="status"><strong>{{this.wallet.debt}} {{this.settings.currency_symbol}} iade borcu</strong><span>İade edilen satın alımdan harcanmış bakiye kaldı. Yeni Orb kazançların önce bu tutarı kapatır.</span></div>{{/if}}</div><div class="cstore-orb-balance"><span>{{this.settings.currency_symbol}}</span><strong>{{this.wallet.balance}}</strong><small>mevcut {{this.settings.currency_name}}</small>{{#if this.wallet.debt}}<small class="is-debt">−{{this.wallet.debt}} iade borcu</small>{{/if}}<a class="cstore-orb-balance__topup" href="#orb-yukle">+ Orb Yükle</a></div></section>
           <CosmeticsStoreOrbPurchases @packages={{this.orbPackages}} @providers={{this.paymentProviders}} @payments={{this.payments}} @settings={{this.settings}} @viewer={{this.viewer}} />
           {{#if this.viewer.logged_in}}
             <section class="cstore-mission-layout">
@@ -592,7 +593,7 @@ export default class CosmeticsStore extends Component {
                   {{/each}}
                 </div>
               </div>
-              <aside class="cstore-ledger"><p class="cstore-eyebrow">CÜZDAN</p><h2>Son hareketler</h2><div class="cstore-wallet-stats"><span><strong>{{this.wallet.lifetime_earned}}</strong><small>Toplam kazanılan</small></span><span><strong>{{this.wallet.lifetime_spent}}</strong><small>Toplam harcanan</small></span></div>{{#each this.wallet.ledger as |entry|}}<article><span class={{if entry.credit "is-credit" "is-debit"}}>{{entry.amount}}</span><div><strong>{{entry.reason}}</strong><small>{{entry.entry_type}}</small></div><b>{{entry.balance_after}}</b></article>{{else}}<p class="cstore-muted">Henüz cüzdan hareketi yok.</p>{{/each}}</aside>
+              <aside class="cstore-ledger"><p class="cstore-eyebrow">CÜZDAN</p><h2>Son hareketler</h2><div class="cstore-wallet-stats"><span><strong>{{this.wallet.lifetime_earned}}</strong><small>Toplam kazanılan</small></span><span><strong>{{this.wallet.lifetime_spent}}</strong><small>Toplam harcanan</small></span>{{#if this.wallet.debt}}<span class="is-debt"><strong>{{this.wallet.debt}}</strong><small>İade borcu</small></span>{{/if}}</div>{{#each this.wallet.ledger as |entry|}}<article><span class={{if entry.credit "is-credit" "is-debit"}}>{{entry.amount}}</span><div><strong>{{entry.reason}}</strong><small>{{entry.entry_type}}{{#if entry.debt_after}} · borç {{entry.debt_after}}{{/if}}</small></div><b>{{entry.balance_after}}</b></article>{{else}}<p class="cstore-muted">Henüz cüzdan hareketi yok.</p>{{/each}}</aside>
             </section>
           {{else}}
             <section class="cstore-empty"><strong>Görevler için giriş yap</strong><p>İlerlemeni görmek, Orbs kazanmak ve satın almak için forum hesabınla giriş yap.</p><a href="/login?return_path=%2Fstore">Giriş yap</a></section>

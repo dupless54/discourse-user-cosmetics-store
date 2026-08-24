@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.2.2
+# version: 1.3.0
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0
@@ -13,7 +13,7 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
-  VERSION = "1.2.2"
+  VERSION = "1.3.0"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb
@@ -106,6 +106,7 @@ after_initialize do
   require_relative "app/models/discourse_cosmetics_store/favorite"
   require_relative "app/models/discourse_cosmetics_store/orb_package"
   require_relative "app/models/discourse_cosmetics_store/payment"
+  require_relative "app/models/discourse_cosmetics_store/payment_refund"
   require_relative "app/models/discourse_cosmetics_store/payment_event"
   require_relative "lib/discourse_cosmetics_store/catalog"
   require_relative "lib/discourse_cosmetics_store/item_access_extension"
@@ -118,6 +119,7 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/payment_providers"
   require_relative "lib/discourse_cosmetics_store/payment_service"
   require_relative "lib/discourse_cosmetics_store/payment_fulfillment_service"
+  require_relative "lib/discourse_cosmetics_store/payment_refund_service"
   require_relative "lib/discourse_cosmetics_store/payment_event_service"
   require_relative "lib/discourse_cosmetics_store/seeder"
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
@@ -197,6 +199,8 @@ after_initialize do
             constraints: { id: /\d+/ }
         delete "/orb-packages/:id" => "discourse_cosmetics_store/admin#destroy_orb_package",
                constraints: { id: /\d+/ }
+        post "/payments/:payment_token/refund" => "discourse_cosmetics_store/admin#refund_payment",
+             constraints: { payment_token: /[0-9a-f]{48}/ }
       end
     end
   end

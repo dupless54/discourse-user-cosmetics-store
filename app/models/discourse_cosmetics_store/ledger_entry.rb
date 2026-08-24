@@ -14,8 +14,14 @@ module ::DiscourseCosmeticsStore
 
     validates :entry_type, inclusion: { in: ENTRY_TYPES }
     validates :idempotency_key, presence: true, uniqueness: true, length: { maximum: 190 }
-    validates :amount, :balance_after, numericality: { only_integer: true }
+    validates :amount, :balance_after, :debt_delta, numericality: { only_integer: true }
+    validates :debt_after,
+              numericality: { only_integer: true, greater_than_or_equal_to: 0 }
     validates :reason, length: { maximum: 500 }, allow_blank: true
+
+    def gross_amount
+      amount.to_i - debt_delta.to_i
+    end
   end
 end
 
@@ -26,6 +32,8 @@ end
 #  id              :bigint           not null, primary key
 #  amount          :bigint           not null
 #  balance_after   :bigint           not null
+#  debt_after      :bigint           default(0), not null
+#  debt_delta      :bigint           default(0), not null
 #  entry_type      :string(30)       not null
 #  idempotency_key :string(190)      not null
 #  reason          :string(500)

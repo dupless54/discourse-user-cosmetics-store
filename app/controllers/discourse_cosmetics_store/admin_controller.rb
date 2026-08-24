@@ -22,7 +22,12 @@ module ::DiscourseCosmeticsStore
                missions: Mission.ordered.map { |mission| serialize_mission(mission) },
                orb_packages: OrbPackage.ordered.map { |package| serialize_orb_package(package) },
                payment_providers: PaymentProviders.configuration_status,
-               payments: Payment.includes(:user, :orb_package).recent.limit(100).map { |payment| serialize_payment(payment) },
+               payments:
+                 Payment
+                   .includes(:user, :orb_package, :refunds)
+                   .recent
+                   .limit(100)
+                   .map { |payment| serialize_payment(payment) },
                mission_metrics:
                  Mission::METRICS.map { |metric| { value: metric, label: metric_label(metric) } },
                settings: {
@@ -126,6 +131,36 @@ module ::DiscourseCosmeticsStore
 
       package.destroy!
       render json: success_json
+    end
+
+    def refund_payment
+      payment = Payment.includes(:user, :orb_package, :refunds).find_by!(
+        token: params[:payment_token],
+        provider: "shopier",
+      )
+      refund_reference = params[:refund_reference].to_s.strip
+      reason = params[:reason].to_s.strip[0, 500]
+      amount_minor = decimal_to_minor(params[:amount])
+
+      PaymentRefundService.record!(
+        payment: payment,
+        provider_refund_id: refund_reference,
+        amount_minor: amount_minor,
+        currency: payment.currency,
+        status: "completed",
+        source: "manual",
+        created_by: current_user,
+        metadata: {
+          "reason" => reason,
+          "order_id" => payment.provider_payment_id.to_s,
+        }.compact_blank,
+      )
+
+      render json: serialize_payment(payment.reload).merge(
+        message: I18n.t("discourse_cosmetics_store.messages.refund_recorded"),
+      )
+    rescue PaymentRefundService::Invalid, ActiveRecord::RecordInvalid => error
+      render_error(error.message, :unprocessable_entity)
     end
 
     private
@@ -341,6 +376,9 @@ module ::DiscourseCosmeticsStore
     end
 
     def serialize_payment(payment)
+      refunded_amount_minor = payment.refunded_amount_minor.to_i
+      refunded_orb_amount = payment.refunded_orb_amount.to_i
+      remaining_amount_minor = [payment.amount_minor.to_i - refunded_amount_minor, 0].max
       {
         token: payment.token,
         username: payment.user.username,
@@ -350,11 +388,31 @@ module ::DiscourseCosmeticsStore
         orb_amount: payment.orb_amount,
         amount_minor: payment.amount_minor,
         amount: format("%.2f", BigDecimal(payment.amount_minor.to_s) / 100),
+        refunded_amount_minor: refunded_amount_minor,
+        refunded_amount: format("%.2f", BigDecimal(refunded_amount_minor.to_s) / 100),
+        refunded_orb_amount: refunded_orb_amount,
+        remaining_amount_minor: remaining_amount_minor,
+        remaining_amount: format("%.2f", BigDecimal(remaining_amount_minor.to_s) / 100),
+        refundable: payment.provider == "shopier" && payment.refundable?,
         currency: payment.currency,
         provider_payment_id: payment.provider_payment_id,
         failure_message: payment.failure_message,
         created_at: payment.created_at&.iso8601,
         completed_at: payment.completed_at&.iso8601,
+        refunded_at: payment.refunded_at&.iso8601,
+        refunds:
+          payment.refunds.sort_by(&:created_at).reverse.map do |refund|
+            {
+              id: refund.id,
+              provider_refund_id: refund.provider_refund_id,
+              status: refund.status,
+              source: refund.source,
+              amount_minor: refund.amount_minor,
+              amount: format("%.2f", BigDecimal(refund.amount_minor.to_s) / 100),
+              orb_amount: refund.orb_amount,
+              completed_at: refund.completed_at&.iso8601,
+            }
+          end,
       }
     end
 
@@ -368,6 +426,7 @@ module ::DiscourseCosmeticsStore
         },
         wallet: {
           balance: wallet.balance,
+          debt: wallet.debt,
           lifetime_earned: wallet.lifetime_earned,
           lifetime_spent: wallet.lifetime_spent,
           ledger:
@@ -378,9 +437,11 @@ module ::DiscourseCosmeticsStore
               .map do |entry|
                 {
                   id: entry.id,
-                  amount: entry.amount,
-                  credit: entry.amount.positive?,
+                  amount: entry.gross_amount,
+                  credit: entry.gross_amount.positive?,
                   balance_after: entry.balance_after,
+                  debt_delta: entry.debt_delta,
+                  debt_after: entry.debt_after,
                   entry_type: entry.entry_type,
                   reason: entry.reason,
                   created_at: entry.created_at&.iso8601,
@@ -400,6 +461,21 @@ module ::DiscourseCosmeticsStore
         "badges_earned" => "Kazanılan rozet",
         "account_age_days" => "Hesap yaşı (gün)",
       }.fetch(metric, metric)
+    end
+
+    def decimal_to_minor(value)
+      decimal = BigDecimal(value.to_s.tr(",", "."))
+      raise ArgumentError unless decimal.finite?
+
+      minor = decimal * 100
+      raise ArgumentError unless minor == minor.to_i
+
+      amount = minor.to_i
+      raise ArgumentError unless amount.positive?
+
+      amount
+    rescue ArgumentError, TypeError
+      raise PaymentRefundService::Invalid, "Geçerli bir iade tutarı girin"
     end
 
     def find_user!(username)

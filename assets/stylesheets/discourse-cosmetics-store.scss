@@ -1249,6 +1249,31 @@
   }
 }
 
+.cstore-refund-debt {
+  display: grid;
+  max-width: 680px;
+  gap: 3px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid rgb(237 66 69 / 35%);
+  border-radius: 10px;
+  background: rgb(237 66 69 / 10%);
+
+  strong {
+    color: #ff8587;
+  }
+
+  span {
+    color: var(--cstore-muted);
+    font-size: 12px;
+  }
+}
+
+.cstore-orb-balance small.is-debt,
+.cstore-wallet-stats .is-debt strong {
+  color: #ff8587;
+}
+
 .cstore-mission-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
@@ -2244,6 +2269,15 @@
   .is-off {
     color: var(--primary-medium, #aaa);
   }
+
+  .is-payment-completed {
+    color: #58d68d;
+  }
+
+  .is-payment-partially_refunded,
+  .is-payment-refunded {
+    color: #ffb86b;
+  }
 }
 
 .cstore-admin-missions {
@@ -2417,6 +2451,25 @@
   }
 }
 
+.cstore-wallet-card__debt {
+  display: grid;
+  gap: 2px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgb(237 66 69 / 35%);
+  border-radius: 8px;
+  background: rgb(237 66 69 / 10%);
+
+  strong {
+    color: #ff8587;
+  }
+
+  span {
+    color: var(--primary-medium, #aaa);
+    font-size: 11px;
+  }
+}
+
 .cstore-cash-packages,
 .cstore-payment-history {
   margin-top: 28px;
@@ -2581,6 +2634,18 @@
 
     .is-completed {
       color: #58d68d;
+    }
+
+    .is-partially_refunded,
+    .is-refunded {
+      color: #ffb86b;
+    }
+
+    strong small {
+      display: inline-block;
+      margin-left: 6px;
+      color: #ffb86b;
+      font-size: 10px;
     }
   }
 }
@@ -2772,6 +2837,16 @@
   }
 }
 
+.cstore-provider-status__refund {
+  margin: 8px 0 0;
+  color: #ffb86b;
+  font-size: 10px;
+
+  &.is-automatic {
+    color: #58d68d;
+  }
+}
+
 .cstore-admin-provider-flags {
   display: flex;
   flex-wrap: wrap;
@@ -2794,6 +2869,40 @@
 
 .cstore-admin-payments__history {
   margin-top: 24px;
+}
+
+.cstore-refund-form {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid rgb(237 66 69 / 38%);
+  border-radius: 12px;
+  background: var(--primary-very-low, #1d1e22);
+}
+
+.cstore-refund-form__warning {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 14px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  background: rgb(237 66 69 / 11%);
+
+  strong {
+    color: #ff8587;
+  }
+
+  span {
+    color: var(--primary-medium, #aaa);
+    font-size: 11px;
+  }
+}
+
+.cstore-refund-form__confirm {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+  color: var(--primary-medium, #aaa);
+  font-size: 12px;
 }
 
 @media (max-width: 1100px) {
