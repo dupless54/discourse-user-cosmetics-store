@@ -16,8 +16,18 @@ class UseBigintForCosmeticsStoreReferences < ActiveRecord::Migration[7.1]
   }.freeze
 
   def up
+    change_column_types(:bigint)
+  end
+
+  def down
+    change_column_types(:integer)
+  end
+
+  private
+
+  def change_column_types(type)
     COLUMNS.each do |table, columns|
-      columns.each { |column| change_column table, column, :bigint }
+      columns.each { |column| change_column table, column, type }
     end
   end
 end
