@@ -43,15 +43,14 @@ module ::DiscourseCosmeticsStore
     end
 
     def self.find_or_create_event!(provider, external_id, digest, payment)
-      PaymentEvent.create!(
+      PaymentEvent.create_or_find_by!(
         provider: provider,
         external_id: external_id,
-        payment_id: payment&.id,
-        payload_digest: digest,
-        status: "received",
-      )
-    rescue ActiveRecord::RecordNotUnique
-      PaymentEvent.find_by!(provider: provider, external_id: external_id)
+      ) do |event|
+        event.payment_id = payment&.id
+        event.payload_digest = digest
+        event.status = "received"
+      end
     end
     private_class_method :find_or_create_event!
   end
