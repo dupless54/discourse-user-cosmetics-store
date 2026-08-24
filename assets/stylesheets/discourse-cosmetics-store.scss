@@ -140,7 +140,8 @@
   }
 
   &:hover .cstore-nav__dropdown,
-  &:focus-within .cstore-nav__dropdown {
+  &:focus-within .cstore-nav__dropdown,
+  &.is-open .cstore-nav__dropdown {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
@@ -2745,20 +2746,26 @@
 
 @media (max-width: 800px) {
   .cstore-nav {
-    overflow-x: auto;
+    flex-wrap: wrap;
+    overflow: visible;
     gap: 8px;
     padding: 7px 10px;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
 
     nav {
       order: 3;
-      min-width: max-content;
-      flex-basis: 100%;
+      min-width: 0;
+      height: auto;
+      flex: 1 0 100%;
+      flex-wrap: wrap;
+      overflow: visible;
     }
+  }
+
+  .cstore-nav__dropdown {
+    width: min(260px, calc(100vw - 20px));
+    max-height: calc(100dvh - var(--header-offset, 0px) - 110px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .cstore-nav__brand strong,
@@ -2864,7 +2871,8 @@
   }
 
   .cstore-nav nav {
-    height: 38px;
+    min-height: 38px;
+    height: auto;
 
     button.is-active::after {
       bottom: -7px;

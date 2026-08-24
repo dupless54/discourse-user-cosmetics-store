@@ -54,6 +54,7 @@ export default class CosmeticsStore extends Component {
   @tracked sortBy = "popular";
   @tracked onlyAffordable = false;
   @tracked onlyOwned = false;
+  @tracked browseMenuOpen = false;
 
   get settings() {
     return this.args.model?.settings ?? {};
@@ -241,6 +242,8 @@ export default class CosmeticsStore extends Component {
   @action
   navigateTo(tab, value) {
     this.notice = null;
+    this.browseMenuOpen = false;
+    const routeValue = typeof value === "string" ? value.trim() : "";
     const routes = {
       featured: "cosmetics-store",
       browse: "cosmetics-store-browse",
@@ -249,13 +252,18 @@ export default class CosmeticsStore extends Component {
       collections: "cosmetics-store-collections",
     };
 
-    if (tab === "browse" && value) {
-      this.router.transitionTo("cosmetics-store-browse-category", value);
-    } else if (tab === "collection" && value) {
-      this.router.transitionTo("cosmetics-store-collection", value);
+    if (tab === "browse" && routeValue) {
+      this.router.transitionTo("cosmetics-store-browse-category", routeValue);
+    } else if (tab === "collection" && routeValue) {
+      this.router.transitionTo("cosmetics-store-collection", routeValue);
     } else {
       this.router.transitionTo(routes[tab] || routes.featured);
     }
+  }
+
+  @action
+  toggleBrowseMenu() {
+    this.browseMenuOpen = !this.browseMenuOpen;
   }
 
   @action
@@ -449,8 +457,8 @@ export default class CosmeticsStore extends Component {
         </button>
         <nav aria-label="Mağaza bölümleri">
           <button class={{if (eq this.activeTab "featured") "is-active"}} type="button" {{on "click" (fn this.navigateTo "featured")}}>Öne Çıkanlar</button>
-          <div class="cstore-nav__browse-menu">
-            <button class={{if (eq this.activeTab "browse") "is-active"}} type="button" aria-haspopup="true" {{on "click" (fn this.navigateTo "browse")}}>Göz At <span>⌄</span></button>
+          <div class="cstore-nav__browse-menu {{if this.browseMenuOpen 'is-open'}}">
+            <button class={{if (eq this.activeTab "browse") "is-active"}} type="button" aria-haspopup="true" aria-expanded={{this.browseMenuOpen}} {{on "click" this.toggleBrowseMenu}}>Göz At <span>⌄</span></button>
             <div class="cstore-nav__dropdown" role="menu">
               <button type="button" {{on "click" (fn this.navigateTo "browse")}}>Tümüne göz at</button>
               <button type="button" {{on "click" (fn this.navigateTo "browse" "avatar-frames")}}>Avatar çerçeveleri</button>
