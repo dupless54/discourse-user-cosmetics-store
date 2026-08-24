@@ -49,7 +49,7 @@ export default class CosmeticsStoreOrbPurchases extends Component {
   @action
   open(packageRow) {
     if (!this.args.viewer?.logged_in) {
-      window.location.assign("/login?return_path=%2Fstore");
+      window.location.assign("/login?return_path=%2Fstore%2Forbs");
       return;
     }
     this.selectedPackage = packageRow;
@@ -97,12 +97,12 @@ export default class CosmeticsStoreOrbPurchases extends Component {
   }
 
   <template>
-    {{#if this.packages.length}}
-      <section class="cstore-cash-packages">
-        <div class="cstore-section__heading">
-          <div><p class="cstore-eyebrow">GÜVENLİ ÖDEME</p><h2>{{@settings.currency_name}} yükle</h2></div>
-          <p>Kart bilgilerin forum sunucusuna gönderilmez; ödeme seçtiğin sağlayıcının güvenli sayfasında tamamlanır.</p>
-        </div>
+    <section id="orb-yukle" class="cstore-cash-packages" tabindex="-1">
+      <div class="cstore-section__heading">
+        <div><p class="cstore-eyebrow">GÜVENLİ ÖDEME</p><h2>{{@settings.currency_name}} yükle</h2></div>
+        <p>Kart bilgilerin forum sunucusuna gönderilmez; ödeme seçtiğin sağlayıcının güvenli sayfasında tamamlanır.</p>
+      </div>
+      {{#if this.packages.length}}
         <div class="cstore-cash-packages__grid">
           {{#each this.packages as |packageRow|}}
             <article class={{if packageRow.featured "is-featured"}}>
@@ -116,8 +116,20 @@ export default class CosmeticsStoreOrbPurchases extends Component {
             </article>
           {{/each}}
         </div>
-      </section>
-    {{/if}}
+      {{else}}
+        <div class="cstore-cash-packages__empty" role="status">
+          <span aria-hidden="true">{{@settings.currency_symbol}}</span>
+          <div>
+            <strong>Orb yükleme şu anda kapalı</strong>
+            {{#if @viewer.is_admin}}
+              <p>Ödeme ayarlarından Shopier'i etkinleştirip Ödemeler sekmesinde en az bir Orb paketini yayına alın.</p>
+            {{else}}
+              <p>Şu anda satın alınabilir aktif bir Orb paketi bulunmuyor. Paketler açıldığında burada görünecek.</p>
+            {{/if}}
+          </div>
+        </div>
+      {{/if}}
+    </section>
 
     {{#if @payments.length}}
       <section class="cstore-payment-history">

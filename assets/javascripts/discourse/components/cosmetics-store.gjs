@@ -576,7 +576,7 @@ export default class CosmeticsStore extends Component {
         </main>
       {{else if (eq this.activeTab "orbs")}}
         <main class="cstore-orbs">
-          <section class="cstore-orbs__hero"><div><p class="cstore-eyebrow">TOPLULUK ÖDÜLLERİ</p><h1>Katıl, katkı sağla, Orbs kazan.</h1><p>Görevlerin ilerlemesi sunucuda doğrulanır. Kazandığın Orbs yalnızca bu mağazada kullanılır.</p></div><div class="cstore-orb-balance"><span>{{this.settings.currency_symbol}}</span><strong>{{this.wallet.balance}}</strong><small>mevcut {{this.settings.currency_name}}</small></div></section>
+          <section class="cstore-orbs__hero"><div><p class="cstore-eyebrow">TOPLULUK ÖDÜLLERİ</p><h1>Katıl, katkı sağla, Orbs kazan.</h1><p>Görevlerin ilerlemesi sunucuda doğrulanır. Kazandığın Orbs yalnızca bu mağazada kullanılır.</p></div><div class="cstore-orb-balance"><span>{{this.settings.currency_symbol}}</span><strong>{{this.wallet.balance}}</strong><small>mevcut {{this.settings.currency_name}}</small><a class="cstore-orb-balance__topup" href="#orb-yukle">+ Orb Yükle</a></div></section>
           <CosmeticsStoreOrbPurchases @packages={{this.orbPackages}} @providers={{this.paymentProviders}} @payments={{this.payments}} @settings={{this.settings}} @viewer={{this.viewer}} />
           {{#if this.viewer.logged_in}}
             <section class="cstore-mission-layout">
