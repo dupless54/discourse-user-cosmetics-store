@@ -133,6 +133,9 @@ end
 #  available_from         :datetime
 #  available_until        :datetime
 #  card_image_url         :string(1000)
+#  collection_image_url   :string(1000)
+#  collection_name        :string(120)
+#  collection_slug        :string(140)
 #  description            :text
 #  editor_pick            :boolean          default(FALSE), not null
 #  enabled                :boolean          default(TRUE), not null
@@ -155,7 +158,8 @@ end
 #
 # Indexes
 #
-#  idx_dcs_products_catalog  (enabled,featured,editor_pick,sort_order)
-#  idx_dcs_products_slug     (slug) UNIQUE
-#  idx_dcs_products_tags     (tags) USING gin
+#  idx_dcs_products_catalog     (enabled,featured,editor_pick,sort_order)
+#  idx_dcs_products_collection  (collection_slug,enabled,sort_order)
+#  idx_dcs_products_slug        (slug) UNIQUE
+#  idx_dcs_products_tags        (tags) USING gin
 #
