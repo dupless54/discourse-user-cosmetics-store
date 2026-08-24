@@ -154,7 +154,7 @@ end
 #  tags                   :jsonb            not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
-#  created_by_id          :integer
+#  created_by_id          :bigint
 #
 # Indexes
 #

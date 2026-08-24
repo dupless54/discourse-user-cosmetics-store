@@ -34,9 +34,9 @@ end
 #  status          :string(20)       default("completed"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  product_id      :integer          not null
-#  recipient_id    :integer          not null
-#  sender_id       :integer          not null
+#  product_id      :bigint           not null
+#  recipient_id    :bigint           not null
+#  sender_id       :bigint           not null
 #
 # Indexes
 #

@@ -30,7 +30,7 @@ end
 #  lifetime_spent  :bigint           default(0), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  user_id         :integer          not null
+#  user_id         :bigint           not null
 #
 # Indexes
 #

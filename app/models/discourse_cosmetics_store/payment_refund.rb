@@ -63,8 +63,8 @@ end
 #  status             :string(24)       default("requested"), not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
-#  created_by_id      :integer
-#  payment_id         :integer          not null
+#  created_by_id      :bigint
+#  payment_id         :bigint           not null
 #  provider_refund_id :string(190)      not null
 #
 # Indexes

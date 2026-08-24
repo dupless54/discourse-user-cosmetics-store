@@ -30,7 +30,7 @@ end
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  external_id    :string(190)      not null
-#  payment_id     :integer
+#  payment_id     :bigint
 #
 # Indexes
 #

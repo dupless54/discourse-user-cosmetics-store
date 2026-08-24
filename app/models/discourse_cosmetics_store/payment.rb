@@ -87,9 +87,9 @@ end
 #  token                 :string(64)       not null
 #  created_at            :datetime         not null
 #  updated_at            :datetime         not null
-#  orb_package_id        :integer          not null
+#  orb_package_id        :bigint           not null
 #  provider_payment_id   :string(190)
-#  user_id               :integer          not null
+#  user_id               :bigint           not null
 #
 # Indexes
 #

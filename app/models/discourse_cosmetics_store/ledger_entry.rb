@@ -40,10 +40,10 @@ end
 #  reference_type  :string(60)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  created_by_id   :integer
-#  reference_id    :integer
-#  user_id         :integer          not null
-#  wallet_id       :integer          not null
+#  created_by_id   :bigint
+#  reference_id    :bigint
+#  user_id         :bigint           not null
+#  wallet_id       :bigint           not null
 #
 # Indexes
 #

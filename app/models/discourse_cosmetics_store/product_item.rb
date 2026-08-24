@@ -23,8 +23,8 @@ end
 #  position         :integer          default(0), not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
-#  cosmetic_item_id :integer          not null
-#  product_id       :integer          not null
+#  cosmetic_item_id :bigint           not null
+#  product_id       :bigint           not null
 #
 # Indexes
 #
