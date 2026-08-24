@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.0.4
+# version: 1.0.5
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0

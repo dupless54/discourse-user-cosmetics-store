@@ -99,7 +99,12 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.4`
+`1.0.5`
+
+### 1.0.5
+
+- Yönetim bileşeni Discourse admin asset namespace'ine uygun olarak `admin/assets/javascripts/admin/components/` dizinine taşındı.
+- `.gjs` şablonundaki `CosmeticsStoreAdminPage` importunun `undefined.default` hatası giderildi.
 
 ### 1.0.4
 
