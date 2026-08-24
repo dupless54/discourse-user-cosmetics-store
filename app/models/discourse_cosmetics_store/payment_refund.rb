@@ -55,15 +55,20 @@ end
 #  id                 :bigint           not null, primary key
 #  amount_minor       :bigint           not null
 #  completed_at       :datetime
-#  created_by_id      :integer
 #  currency           :string(3)        not null
 #  metadata           :jsonb            not null
 #  orb_amount         :bigint           default(0), not null
-#  payment_id         :integer          not null
 #  provider           :string(24)       not null
-#  provider_refund_id :string(190)      not null
 #  source             :string(24)       default("webhook"), not null
 #  status             :string(24)       default("requested"), not null
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
+#  created_by_id      :integer
+#  payment_id         :integer          not null
+#  provider_refund_id :string(190)      not null
+#
+# Indexes
+#
+#  idx_dcs_payment_refunds_payment            (payment_id,created_at)
+#  idx_dcs_payment_refunds_provider_external  (provider,provider_refund_id) UNIQUE
 #
