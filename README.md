@@ -155,7 +155,13 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.2.1`
+`1.2.2`
+
+### 1.2.2
+
+- `/store/orbs` bakiye kartına doğrudan **Orb Yükle** düğmesi eklendi.
+- Satış yapılandırılmamış olsa bile Orb yükleme alanının görünmesi ve yöneticiye gerekli yapılandırma adımlarını göstermesi sağlandı.
+- Orb paketi seçerken giriş yapan kullanıcıların `/store/orbs` sayfasına geri dönmesi sağlandı.
 
 ### 1.2.1
 
