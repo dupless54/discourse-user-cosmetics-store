@@ -99,7 +99,13 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.3`
+`1.0.4`
+
+### 1.0.4
+
+- Yönetim katalog şablonu deprecated `.hbs` yerine `.gjs` ve `RouteTemplate` yapısına geçirildi.
+- Katalog route dosyası Ember'ın yeni resolver normalizasyonuna uygun olarak `routes/admin-plugins/show/` klasör hiyerarşisine taşındı.
+- `discourse.hbs-extension` ve `discourse.deprecated-resolver-normalization` yönetici uyarıları kaldırıldı.
 
 ### 1.0.3
 
