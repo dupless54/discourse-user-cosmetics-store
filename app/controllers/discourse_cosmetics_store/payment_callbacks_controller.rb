@@ -64,7 +64,7 @@ module ::DiscourseCosmeticsStore
 
     def handle_stripe(raw)
       event = PaymentProviders::Stripe.verify_webhook!(raw, request.headers["Stripe-Signature"])
-      return unless %w[checkout.session.completed checkout.session.async_payment_succeeded].include?(event["type"])
+      return if %w[checkout.session.completed checkout.session.async_payment_succeeded].exclude?(event["type"])
 
       session = event.dig("data", "object") || {}
       token = session["client_reference_id"].presence || session.dig("metadata", "store_payment_token")
@@ -111,7 +111,7 @@ module ::DiscourseCosmeticsStore
       payload = PaymentProviders::Shopier.verify_webhook!(raw, request.headers["Shopier-Signature"])
       order = payload["data"] || payload["order"] || payload
       status = (order["paymentStatus"] || order["payment_status"] || order["status"]).to_s.downcase
-      return unless %w[paid completed success].include?(status)
+      return if %w[paid completed success].exclude?(status)
 
       order_id = (order["id"] || order["orderId"] || order["order_id"]).to_s
       raise PaymentProviders::VerificationError, "Shopier sipariş kimliği eksik" if order_id.blank?

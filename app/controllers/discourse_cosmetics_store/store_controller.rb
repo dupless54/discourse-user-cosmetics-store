@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "set"
-
 module ::DiscourseCosmeticsStore
   class StoreController < ::ApplicationController
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
