@@ -82,7 +82,7 @@ module ::DiscourseCosmeticsStore
       raise Invalid, "İade tutarı geçersiz" unless @amount_minor.positive?
       raise Invalid, "İade tutarı ödeme tutarını aşamaz" if @amount_minor > payment.amount_minor.to_i
       raise Invalid, "İade para birimi eşleşmiyor" unless @currency == payment.currency
-      raise Invalid, "İade kaynağı geçersiz" unless PaymentRefund::SOURCES.include?(@source)
+      raise Invalid, "İade kaynağı geçersiz" if PaymentRefund::SOURCES.exclude?(@source)
     end
 
     def find_or_initialize_refund
