@@ -10,7 +10,7 @@ module ::DiscourseCosmeticsStore
                inverse_of: :events
 
     validates :provider, inclusion: { in: OrbPackage::PROVIDERS }
-    validates :external_id, presence: true, uniqueness: { scope: :provider }, length: { maximum: 190 }
+    validates :external_id, presence: true, length: { maximum: 190 }
     validates :payload_digest, presence: true, format: { with: /\A[0-9a-f]{64}\z/ }
     validates :status, inclusion: { in: %w[received processing completed ignored failed] }
     validates :error_message, length: { maximum: 500 }, allow_blank: true
@@ -30,7 +30,7 @@ end
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  external_id    :string(190)      not null
-#  payment_id     :integer
+#  payment_id     :bigint
 #
 # Indexes
 #

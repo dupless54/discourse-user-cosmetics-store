@@ -62,3 +62,4 @@ tr:
       favorite_added: "Ürün favorilerine eklendi."
       favorite_removed: "Ürün favorilerinden çıkarıldı."
       wallet_adjusted: "Kullanıcı bakiyesi güncellendi."
+      refund_recorded: "Shopier iadesi kaydedildi ve ilgili Orb tutarı geri alındı."

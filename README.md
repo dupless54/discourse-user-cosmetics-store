@@ -23,6 +23,7 @@ Bu eklenti kozmetik verilerini kopyalamaz. Ürün ve paketleri mevcut kozmetik k
 - Profil efektleri ve çok öğeli paketler için ayrı vitrin bölümleri ve katmanlı önizleme
 - Satın alınan ürünlerin mevcut kozmetik seçicisine otomatik açılması
 - Stripe, PayPal, PayTR, iyzico, Shopier ve Shipy ile isteğe bağlı gerçek para karşılığı Orb yükleme
+- Shopier tam/kısmi iadelerinde idempotent Orb geri alımı ve harcanmış bakiye için iade borcu
 - Ürün, görev, Orb paketi, ödeme geçmişi ve kullanıcı cüzdanı için yönetim ekranı
 - Eşzamanlı satın alma, çift tıklama ve çift görev talebine karşı satır kilidi + idempotency
 
@@ -133,9 +134,19 @@ Shopier dinamik checkout oturumu yerine mağazanızda oluşturduğunuz ürün ba
 
 Shopier'in eski Otomatik Sipariş Bildirimi (OSB) ekranını kullanmak için `discourse_cosmetics_store_shopier_osb_username` ve `discourse_cosmetics_store_shopier_osb_password` gizli ayarlarını doldurun. Shopier'deki Bildirim URL alanına `https://FORUM-ADRESINIZ/cosmetics-store/callbacks/shopier-osb` yazın. OSB adaptörü `hash_hmac('sha256', res + username, password)` özetini sabit zamanlı karşılaştırmayla doğrular, Base64 JSON içeriğini boyut sınırlamasıyla ayrıştırır ve test bildirimlerinde Orb yüklemeden tam olarak `success` döndürür. Canlı bildirimlerde `orderid`, ürün kimliği, doğrulanmış birincil e-posta, tutar ve para birimi eşleşmeden cüzdana yazılmaz. Aynı sipariş kimliğinin yeniden gönderilmesi ikinci kez Orb yüklemez.
 
-Modern Shopier webhook kullanılıyorsa OSB kimlik bilgileri yerine `discourse_cosmetics_store_shopier_webhook_token` ayarlanır ve `/cosmetics-store/webhooks/shopier` adresi kullanılır. İki yöntem aynı anda yapılandırılabilir; tek bir yöntemin eksiksiz yapılandırılması Shopier sağlayıcısını hazır duruma getirir. Shipy sağlayıcı sözleşmeleri mağaza hesabına göre değişebildiğinden canlı moda geçmeden önce güncel API v2 callback alanlarını test hesabınızla doğrulayın.
+Modern Shopier webhook kullanılıyorsa OSB kimlik bilgileri yerine `discourse_cosmetics_store_shopier_webhook_token` ayarlanır ve `/cosmetics-store/webhooks/shopier` adresi kullanılır. Shopier uygulamasında aynı URL için `order.created`, `refund.requested` ve `refund.updated` olaylarına abonelik oluşturun. İki yöntem aynı anda yapılandırılabilir; tek bir yöntemin eksiksiz yapılandırılması Shopier sağlayıcısını hazır duruma getirir. Shipy sağlayıcı sözleşmeleri mağaza hesabına göre değişebildiğinden canlı moda geçmeden önce güncel API v2 callback alanlarını test hesabınızla doğrulayın.
 
-Ödeme sağlayıcı panelinde canlı moda geçmeden önce en az şu senaryoları test edin: başarılı ödeme, başarısız ödeme, kullanıcı dönüş sayfasını kapatma, callback tekrarı, yanlış tutar/para birimi ve zaman aşımı. Geri ödeme/chargeback süreçlerini ayrıca işletme politikanıza bağlayın; eklenti otomatik iade kararı vermez.
+### Shopier iadeleri
+
+Eklenti Shopier'de para iadesi başlatmaz. Para iadesi önce Shopier panelinde yapılır; eklenti doğrulanmış sonucu cüzdanla mutabık hâle getirir:
+
+- Modern webhook yapılandırmasında `refund.requested` yalnız izleme kaydı açar. `refund.updated` durumu `succeeded` olduğunda tam veya kısmi tutara karşılık gelen Orb miktarı otomatik geri alınır.
+- Legacy OSB yalnız sipariş bildirimi gönderdiği için otomatik iade olayı yoktur. Yönetimde **Ödemeler → İade işle** ile, Shopier'de başarıyla tamamlanmış iadenin tutarı ve benzersiz iade referansı manuel kaydedilir.
+- Kısmi iadede geri alınacak Orb miktarı, ödemenin toplam tutarına orantılı ve kümülatif hesaplanır. Son tam iade, yuvarlama farkı bırakmadan satın alınan Orb miktarının tamamını geri alır.
+- Kullanıcı Orb'ları harcamışsa bakiye eksiye düşmez. Mevcut bakiye sıfıra kadar alınır, eksik bölüm **iade borcu** olur ve sonraki satın alma/görev kredileri önce bu borcu kapatır.
+- Sağlayıcı iade kimliği ve cüzdan idempotency anahtarı aynı bildirimin veya yönetici işleminin ikinci kez Orb düşmesini engeller.
+
+Ödeme sağlayıcı panelinde canlı moda geçmeden önce en az şu senaryoları test edin: başarılı ödeme, başarısız ödeme, kullanıcı dönüş sayfasını kapatma, callback tekrarı, yanlış tutar/para birimi, tam iade, kısmi iade ve zaman aşımı. Chargeback süreçlerini ayrıca işletme politikanıza bağlayın; eklenti yalnız Shopier'in doğruladığı iade sonucunu veya yöneticinin açıkça onayladığı mutabakatı işler.
 
 ## Önemli ayarlar
 
@@ -155,7 +166,14 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.2.2`
+`1.3.0`
+
+### 1.3.0
+
+- Modern Shopier `refund.requested` ve `refund.updated` webhook olayları için imza doğrulamalı, idempotent tam/kısmi iade mutabakatı eklendi.
+- Legacy OSB kullanan mağazalar için yönetim ödeme geçmişine, yalnız Shopier'de gerçekleşmiş iadeyi işleyen güvenlik onaylı manuel iade ekranı eklendi.
+- Harcanmış Orb'ların iadesinde negatif bakiye yerine iade borcu oluşturulması ve sonraki kredilerin önce bu borcu kapatması sağlandı.
+- Kullanıcı ve yönetici cüzdanlarında iade borcu; ödeme geçmişinde iade tutarı, geri alınan Orb ve iade referansları görünür hâle getirildi.
 
 ### 1.2.2
 

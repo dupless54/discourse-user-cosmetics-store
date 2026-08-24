@@ -62,3 +62,4 @@ en:
       favorite_added: "Product added to favorites."
       favorite_removed: "Product removed from favorites."
       wallet_adjusted: "The user balance was updated."
+      refund_recorded: "The Shopier refund was recorded and the related Orbs were reversed."

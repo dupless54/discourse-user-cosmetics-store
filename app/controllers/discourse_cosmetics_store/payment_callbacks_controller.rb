@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
+require "digest"
+
 module ::DiscourseCosmeticsStore
   class PaymentCallbacksController < ::ApplicationController
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
 
     skip_before_action :verify_authenticity_token
-    before_action :ensure_payments_enabled, unless: :shopier_osb_callback?
+    before_action :ensure_payments_enabled, unless: :shopier_callback?
 
     MAX_WEBHOOK_BYTES = 256.kilobytes
+    SHOPIER_REFUND_EVENTS = %w[refund.requested refund.updated].freeze
 
     def webhook
       provider = params[:provider].to_s
@@ -19,7 +22,8 @@ module ::DiscourseCosmeticsStore
       else raise Discourse::NotFound
       end
       head :ok
-    rescue PaymentProviders::VerificationError
+    rescue PaymentProviders::VerificationError => error
+      log_failure(provider, error)
       head :unauthorized
     rescue StandardError => error
       log_failure(provider, error)
@@ -44,7 +48,8 @@ module ::DiscourseCosmeticsStore
       else
         raise Discourse::NotFound
       end
-    rescue PaymentProviders::VerificationError
+    rescue PaymentProviders::VerificationError => error
+      log_failure(provider, error)
       head :unauthorized
     rescue StandardError => error
       log_failure(provider, error)
@@ -57,8 +62,9 @@ module ::DiscourseCosmeticsStore
       raise Discourse::NotFound unless SiteSetting.discourse_cosmetics_store_payments_enabled
     end
 
-    def shopier_osb_callback?
-      action_name == "callback" && params[:provider].to_s == "shopier-osb"
+    def shopier_callback?
+      (action_name == "callback" && params[:provider].to_s == "shopier-osb") ||
+        (action_name == "webhook" && params[:provider].to_s == "shopier")
     end
 
     def raw_body!
@@ -116,6 +122,18 @@ module ::DiscourseCosmeticsStore
 
     def handle_shopier(raw)
       payload = PaymentProviders::Shopier.verify_webhook!(raw, request.headers["Shopier-Signature"])
+      event_type = shopier_event_type(payload)
+      if SHOPIER_REFUND_EVENTS.include?(event_type) || shopier_refund_payload?(payload)
+        refund_event = SHOPIER_REFUND_EVENTS.include?(event_type) ? event_type : "refund.updated"
+        return handle_shopier_refund(payload, raw, refund_event)
+      end
+      return if event_type.present? && !event_type.start_with?("order.")
+
+      unless SiteSetting.discourse_cosmetics_store_payments_enabled &&
+               SiteSetting.discourse_cosmetics_store_shopier_enabled
+        raise PaymentProviders::ConfigurationError, "Shopier canlı ödemeleri kapalı"
+      end
+
       order = payload["data"] || payload["order"] || payload
       status = (order["paymentStatus"] || order["payment_status"] || order["status"]).to_s.downcase
       return if %w[paid completed success].exclude?(status)
@@ -138,6 +156,83 @@ module ::DiscourseCosmeticsStore
       payment = find_shopier_payment!(email, package, amount_minor, currency, order_id)
 
       complete_shopier_payment!(payment, order_id, amount_minor, currency, raw)
+    end
+
+    def handle_shopier_refund(payload, raw, event_type)
+      refund = payload["data"] || payload["refund"] || payload
+      unless refund.is_a?(Hash)
+        raise PaymentProviders::VerificationError, "Shopier iade bildirimi geçersiz"
+      end
+      refund = refund["refund"] if refund["refund"].is_a?(Hash)
+
+      refund_order = refund["order"].is_a?(Hash) ? refund["order"] : {}
+
+      refund_id =
+        first_present(
+          refund["id"],
+          refund["refundId"],
+          refund["refund_id"],
+          payload["refundId"],
+          payload["refund_id"],
+        ).to_s
+      order_id =
+        first_present(
+          refund["orderId"],
+          refund["order_id"],
+          refund_order["id"],
+          refund_order["orderId"],
+          refund_order["order_id"],
+          payload["orderId"],
+          payload["order_id"],
+        ).to_s
+      raise PaymentProviders::VerificationError, "Shopier iade kimliği eksik" if refund_id.blank?
+      raise PaymentProviders::VerificationError, "Shopier iade sipariş kimliği eksik" if order_id.blank?
+
+      payment = Payment.find_by!(provider: "shopier", provider_payment_id: order_id)
+      amount_minor, currency = shopier_refund_amount(refund, payload)
+      status =
+        first_present(
+          refund["status"],
+          refund["refundStatus"],
+          refund["refund_status"],
+          payload["status"],
+        )
+      status = event_type == "refund.requested" ? "requested" : status
+      raise PaymentProviders::VerificationError, "Shopier iade durumu eksik" if status.blank?
+
+      delivery_id =
+        first_present(
+          request.headers["Shopier-Webhook-Id"],
+          payload["webhookId"],
+          payload["webhook_id"],
+          payload["eventId"],
+          payload["event_id"],
+        )
+      event_digest = Digest::SHA256.hexdigest("#{refund_id}:#{status}:#{raw}")
+      event_id = "refund:#{event_digest}"
+
+      PaymentEventService.process!(
+        provider: "shopier",
+        external_id: event_id,
+        raw_body: raw,
+        payment: payment,
+      ) do
+        PaymentRefundService.record!(
+          payment: payment,
+          provider_refund_id: refund_id,
+          amount_minor: amount_minor,
+          currency: currency,
+          status: status,
+          source: "webhook",
+          metadata: {
+            "event_type" => event_type,
+            "order_id" => order_id,
+            "refund_id" => refund_id,
+            "status" => status.to_s,
+            "webhook_id" => delivery_id.to_s,
+          },
+        )
+      end
     end
 
     def handle_shopier_osb
@@ -227,9 +322,92 @@ module ::DiscourseCosmeticsStore
     end
 
     def decimal_to_minor(value)
-      (BigDecimal(value.to_s.tr(",", ".")) * 100).round(0).to_i
-    rescue ArgumentError
+      decimal = BigDecimal(value.to_s.tr(",", "."))
+      raise ArgumentError unless decimal.finite?
+
+      minor = decimal * 100
+      raise ArgumentError unless minor == minor.to_i
+
+      minor.to_i
+    rescue ArgumentError, TypeError
       raise PaymentProviders::VerificationError, "Ödeme tutarı geçersiz"
+    end
+
+    def shopier_event_type(payload)
+      value =
+        first_present(
+          request.headers["Shopier-Event"],
+          request.headers["X-Shopier-Event"],
+          payload["eventType"],
+          payload["event_type"],
+          payload["eventName"],
+          payload["event_name"],
+          payload["event"].is_a?(Hash) ? payload.dig("event", "type") : payload["event"],
+          payload["type"],
+        )
+      value.to_s.strip.downcase
+    end
+
+    def shopier_refund_amount(refund, payload)
+      minor_value =
+        first_present(
+          refund["amountMinor"],
+          refund["amount_minor"],
+          refund["refundAmountMinor"],
+          refund["refund_amount_minor"],
+        )
+      amount_value =
+        first_present(
+          refund["amount"],
+          refund["refundAmount"],
+          refund["refund_amount"],
+          refund["total"],
+          payload["amount"],
+        )
+
+      currency =
+        first_present(
+          refund["currency"],
+          amount_value.is_a?(Hash) ?
+            first_present(
+              amount_value["currency"],
+              amount_value["currencyCode"],
+              amount_value["currency_code"],
+            ) :
+            nil,
+          payload["currency"],
+        ).to_s.upcase
+      currency = "TRY" if currency == "TL"
+      raise PaymentProviders::VerificationError, "Shopier iade para birimi eksik" if currency.blank?
+
+      amount_minor =
+        if minor_value.present?
+          Integer(minor_value.to_s, 10)
+        else
+          decimal_value =
+            amount_value.is_a?(Hash) ?
+              first_present(amount_value["value"], amount_value["amount"], amount_value["total"]) :
+              amount_value
+          decimal_to_minor(decimal_value)
+        end
+      raise PaymentProviders::VerificationError, "Shopier iade tutarı geçersiz" unless amount_minor.positive?
+
+      [amount_minor, currency]
+    rescue ArgumentError, TypeError
+      raise PaymentProviders::VerificationError, "Shopier iade tutarı geçersiz"
+    end
+
+    def shopier_refund_payload?(payload)
+      candidate = payload["data"] || payload["refund"] || payload
+      return false unless candidate.is_a?(Hash)
+
+      candidate = candidate["refund"] if candidate["refund"].is_a?(Hash)
+      refund_type = first_present(candidate["type"], candidate["refundType"], candidate["refund_type"])
+      %w[full partial].include?(refund_type.to_s.downcase)
+    end
+
+    def first_present(*values)
+      values.find(&:present?)
     end
 
     def find_shopier_package!(product_ids)

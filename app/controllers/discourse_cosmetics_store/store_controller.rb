@@ -116,6 +116,7 @@ module ::DiscourseCosmeticsStore
       render json: {
                product_id: service.product.id,
                balance: service.wallet.balance,
+               debt: service.wallet.debt,
                recipient: {
                  id: service.recipient.id,
                  username: service.recipient.username,
@@ -145,6 +146,7 @@ module ::DiscourseCosmeticsStore
       render json: {
                product_id: service.product.id,
                balance: service.wallet.balance,
+               debt: service.wallet.debt,
                granted_item_ids: service.product.cosmetic_items.map(&:id),
                message: I18n.t("discourse_cosmetics_store.messages.purchased"),
              }
@@ -184,6 +186,7 @@ module ::DiscourseCosmeticsStore
       render json: {
                mission_id: service.mission.id,
                balance: service.wallet.balance,
+               debt: service.wallet.debt,
                claimed: true,
                message: I18n.t("discourse_cosmetics_store.messages.mission_claimed"),
              }
@@ -357,10 +360,11 @@ module ::DiscourseCosmeticsStore
     end
 
     def serialize_wallet(wallet)
-      return { balance: 0, lifetime_earned: 0, lifetime_spent: 0, ledger: [] } unless wallet
+      return { balance: 0, debt: 0, lifetime_earned: 0, lifetime_spent: 0, ledger: [] } unless wallet
 
       {
         balance: wallet.balance,
+        debt: wallet.debt,
         lifetime_earned: wallet.lifetime_earned,
         lifetime_spent: wallet.lifetime_spent,
         ledger:
@@ -371,9 +375,11 @@ module ::DiscourseCosmeticsStore
             .map do |entry|
               {
                 id: entry.id,
-                amount: entry.amount,
-                credit: entry.amount.positive?,
+                amount: entry.gross_amount,
+                credit: entry.gross_amount.positive?,
                 balance_after: entry.balance_after,
+                debt_delta: entry.debt_delta,
+                debt_after: entry.debt_after,
                 entry_type: entry.entry_type,
                 reason: entry.reason,
                 created_at: entry.created_at&.iso8601,
@@ -413,7 +419,9 @@ module ::DiscourseCosmeticsStore
           provider: payment.provider,
           status: payment.status,
           orb_amount: payment.orb_amount,
+          refunded_orb_amount: payment.refunded_orb_amount.to_i,
           amount_minor: payment.amount_minor,
+          refunded_amount_minor: payment.refunded_amount_minor.to_i,
           currency: payment.currency,
           completed_at: payment.completed_at&.iso8601,
           created_at: payment.created_at&.iso8601,

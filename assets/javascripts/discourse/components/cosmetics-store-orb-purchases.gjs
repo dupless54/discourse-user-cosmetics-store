@@ -136,7 +136,7 @@ export default class CosmeticsStoreOrbPurchases extends Component {
         <div><p class="cstore-eyebrow">ÖDEME GEÇMİŞİ</p><h2>Son yüklemeler</h2></div>
         <div>
           {{#each @payments as |payment|}}
-            <article><strong>+{{payment.orb_amount}} {{@settings.currency_symbol}}</strong><span>{{payment.provider}}</span><i class="is-{{payment.status}}">{{payment.status}}</i></article>
+            <article><strong>+{{payment.orb_amount}} {{@settings.currency_symbol}}{{#if payment.refunded_orb_amount}} <small>−{{payment.refunded_orb_amount}} iade</small>{{/if}}</strong><span>{{payment.provider}}</span><i class="is-{{payment.status}}">{{payment.status}}</i></article>
           {{/each}}
         </div>
       </section>

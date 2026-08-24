@@ -631,6 +631,10 @@ module ::DiscourseCosmeticsStore
             key == "shopier" ?
               "#{Discourse.base_url}/cosmetics-store/callbacks/shopier-osb" : nil,
           callback_url: %w[paytr iyzico shipy].include?(key) ? "#{Discourse.base_url}/cosmetics-store/callbacks/#{key}" : nil,
+          automatic_refunds:
+            key == "shopier" ? Shopier.webhook_configured? : nil,
+          manual_refunds:
+            key == "shopier" ? Shopier.osb_configured? : nil,
         }
       end
     end
