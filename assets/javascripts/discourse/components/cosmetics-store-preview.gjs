@@ -66,7 +66,9 @@ export default class CosmeticsStorePreview extends Component {
             {{else}}
               <span class="cstore-preview__effect">
                 <i></i>
-                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                {{#if item.layers.length}}
+                  {{#each item.layers as |layer|}}<img class="cstore-preview__effect-layer" src={{layer.image_url}} alt="" loading="lazy" />{{/each}}
+                {{else if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
               </span>
             {{/if}}
             {{#if this.isBundle}}<small>{{item.name}}</small>{{/if}}

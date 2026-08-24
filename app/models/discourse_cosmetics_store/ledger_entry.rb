@@ -4,7 +4,7 @@ module ::DiscourseCosmeticsStore
   class LedgerEntry < ActiveRecord::Base
     self.table_name = "discourse_cosmetics_store_ledger_entries"
 
-    ENTRY_TYPES = %w[starting_balance mission_reward purchase admin_adjustment refund].freeze
+    ENTRY_TYPES = %w[starting_balance mission_reward purchase payment admin_adjustment refund].freeze
 
     belongs_to :wallet,
                class_name: "::DiscourseCosmeticsStore::Wallet",

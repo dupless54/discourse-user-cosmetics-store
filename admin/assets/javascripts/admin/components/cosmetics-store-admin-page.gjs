@@ -6,6 +6,7 @@ import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import CosmeticsStorePaymentsAdmin from "./cosmetics-store-payments-admin";
 
 const ADMIN_API_BASE = "/admin/plugins/user-cosmetics-store";
 
@@ -62,6 +63,10 @@ export default class CosmeticsStoreAdminPage extends Component {
 
   get settings() {
     return this.args.model?.settings ?? { currency_name: "Orbs", currency_symbol: "◈" };
+  }
+
+  get paymentPackageCount() {
+    return this.args.model?.orb_packages?.length ?? 0;
   }
 
   get groupedCosmeticItems() {
@@ -328,6 +333,7 @@ export default class CosmeticsStoreAdminPage extends Component {
       <nav class="cstore-admin__tabs" aria-label="Mağaza yönetimi">
         <button class={{if (eq this.activeTab "products") "is-active"}} type="button" {{on "click" (fn this.setTab "products")}}>Ürünler <span>{{this.products.length}}</span></button>
         <button class={{if (eq this.activeTab "missions") "is-active"}} type="button" {{on "click" (fn this.setTab "missions")}}>Görevler <span>{{this.missions.length}}</span></button>
+        <button class={{if (eq this.activeTab "payments") "is-active"}} type="button" {{on "click" (fn this.setTab "payments")}}>Ödemeler <span>{{this.paymentPackageCount}}</span></button>
         <button class={{if (eq this.activeTab "wallets") "is-active"}} type="button" {{on "click" (fn this.setTab "wallets")}}>Cüzdanlar</button>
       </nav>
 
@@ -377,6 +383,8 @@ export default class CosmeticsStoreAdminPage extends Component {
           {{/if}}
           <div class="cstore-admin-missions">{{#each this.missions as |mission|}}<article><span>{{mission.icon}}</span><div><strong>{{mission.name}}</strong><p>{{mission.description}}</p><small>{{mission.metric}} · hedef {{mission.target}} · {{mission.claim_count}} kez alındı</small></div><b>+{{mission.reward}} {{this.settings.currency_symbol}}</b><i class={{if mission.enabled "is-on" "is-off"}}>{{if mission.enabled "Etkin" "Kapalı"}}</i><button type="button" {{on "click" (fn this.editMission mission)}}>Düzenle</button><button class="is-danger" type="button" {{on "click" (fn this.deleteMission mission)}}>{{if mission.claim_count "Kapat" "Sil"}}</button></article>{{else}}<p>Henüz görev yok.</p>{{/each}}</div>
         </section>
+      {{else if (eq this.activeTab "payments")}}
+        <CosmeticsStorePaymentsAdmin @packages={{this.args.model.orb_packages}} @providers={{this.args.model.payment_providers}} @payments={{this.args.model.payments}} />
       {{else}}
         <section class="cstore-admin__section cstore-admin-wallets">
           <div class="cstore-admin__section-heading"><div><h2>Kullanıcı cüzdanları</h2><p>Her manuel işlem değiştirilemez işlem defterine, yapan yöneticiyle birlikte kaydedilir.</p></div></div>

@@ -9,6 +9,7 @@ import { eq } from "discourse/truth-helpers";
 import CosmeticsStoreDialog from "./cosmetics-store-dialog";
 import CosmeticsStorePreview from "./cosmetics-store-preview";
 import CosmeticsStoreProductCard from "./cosmetics-store-product-card";
+import CosmeticsStoreOrbPurchases from "./cosmetics-store-orb-purchases";
 
 export default class CosmeticsStore extends Component {
   @tracked products = this.args.model?.products ?? [];
@@ -77,13 +78,29 @@ export default class CosmeticsStore extends Component {
     return this.productsFor(this.sectionIds.newest);
   }
 
+  get profileEffectProducts() {
+    return this.productsFor(this.sectionIds.profile_effects);
+  }
+
+  get orbPackages() {
+    return this.args.model?.orb_packages ?? [];
+  }
+
+  get paymentProviders() {
+    return this.args.model?.payment_providers ?? [];
+  }
+
+  get payments() {
+    return this.args.model?.payments ?? [];
+  }
+
   get favoriteProducts() {
     return this.products.filter((product) => product.favorite);
   }
 
   get featuredCards() {
     const heroId = this.heroProduct?.id;
-    const picks = [...this.editorPicks, ...this.featuredProducts, ...this.popularProducts];
+    const picks = [...this.editorPicks, ...this.featuredProducts, ...this.profileEffectProducts, ...this.popularProducts];
     return this.uniqueProducts(picks).filter((product) => product.id !== heroId).slice(0, 8);
   }
 
@@ -370,6 +387,17 @@ export default class CosmeticsStore extends Component {
             </section>
           {{/if}}
 
+          {{#if this.profileEffectProducts.length}}
+            <section class="cstore-section">
+              <div class="cstore-section__heading"><div><p class="cstore-eyebrow">PROFİL ATMOSFERİ</p><h2>Profil efektleri</h2></div><button type="button" {{on "click" (fn this.setTab "browse")}}>Tümünü gör →</button></div>
+              <div class="cstore-grid">
+                {{#each this.profileEffectProducts as |product|}}
+                  <CosmeticsStoreProductCard @product={{product}} @previewUser={{this.previewUser}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
+                {{/each}}
+              </div>
+            </section>
+          {{/if}}
+
           {{#if this.popularProducts.length}}
             <section class="cstore-section">
               <div class="cstore-section__heading"><div><p class="cstore-eyebrow">TOPLULUĞUN TARZI</p><h2>En çok kullanılanlar</h2></div></div>
@@ -410,6 +438,7 @@ export default class CosmeticsStore extends Component {
       {{else if (eq this.activeTab "orbs")}}
         <main class="cstore-orbs">
           <section class="cstore-orbs__hero"><div><p class="cstore-eyebrow">TOPLULUK ÖDÜLLERİ</p><h1>Katıl, katkı sağla, Orbs kazan.</h1><p>Görevlerin ilerlemesi sunucuda doğrulanır. Kazandığın Orbs yalnızca bu mağazada kullanılır.</p></div><div class="cstore-orb-balance"><span>{{this.settings.currency_symbol}}</span><strong>{{this.wallet.balance}}</strong><small>mevcut {{this.settings.currency_name}}</small></div></section>
+          <CosmeticsStoreOrbPurchases @packages={{this.orbPackages}} @providers={{this.paymentProviders}} @payments={{this.payments}} @settings={{this.settings}} @viewer={{this.viewer}} />
           {{#if this.viewer.logged_in}}
             <section class="cstore-mission-layout">
               <div>

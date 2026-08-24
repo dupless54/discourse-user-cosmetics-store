@@ -16,8 +16,10 @@ Bu eklenti kozmetik verilerini kopyalamaz. Ürün ve paketleri mevcut kozmetik k
 - Orbs cüzdanı ve değiştirilemez işlem defteri
 - Sunucuda doğrulanan tek seferlik görev ödülleri
 - Tekli kozmetik veya çok öğeli paket satışları
+- Profil efektleri ve çok öğeli paketler için ayrı vitrin bölümleri ve katmanlı önizleme
 - Satın alınan ürünlerin mevcut kozmetik seçicisine otomatik açılması
-- Ürün, görev ve kullanıcı cüzdanı için yönetim ekranı
+- Stripe, PayPal, PayTR, iyzico, Shopier ve Shipy ile isteğe bağlı gerçek para karşılığı Orb yükleme
+- Ürün, görev, Orb paketi, ödeme geçmişi ve kullanıcı cüzdanı için yönetim ekranı
 - Eşzamanlı satın alma, çift tıklama ve çift görev talebine karşı satır kilidi + idempotency
 
 ## Gereksinim
@@ -85,6 +87,36 @@ Görev ilerlemesi istemciden kabul edilmez. Aşağıdaki Discourse verilerinden 
 
 Bir kullanıcı aynı görevin ödülünü yalnız bir kez alabilir. Her ödül ve satın alma benzersiz idempotency anahtarıyla işlem defterine yazılır.
 
+## Gerçek para ile Orb yükleme
+
+Bu özellik ilk kurulumda kapalıdır. Önce bir sağlayıcıyı test/sandbox ortamında yapılandırın, yönetimde **Ödemeler** sekmesinden bir Orb paketi oluşturun ve yalnız bundan sonra `discourse_cosmetics_store_payments_enabled` ayarını açın.
+
+Kart verisi Discourse'a gelmez. Kullanıcı sağlayıcının barındırdığı ödeme sayfasına yönlendirilir. Orb bakiyesi yalnız şu kontrollerden sonra yüklenir:
+
+- Sağlayıcı webhook/callback imzası doğrulandı.
+- Sağlayıcı işlem kimliği daha önce işlenmedi.
+- Satın alma anında kaydedilen tutar ve para birimi callback ile birebir eşleşti.
+- Cüzdan hareketi benzersiz `payment:<id>` anahtarıyla, veritabanı kilidi içinde yazıldı.
+- Sağlayıcı API istekleri yalnız sabit HTTPS alan adı izin listesine, TLS doğrulaması ve kısa zaman aşımıyla gönderildi.
+- API anahtarları istemci JSON'una veya ödeme kaydına yazılmadı.
+
+### Sağlayıcı ayarları
+
+| Sağlayıcı | Model | Bildirim adresi |
+| --- | --- | --- |
+| Stripe | Hosted Checkout | `/cosmetics-store/webhooks/stripe` |
+| PayPal | Orders v2 / hosted approval | `/cosmetics-store/webhooks/paypal` |
+| PayTR | iFrame API | `/cosmetics-store/callbacks/paytr` |
+| iyzico | Checkout Form | `/cosmetics-store/callbacks/iyzico` |
+| Shopier | Paket başına hosted ürün bağlantısı | `/cosmetics-store/webhooks/shopier` |
+| Shipy | API v2 hosted ödeme | `/cosmetics-store/callbacks/shipy` |
+
+Bildirim adreslerinin tamamı herkese açık HTTPS URL olmalıdır. PayTR callback'ine oturum veya CSRF şartı koymayın; sağlayıcı aynı sonucu tekrar gönderebildiği için uç nokta zaten idempotent çalışır. Stripe `whsec_…`, PayPal webhook ID, PayTR merchant key/salt, iyzico secret key, Shopier webhook token ve Shipy API key yalnız eklenti ayarlarında sunucu tarafında tutulur.
+
+Shopier dinamik checkout oturumu yerine mağazanızda oluşturduğunuz ürün bağlantısını kullanır. Bu nedenle her Orb paketinde ilgili Shopier ürün kimliği ve `shopier.com` HTTPS bağlantısı birlikte girilmelidir. Shopier siparişindeki alıcı e-postası, Orb yüklemesini başlatan etkin Discourse hesabının doğrulanmış birincil e-postasıyla aynı olmalıdır; aksi hâlde teslimat güvenli biçimde reddedilir. Shipy sağlayıcı sözleşmeleri mağaza hesabına göre değişebildiğinden canlı moda geçmeden önce güncel API v2 callback alanlarını test hesabınızla doğrulayın.
+
+Ödeme sağlayıcı panelinde canlı moda geçmeden önce en az şu senaryoları test edin: başarılı ödeme, başarısız ödeme, kullanıcı dönüş sayfasını kapatma, callback tekrarı, yanlış tutar/para birimi ve zaman aşımı. Geri ödeme/chargeback süreçlerini ayrıca işletme politikanıza bağlayın; eklenti otomatik iade kararı vermez.
+
 ## Önemli ayarlar
 
 - Mağazayı etkinleştirme
@@ -94,6 +126,8 @@ Bir kullanıcı aynı görevin ödülünü yalnız bir kez alabilir. Her ödül 
 - Katalog ürün limiti
 - Görevler, favoriler ve hover önizlemesi
 - Hero ve editör seçimi başlıkları
+- Gerçek para ile Orb yükleme ana anahtarı
+- Sağlayıcı etkinleştirme, sandbox/test ve yalnız sunucuda saklanan API/webhook sırları
 
 ## Güncelleme / kaldırma
 
@@ -101,7 +135,15 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.6`
+`1.1.0`
+
+### 1.1.0
+
+- Profil efekti katman görselinin boş değerle ezilmesi giderildi; profil efektleri ve paketler vitrine ayrı bölümler olarak eklendi.
+- Katmanlı profil efekti önizlemesi ve ürün görseli için ilk geçerli kozmetik görseline güvenli geri dönüş eklendi.
+- Yönetilebilir Orb paketleri ile Stripe, PayPal, PayTR, iyzico, Shopier ve Shipy ödeme adaptörleri eklendi.
+- İmzalı webhook/callback doğrulama, değiştirilemez ödeme anlık görüntüsü, tutar/para birimi doğrulaması ve idempotent cüzdan teslimatı eklendi.
+- Sağlayıcı API hedefleri ve kullanıcı yönlendirmeleri HTTPS alan adı izin listeleriyle sınırlandı; kart verisinin forum sunucusundan geçmediği hosted checkout modeli kullanıldı.
 
 ### 1.0.6
 

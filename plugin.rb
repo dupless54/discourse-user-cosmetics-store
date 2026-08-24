@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.0.6
+# version: 1.1.0
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0
@@ -13,6 +13,7 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
+  VERSION = "1.1.0"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb
@@ -78,6 +79,20 @@ module ::DiscourseCosmeticsStore
 end
 
 after_initialize do
+  Rails.application.config.filter_parameters += %i[
+    identity_number
+    address
+    phone
+    shopier_webhook_token
+    stripe_secret_key
+    stripe_webhook_secret
+    paypal_client_secret
+    paytr_merchant_key
+    paytr_merchant_salt
+    iyzico_secret_key
+    shipy_api_key
+  ]
+
   require_relative "app/models/discourse_cosmetics_store/product"
   require_relative "app/models/discourse_cosmetics_store/product_item"
   require_relative "app/models/discourse_cosmetics_store/wallet"
@@ -86,15 +101,25 @@ after_initialize do
   require_relative "app/models/discourse_cosmetics_store/mission"
   require_relative "app/models/discourse_cosmetics_store/mission_claim"
   require_relative "app/models/discourse_cosmetics_store/favorite"
+  require_relative "app/models/discourse_cosmetics_store/orb_package"
+  require_relative "app/models/discourse_cosmetics_store/payment"
+  require_relative "app/models/discourse_cosmetics_store/payment_event"
   require_relative "lib/discourse_cosmetics_store/catalog"
   require_relative "lib/discourse_cosmetics_store/item_access_extension"
   require_relative "lib/discourse_cosmetics_store/wallet_service"
   require_relative "lib/discourse_cosmetics_store/purchase_service"
   require_relative "lib/discourse_cosmetics_store/mission_progress"
   require_relative "lib/discourse_cosmetics_store/mission_claim_service"
+  require_relative "lib/discourse_cosmetics_store/payment_http"
+  require_relative "lib/discourse_cosmetics_store/payment_providers"
+  require_relative "lib/discourse_cosmetics_store/payment_service"
+  require_relative "lib/discourse_cosmetics_store/payment_fulfillment_service"
+  require_relative "lib/discourse_cosmetics_store/payment_event_service"
   require_relative "lib/discourse_cosmetics_store/seeder"
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
 
   unless DiscourseCosmeticsStore.install_item_access_extension!
     Rails.logger.error(
@@ -129,6 +154,15 @@ after_initialize do
              constraints: { id: /\d+/ }
       post "/cosmetics-store/missions/:id/claim" => "discourse_cosmetics_store/store#claim_mission",
            constraints: { id: /\d+/ }
+      post "/cosmetics-store/payments" => "discourse_cosmetics_store/payments#create"
+      get "/cosmetics-store/payments/:payment_token/status" => "discourse_cosmetics_store/payments#status",
+          constraints: { payment_token: /[0-9a-f]{48}/ }
+      get "/cosmetics-store/payments/:payment_token/return" => "discourse_cosmetics_store/payments#return_from_provider",
+          constraints: { payment_token: /[0-9a-f]{48}/ }
+      post "/cosmetics-store/webhooks/:provider" => "discourse_cosmetics_store/payment_callbacks#webhook",
+           constraints: { provider: /stripe|paypal|shopier/ }
+      post "/cosmetics-store/callbacks/:provider" => "discourse_cosmetics_store/payment_callbacks#callback",
+           constraints: { provider: /paytr|iyzico|shipy/ }
 
       scope "/admin/plugins/user-cosmetics-store", constraints: AdminConstraint.new do
         get "/catalog" => "discourse_cosmetics_store/admin#index"
@@ -144,6 +178,11 @@ after_initialize do
                constraints: { id: /\d+/ }
         get "/wallet" => "discourse_cosmetics_store/admin#wallet"
         post "/wallet/adjust" => "discourse_cosmetics_store/admin#adjust_wallet"
+        post "/orb-packages" => "discourse_cosmetics_store/admin#create_orb_package"
+        put "/orb-packages/:id" => "discourse_cosmetics_store/admin#update_orb_package",
+            constraints: { id: /\d+/ }
+        delete "/orb-packages/:id" => "discourse_cosmetics_store/admin#destroy_orb_package",
+               constraints: { id: /\d+/ }
       end
     end
   end

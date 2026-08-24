@@ -49,3 +49,67 @@ plugins:
   discourse_cosmetics_store_hero_subtitle:
     default: "Görevleri tamamla, Orbs kazan ve topluluğa özel kozmetikleri aç."
     client: true
+
+  discourse_cosmetics_store_payments_enabled:
+    default: false
+    client: true
+
+  discourse_cosmetics_store_stripe_enabled:
+    default: false
+  discourse_cosmetics_store_stripe_secret_key:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_stripe_webhook_secret:
+    default: ""
+    secret: true
+
+  discourse_cosmetics_store_paypal_enabled:
+    default: false
+  discourse_cosmetics_store_paypal_sandbox:
+    default: true
+  discourse_cosmetics_store_paypal_client_id:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_paypal_client_secret:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_paypal_webhook_id:
+    default: ""
+    secret: true
+
+  discourse_cosmetics_store_paytr_enabled:
+    default: false
+  discourse_cosmetics_store_paytr_test_mode:
+    default: true
+  discourse_cosmetics_store_paytr_merchant_id:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_paytr_merchant_key:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_paytr_merchant_salt:
+    default: ""
+    secret: true
+
+  discourse_cosmetics_store_iyzico_enabled:
+    default: false
+  discourse_cosmetics_store_iyzico_sandbox:
+    default: true
+  discourse_cosmetics_store_iyzico_api_key:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_iyzico_secret_key:
+    default: ""
+    secret: true
+
+  discourse_cosmetics_store_shopier_enabled:
+    default: false
+  discourse_cosmetics_store_shopier_webhook_token:
+    default: ""
+    secret: true
+
+  discourse_cosmetics_store_shipy_enabled:
+    default: false
+  discourse_cosmetics_store_shipy_api_key:
+    default: ""
+    secret: true

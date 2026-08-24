@@ -53,11 +53,16 @@ module ::DiscourseCosmeticsStore
                      .map { |product| product[:id] },
                  bundles:
                    serialized.select { |product| product[:product_type] == "bundle" }.first(12).map { |product| product[:id] },
+                 profile_effects:
+                   serialized.select { |product| product[:kinds].include?("profile_effect") }.first(12).map { |product| product[:id] },
                  newest:
                    serialized.sort_by { |product| product[:created_at].to_s }.reverse.first(12).map { |product| product[:id] },
                },
                filters: filter_payload(serialized),
                missions: missions,
+               orb_packages: serialize_orb_packages,
+               payment_providers: PaymentProviders.enabled,
+               payments: serialize_recent_payments,
                wallet: serialize_wallet(wallet),
                viewer: {
                  logged_in: current_user.present?,
@@ -65,6 +70,7 @@ module ::DiscourseCosmeticsStore
                  can_purchase: current_user.present?,
                  favorites_enabled: SiteSetting.discourse_cosmetics_store_favorites_enabled,
                  missions_enabled: SiteSetting.discourse_cosmetics_store_missions_enabled,
+                 payments_enabled: SiteSetting.discourse_cosmetics_store_payments_enabled,
                  preview_user: serialize_preview_user,
                },
                settings: {
@@ -174,7 +180,7 @@ module ::DiscourseCosmeticsStore
         product_type: product.product_type,
         item_count: item_rows.length,
         price: product.price,
-        card_image_url: product.card_image_url.presence || item_rows.first&.dig(:image_url),
+        card_image_url: product.card_image_url.presence || item_rows.find { |row| row[:image_url].present? }&.dig(:image_url),
         hero_image_url: product.hero_image_url,
         preview_background_url: product.preview_background_url,
         rarity_label: product.rarity_label.presence || item_rows.first&.dig(:rarity_label),
@@ -215,7 +221,9 @@ module ::DiscourseCosmeticsStore
       }
 
       if item.kind == "profile_effect"
-        payload.merge!(DiscourseUserCosmetics::Presenter.effect_fields(item))
+        effect_fields = DiscourseUserCosmetics::Presenter.effect_fields(item)
+        effect_fields[:image_url] = payload[:image_url] if effect_fields[:image_url].blank?
+        payload.merge!(effect_fields)
       end
 
       payload
@@ -308,6 +316,45 @@ module ::DiscourseCosmeticsStore
               }
             end,
       }
+    end
+
+    def serialize_orb_packages
+      providers = PaymentProviders.enabled.map { |row| row[:id] }
+      return [] if providers.empty?
+
+      OrbPackage.available.filter_map do |package|
+        available = providers.select { |provider| package.provider_enabled?(provider) }
+        next if available.empty?
+
+        {
+          id: package.id,
+          name: package.name,
+          description: package.description,
+          orb_amount: package.orb_amount,
+          price_minor: package.price_minor,
+          price: format("%.2f", BigDecimal(package.price_minor.to_s) / 100),
+          currency: package.currency,
+          featured: package.featured,
+          providers: available,
+        }
+      end
+    end
+
+    def serialize_recent_payments
+      return [] unless current_user && SiteSetting.discourse_cosmetics_store_payments_enabled
+
+      Payment.where(user_id: current_user.id).recent.limit(10).map do |payment|
+        {
+          token: payment.token,
+          provider: payment.provider,
+          status: payment.status,
+          orb_amount: payment.orb_amount,
+          amount_minor: payment.amount_minor,
+          currency: payment.currency,
+          completed_at: payment.completed_at&.iso8601,
+          created_at: payment.created_at&.iso8601,
+        }
+      end
     end
 
     def serialize_preview_user

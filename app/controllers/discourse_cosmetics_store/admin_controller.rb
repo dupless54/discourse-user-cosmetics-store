@@ -20,6 +20,9 @@ module ::DiscourseCosmeticsStore
                products: products.map { |product| serialize_product(product) },
                cosmetic_items: cosmetic_items.map { |item| serialize_cosmetic_item(item) },
                missions: Mission.ordered.map { |mission| serialize_mission(mission) },
+               orb_packages: OrbPackage.ordered.map { |package| serialize_orb_package(package) },
+               payment_providers: PaymentProviders.configuration_status,
+               payments: Payment.includes(:user, :orb_package).recent.limit(100).map { |payment| serialize_payment(payment) },
                mission_metrics:
                  Mission::METRICS.map { |metric| { value: metric, label: metric_label(metric) } },
                settings: {
@@ -103,6 +106,28 @@ module ::DiscourseCosmeticsStore
       render_error(I18n.t("discourse_cosmetics_store.errors.invalid_amount"), :unprocessable_entity)
     end
 
+    def create_orb_package
+      package = OrbPackage.new(orb_package_params)
+      save_orb_package(package)
+    end
+
+    def update_orb_package
+      package = OrbPackage.find(params[:id])
+      package.assign_attributes(orb_package_params)
+      save_orb_package(package)
+    end
+
+    def destroy_orb_package
+      package = OrbPackage.find(params[:id])
+      if package.payments.exists?
+        package.update!(enabled: false)
+        return render json: serialize_orb_package(package).merge(disabled_instead_of_deleted: true)
+      end
+
+      package.destroy!
+      render json: success_json
+    end
+
     private
 
     def ensure_current_user_is_admin
@@ -157,6 +182,14 @@ module ::DiscourseCosmeticsStore
       end
     end
 
+    def save_orb_package(package)
+      if package.save
+        render json: serialize_orb_package(package)
+      else
+        render_record_errors(package)
+      end
+    end
+
     def product_params
       raw = params.require(:product).permit(
         :name,
@@ -198,6 +231,29 @@ module ::DiscourseCosmeticsStore
       )
     end
 
+    def orb_package_params
+      raw = params.require(:orb_package).permit(
+        :name,
+        :description,
+        :orb_amount,
+        :price_minor,
+        :currency,
+        :sort_order,
+        :enabled,
+        :featured,
+        :shopier_product_id,
+        :shopier_checkout_url,
+        providers: [],
+      )
+      config = {
+        "providers" => Array(raw.delete(:providers)),
+        "shopier_product_id" => raw.delete(:shopier_product_id),
+        "shopier_checkout_url" => raw.delete(:shopier_checkout_url),
+      }
+      raw[:provider_config] = config
+      raw
+    end
+
     def serialize_product(product)
       {
         id: product.id,
@@ -228,7 +284,9 @@ module ::DiscourseCosmeticsStore
 
     def serialize_cosmetic_item(item)
       image_url = item.resolved_image_url
-      image_url = DiscourseUserCosmetics::Presenter.effect_fields(item)[:image_url] if item.kind == "profile_effect"
+      if item.kind == "profile_effect"
+        image_url = DiscourseUserCosmetics::Presenter.effect_fields(item)[:image_url].presence || image_url
+      end
       {
         id: item.id,
         kind: item.kind,
@@ -254,6 +312,43 @@ module ::DiscourseCosmeticsStore
         available_from: mission.available_from&.strftime("%Y-%m-%dT%H:%M"),
         available_until: mission.available_until&.strftime("%Y-%m-%dT%H:%M"),
         claim_count: mission.claims.count,
+      }
+    end
+
+    def serialize_orb_package(package)
+      {
+        id: package.id,
+        name: package.name,
+        description: package.description,
+        orb_amount: package.orb_amount,
+        price_minor: package.price_minor,
+        price: format("%.2f", BigDecimal(package.price_minor.to_s) / 100),
+        currency: package.currency,
+        sort_order: package.sort_order,
+        enabled: package.enabled,
+        featured: package.featured,
+        providers: Array(package.provider_config["providers"]),
+        shopier_product_id: package.provider_config["shopier_product_id"],
+        shopier_checkout_url: package.provider_config["shopier_checkout_url"],
+        payment_count: package.payments.count,
+      }
+    end
+
+    def serialize_payment(payment)
+      {
+        token: payment.token,
+        username: payment.user.username,
+        package_name: payment.orb_package.name,
+        provider: payment.provider,
+        status: payment.status,
+        orb_amount: payment.orb_amount,
+        amount_minor: payment.amount_minor,
+        amount: format("%.2f", BigDecimal(payment.amount_minor.to_s) / 100),
+        currency: payment.currency,
+        provider_payment_id: payment.provider_payment_id,
+        failure_message: payment.failure_message,
+        created_at: payment.created_at&.iso8601,
+        completed_at: payment.completed_at&.iso8601,
       }
     end
 
