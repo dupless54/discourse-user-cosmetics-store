@@ -110,3 +110,38 @@ module ::DiscourseCosmeticsStore
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_products
+#
+#  id                     :bigint           not null, primary key
+#  available_from         :datetime
+#  available_until        :datetime
+#  card_image_url         :string(1000)
+#  description            :text
+#  editor_pick            :boolean          default(FALSE), not null
+#  enabled                :boolean          default(TRUE), not null
+#  exclusive              :boolean          default(TRUE), not null
+#  featured               :boolean          default(FALSE), not null
+#  hero_image_url         :string(1000)
+#  name                   :string(120)      not null
+#  preview_background_url :string(1000)
+#  price                  :integer          default(0), not null
+#  product_type           :string(20)       default("item"), not null
+#  purchase_count         :integer          default(0), not null
+#  rarity_color           :string(20)
+#  rarity_label           :string(40)
+#  slug                   :string(140)      not null
+#  sort_order             :integer          default(0), not null
+#  tags                   :jsonb            not null
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  created_by_id          :integer
+#
+# Indexes
+#
+#  idx_dcs_products_catalog  (enabled,featured,editor_pick,sort_order)
+#  idx_dcs_products_slug     (slug) UNIQUE
+#  idx_dcs_products_tags     (tags) USING gin
+#

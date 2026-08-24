@@ -14,3 +14,20 @@ module ::DiscourseCosmeticsStore
     validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_product_items
+#
+#  id               :bigint           not null, primary key
+#  position         :integer          default(0), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  cosmetic_item_id :integer          not null
+#  product_id       :integer          not null
+#
+# Indexes
+#
+#  idx_dcs_product_items_cosmetic  (cosmetic_item_id)
+#  idx_dcs_product_items_unique    (product_id,cosmetic_item_id) UNIQUE
+#

@@ -16,3 +16,24 @@ module ::DiscourseCosmeticsStore
     validates :error_message, length: { maximum: 500 }, allow_blank: true
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_payment_events
+#
+#  id             :bigint           not null, primary key
+#  error_message  :string(500)
+#  payload_digest :string(64)       not null
+#  processed_at   :datetime
+#  provider       :string(24)       not null
+#  status         :string(24)       default("received"), not null
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  external_id    :string(190)      not null
+#  payment_id     :integer
+#
+# Indexes
+#
+#  idx_dcs_payment_events_payment  (payment_id)
+#  idx_dcs_payment_events_unique   (provider,external_id) UNIQUE
+#

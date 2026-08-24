@@ -15,3 +15,22 @@ module ::DiscourseCosmeticsStore
     validates :idempotency_key, presence: true, uniqueness: true, length: { maximum: 190 }
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_purchases
+#
+#  id              :bigint           not null, primary key
+#  idempotency_key :string(190)      not null
+#  price_paid      :integer          not null
+#  status          :string(20)       default("completed"), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  product_id      :integer          not null
+#  user_id         :integer          not null
+#
+# Indexes
+#
+#  idx_dcs_purchases_idempotency   (idempotency_key) UNIQUE
+#  idx_dcs_purchases_user_product  (user_id,product_id) UNIQUE
+#

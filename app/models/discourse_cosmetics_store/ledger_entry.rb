@@ -18,3 +18,27 @@ module ::DiscourseCosmeticsStore
     validates :reason, length: { maximum: 500 }, allow_blank: true
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_ledger_entries
+#
+#  id              :bigint           not null, primary key
+#  amount          :bigint           not null
+#  balance_after   :bigint           not null
+#  entry_type      :string(30)       not null
+#  idempotency_key :string(190)      not null
+#  reason          :string(500)
+#  reference_type  :string(60)
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  created_by_id   :integer
+#  reference_id    :integer
+#  user_id         :integer          not null
+#  wallet_id       :integer          not null
+#
+# Indexes
+#
+#  idx_dcs_ledger_idempotency   (idempotency_key) UNIQUE
+#  idx_dcs_ledger_user_created  (user_id,created_at)
+#

@@ -80,3 +80,25 @@ module ::DiscourseCosmeticsStore
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_orb_packages
+#
+#  id              :bigint           not null, primary key
+#  currency        :string(3)        default("TRY"), not null
+#  description     :string(500)
+#  enabled         :boolean          default(TRUE), not null
+#  featured        :boolean          default(FALSE), not null
+#  name            :string(120)      not null
+#  orb_amount      :bigint           not null
+#  price_minor     :bigint           not null
+#  provider_config :jsonb            not null
+#  sort_order      :integer          default(0), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+# Indexes
+#
+#  idx_dcs_orb_packages_catalog  (enabled,sort_order,id)
+#

@@ -40,3 +40,33 @@ module ::DiscourseCosmeticsStore
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_payments
+#
+#  id                  :bigint           not null, primary key
+#  amount_minor        :bigint           not null
+#  checkout_url        :string(2000)
+#  completed_at        :datetime
+#  currency            :string(3)        not null
+#  expires_at          :datetime
+#  failure_code        :string(100)
+#  failure_message     :string(500)
+#  metadata            :jsonb            not null
+#  orb_amount          :bigint           not null
+#  provider            :string(24)       not null
+#  status              :string(24)       default("pending"), not null
+#  token               :string(64)       not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  orb_package_id      :integer          not null
+#  provider_payment_id :string(190)
+#  user_id             :integer          not null
+#
+# Indexes
+#
+#  idx_dcs_payments_provider_external  (provider,provider_payment_id) UNIQUE WHERE (provider_payment_id IS NOT NULL)
+#  idx_dcs_payments_token              (token) UNIQUE
+#  idx_dcs_payments_user_created       (user_id,created_at)
+#

@@ -58,3 +58,28 @@ module ::DiscourseCosmeticsStore
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: discourse_cosmetics_store_missions
+#
+#  id              :bigint           not null, primary key
+#  available_from  :datetime
+#  available_until :datetime
+#  description     :string(500)
+#  enabled         :boolean          default(TRUE), not null
+#  icon            :string(20)
+#  key             :string(100)      not null
+#  metric          :string(40)       not null
+#  name            :string(120)      not null
+#  reward          :integer          default(0), not null
+#  sort_order      :integer          default(0), not null
+#  target          :integer          default(1), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+# Indexes
+#
+#  idx_dcs_missions_enabled_sort  (enabled,sort_order)
+#  idx_dcs_missions_key           (key) UNIQUE
+#
