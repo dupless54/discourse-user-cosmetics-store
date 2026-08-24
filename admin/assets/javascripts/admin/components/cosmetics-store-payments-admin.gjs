@@ -133,7 +133,7 @@ export default class CosmeticsStorePaymentsAdmin extends Component {
 
       <div class="cstore-provider-status">
         {{#each this.providers as |provider|}}
-          <article class={{if provider.enabled "is-ready" "is-off"}}><header><strong>{{provider.label}}</strong><span>{{if provider.enabled "Hazır" "Kapalı / eksik"}}</span></header>{{#if provider.webhook_url}}<label>Webhook URL<input readonly value={{provider.webhook_url}} /></label>{{/if}}{{#if provider.callback_url}}<label>Callback URL<input readonly value={{provider.callback_url}} /></label>{{/if}}</article>
+          <article class={{if provider.enabled "is-ready" "is-off"}}><header><strong>{{provider.label}}</strong><span>{{if provider.enabled "Hazır" "Kapalı / eksik"}}</span></header>{{#if provider.webhook_url}}<label>Webhook URL<input readonly value={{provider.webhook_url}} /></label>{{/if}}{{#if provider.osb_callback_url}}<label>Shopier OSB Bildirim URL<input readonly value={{provider.osb_callback_url}} /></label>{{/if}}{{#if provider.callback_url}}<label>Callback URL<input readonly value={{provider.callback_url}} /></label>{{/if}}</article>
         {{/each}}
       </div>
 

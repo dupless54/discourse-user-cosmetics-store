@@ -30,8 +30,10 @@ en:
     discourse_cosmetics_store_iyzico_sandbox: "Use the iyzico sandbox."
     discourse_cosmetics_store_iyzico_api_key: "iyzico API key."
     discourse_cosmetics_store_iyzico_secret_key: "iyzico secret key."
-    discourse_cosmetics_store_shopier_enabled: "Enable Shopier hosted product links and signed order webhooks."
+    discourse_cosmetics_store_shopier_enabled: "Enable Shopier hosted product links with a configured modern webhook or legacy OSB notification integration."
     discourse_cosmetics_store_shopier_webhook_token: "Shopier app webhook signing token."
+    discourse_cosmetics_store_shopier_osb_username: "Shopier Automatic Order Notification (OSB) username. Stored server-side only."
+    discourse_cosmetics_store_shopier_osb_password: "Shopier Automatic Order Notification (OSB) password. Stored server-side only."
     discourse_cosmetics_store_shipy_enabled: "Enable Shipy API v2. Test the current merchant callback format before going live."
     discourse_cosmetics_store_shipy_api_key: "Shipy API key."
   discourse_cosmetics_store:

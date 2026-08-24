@@ -436,8 +436,28 @@ module ::DiscourseCosmeticsStore
     end
 
     class Shopier < Base
+      MAX_OSB_RESULT_BYTES = 256 * 1024
+      OSB_CURRENCIES = {
+        "0" => "TRY",
+        "1" => "USD",
+        "2" => "EUR",
+        "TL" => "TRY",
+        "TRY" => "TRY",
+        "USD" => "USD",
+        "EUR" => "EUR",
+      }.freeze
+
       def self.configured?
-        SiteSetting.discourse_cosmetics_store_shopier_enabled && setting("shopier_webhook_token").present?
+        SiteSetting.discourse_cosmetics_store_shopier_enabled &&
+          (webhook_configured? || osb_configured?)
+      end
+
+      def self.webhook_configured?
+        setting("shopier_webhook_token").present?
+      end
+
+      def self.osb_configured?
+        setting("shopier_osb_username").present? && setting("shopier_osb_password").present?
       end
 
       def create_checkout
@@ -453,6 +473,8 @@ module ::DiscourseCosmeticsStore
       end
 
       def self.verify_webhook!(raw_body, signature)
+        raise ConfigurationError, "Shopier webhook imzalama belirteci yapılandırılmamış" unless webhook_configured?
+
         expected_raw = OpenSSL::HMAC.digest("SHA256", setting("shopier_webhook_token"), raw_body)
         supplied = signature.to_s.sub(/\Asha256=/i, "")
         candidates = [expected_raw.unpack1("H*"), Base64.strict_encode64(expected_raw)]
@@ -461,6 +483,55 @@ module ::DiscourseCosmeticsStore
         JSON.parse(raw_body)
       rescue JSON::ParserError
         raise VerificationError, "Shopier bildirimi geçersiz"
+      end
+
+      def self.verify_osb!(encoded_result, supplied_hash)
+        raise ConfigurationError, "Shopier OSB kimlik bilgileri yapılandırılmamış" unless osb_configured?
+
+        # Shopier calculates the digest from the exact `res` value it posts.
+        # Do not normalize that value before verification.
+        encoded = encoded_result.to_s
+        signature = supplied_hash.to_s.strip.downcase
+        if encoded.blank? || signature.blank? || encoded.bytesize > MAX_OSB_RESULT_BYTES
+          raise VerificationError, "Shopier OSB bildirimi geçersiz"
+        end
+        unless signature.match?(/\A[0-9a-f]{64}\z/i)
+          raise VerificationError, "Shopier OSB özeti geçersiz"
+        end
+
+        expected =
+          OpenSSL::HMAC.hexdigest(
+            "SHA256",
+            setting("shopier_osb_password"),
+            "#{encoded}#{setting('shopier_osb_username')}",
+          )
+        unless new.secure_compare(expected, signature)
+          raise VerificationError, "Shopier OSB özeti geçersiz"
+        end
+
+        decoded = Base64.strict_decode64(encoded)
+        if decoded.blank? || decoded.bytesize > MAX_OSB_RESULT_BYTES
+          raise VerificationError, "Shopier OSB bildirimi geçersiz"
+        end
+
+        payload = JSON.parse(decoded)
+        raise VerificationError, "Shopier OSB bildirimi geçersiz" unless payload.is_a?(Hash)
+
+        payload
+      rescue ArgumentError, JSON::ParserError
+        raise VerificationError, "Shopier OSB bildirimi geçersiz"
+      end
+
+      def self.osb_currency(value)
+        currency = OSB_CURRENCIES[value.to_s.strip.upcase]
+        raise VerificationError, "Shopier OSB para birimi geçersiz" if currency.blank?
+
+        currency
+      end
+
+      def self.osb_test?(payload)
+        value = payload["istest"]
+        value == true || %w[1 true].include?(value.to_s.downcase)
       end
     end
 
@@ -556,6 +627,9 @@ module ::DiscourseCosmeticsStore
           label: PROVIDER_LABELS.fetch(key),
           enabled: klass.configured?,
           webhook_url: %w[stripe paypal shopier].include?(key) ? "#{Discourse.base_url}/cosmetics-store/webhooks/#{key}" : nil,
+          osb_callback_url:
+            key == "shopier" ?
+              "#{Discourse.base_url}/cosmetics-store/callbacks/shopier-osb" : nil,
           callback_url: %w[paytr iyzico shipy].include?(key) ? "#{Discourse.base_url}/cosmetics-store/callbacks/#{key}" : nil,
         }
       end

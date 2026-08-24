@@ -107,6 +107,12 @@ plugins:
   discourse_cosmetics_store_shopier_webhook_token:
     default: ""
     secret: true
+  discourse_cosmetics_store_shopier_osb_username:
+    default: ""
+    secret: true
+  discourse_cosmetics_store_shopier_osb_password:
+    default: ""
+    secret: true
 
   discourse_cosmetics_store_shipy_enabled:
     default: false

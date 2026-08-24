@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.2.0
+# version: 1.2.1
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0
@@ -13,7 +13,7 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
-  VERSION = "1.2.0"
+  VERSION = "1.2.1"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb
@@ -83,6 +83,8 @@ after_initialize do
     identity_number
     address
     phone
+    shopier_osb_password
+    shopier_osb_username
     shopier_webhook_token
     stripe_secret_key
     stripe_webhook_secret
@@ -174,7 +176,7 @@ after_initialize do
       post "/cosmetics-store/webhooks/:provider" => "discourse_cosmetics_store/payment_callbacks#webhook",
            constraints: { provider: /stripe|paypal|shopier/ }
       post "/cosmetics-store/callbacks/:provider" => "discourse_cosmetics_store/payment_callbacks#callback",
-           constraints: { provider: /paytr|iyzico|shipy/ }
+           constraints: { provider: /paytr|iyzico|shipy|shopier-osb/ }
 
       scope "/admin/plugins/user-cosmetics-store", constraints: AdminConstraint.new do
         get "/catalog" => "discourse_cosmetics_store/admin#index"

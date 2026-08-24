@@ -124,12 +124,16 @@ Kart verisi Discourse'a gelmez. Kullanıcı sağlayıcının barındırdığı �
 | PayPal | Orders v2 / hosted approval | `/cosmetics-store/webhooks/paypal` |
 | PayTR | iFrame API | `/cosmetics-store/callbacks/paytr` |
 | iyzico | Checkout Form | `/cosmetics-store/callbacks/iyzico` |
-| Shopier | Paket başına hosted ürün bağlantısı | `/cosmetics-store/webhooks/shopier` |
+| Shopier | Paket başına hosted ürün bağlantısı | Modern: `/cosmetics-store/webhooks/shopier`, OSB: `/cosmetics-store/callbacks/shopier-osb` |
 | Shipy | API v2 hosted ödeme | `/cosmetics-store/callbacks/shipy` |
 
-Bildirim adreslerinin tamamı herkese açık HTTPS URL olmalıdır. PayTR callback'ine oturum veya CSRF şartı koymayın; sağlayıcı aynı sonucu tekrar gönderebildiği için uç nokta zaten idempotent çalışır. Stripe `whsec_…`, PayPal webhook ID, PayTR merchant key/salt, iyzico secret key, Shopier webhook token ve Shipy API key yalnız eklenti ayarlarında sunucu tarafında tutulur.
+Bildirim adreslerinin tamamı herkese açık HTTPS URL olmalıdır. PayTR ve Shopier OSB callback'lerine oturum veya CSRF şartı koymayın; sağlayıcı aynı sonucu tekrar gönderebildiği için uç noktalar idempotent çalışır. Stripe `whsec_…`, PayPal webhook ID, PayTR merchant key/salt, iyzico secret key, Shopier webhook token veya OSB kullanıcı adı/şifresi ve Shipy API key yalnız eklenti ayarlarında sunucu tarafında tutulur.
 
-Shopier dinamik checkout oturumu yerine mağazanızda oluşturduğunuz ürün bağlantısını kullanır. Bu nedenle her Orb paketinde ilgili Shopier ürün kimliği ve `shopier.com` HTTPS bağlantısı birlikte girilmelidir. Shopier siparişindeki alıcı e-postası, Orb yüklemesini başlatan etkin Discourse hesabının doğrulanmış birincil e-postasıyla aynı olmalıdır; aksi hâlde teslimat güvenli biçimde reddedilir. Shipy sağlayıcı sözleşmeleri mağaza hesabına göre değişebildiğinden canlı moda geçmeden önce güncel API v2 callback alanlarını test hesabınızla doğrulayın.
+Shopier dinamik checkout oturumu yerine mağazanızda oluşturduğunuz ürün bağlantısını kullanır. Bu nedenle her Orb paketinde ilgili Shopier ürün kimliği ve `shopier.com` HTTPS bağlantısı birlikte girilmelidir. Shopier siparişindeki alıcı e-postası, Orb yüklemesini başlatan etkin Discourse hesabının doğrulanmış birincil e-postasıyla aynı olmalıdır; aksi hâlde teslimat güvenli biçimde reddedilir.
+
+Shopier'in eski Otomatik Sipariş Bildirimi (OSB) ekranını kullanmak için `discourse_cosmetics_store_shopier_osb_username` ve `discourse_cosmetics_store_shopier_osb_password` gizli ayarlarını doldurun. Shopier'deki Bildirim URL alanına `https://FORUM-ADRESINIZ/cosmetics-store/callbacks/shopier-osb` yazın. OSB adaptörü `hash_hmac('sha256', res + username, password)` özetini sabit zamanlı karşılaştırmayla doğrular, Base64 JSON içeriğini boyut sınırlamasıyla ayrıştırır ve test bildirimlerinde Orb yüklemeden tam olarak `success` döndürür. Canlı bildirimlerde `orderid`, ürün kimliği, doğrulanmış birincil e-posta, tutar ve para birimi eşleşmeden cüzdana yazılmaz. Aynı sipariş kimliğinin yeniden gönderilmesi ikinci kez Orb yüklemez.
+
+Modern Shopier webhook kullanılıyorsa OSB kimlik bilgileri yerine `discourse_cosmetics_store_shopier_webhook_token` ayarlanır ve `/cosmetics-store/webhooks/shopier` adresi kullanılır. İki yöntem aynı anda yapılandırılabilir; tek bir yöntemin eksiksiz yapılandırılması Shopier sağlayıcısını hazır duruma getirir. Shipy sağlayıcı sözleşmeleri mağaza hesabına göre değişebildiğinden canlı moda geçmeden önce güncel API v2 callback alanlarını test hesabınızla doğrulayın.
 
 Ödeme sağlayıcı panelinde canlı moda geçmeden önce en az şu senaryoları test edin: başarılı ödeme, başarısız ödeme, kullanıcı dönüş sayfasını kapatma, callback tekrarı, yanlış tutar/para birimi ve zaman aşımı. Geri ödeme/chargeback süreçlerini ayrıca işletme politikanıza bağlayın; eklenti otomatik iade kararı vermez.
 
@@ -151,7 +155,14 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.2.0`
+`1.2.1`
+
+### 1.2.1
+
+- Shopier'in legacy OSB `res`/`hash` protokolü için ayrı, imza doğrulamalı callback eklendi.
+- OSB test bildirimleri ödeme ana anahtarı kapalıyken de güvenli şekilde doğrulanıp `success` yanıtı verecek hale getirildi.
+- Canlı OSB teslimatı ürün, kullanıcı e-postası, tutar ve para birimi eşleşmesi ile mükerrer `orderid` korumasına bağlandı.
+- Modern Shopier webhook desteği korunurken yönetim ekranında OSB Bildirim URL'si de gösterildi.
 
 ### 1.2.0
 

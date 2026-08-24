@@ -30,8 +30,10 @@ tr:
     discourse_cosmetics_store_iyzico_sandbox: "iyzico sandbox ortamını kullan."
     discourse_cosmetics_store_iyzico_api_key: "iyzico API anahtarı."
     discourse_cosmetics_store_iyzico_secret_key: "iyzico gizli anahtarı."
-    discourse_cosmetics_store_shopier_enabled: "Shopier ürün bağlantısı ve imzalı sipariş webhook entegrasyonunu etkinleştir."
+    discourse_cosmetics_store_shopier_enabled: "Shopier ürün bağlantısını ve yapılandırılmış modern webhook veya OSB bildirim entegrasyonunu etkinleştir."
     discourse_cosmetics_store_shopier_webhook_token: "Shopier uygulamasının webhook imzalama belirteci."
+    discourse_cosmetics_store_shopier_osb_username: "Shopier Otomatik Sipariş Bildirimi (OSB) kullanıcı adı. Yalnızca sunucuda saklanır."
+    discourse_cosmetics_store_shopier_osb_password: "Shopier Otomatik Sipariş Bildirimi (OSB) şifresi. Yalnızca sunucuda saklanır."
     discourse_cosmetics_store_shipy_enabled: "Shipy API v2 entegrasyonunu etkinleştir. Canlıya almadan önce mağazanızdaki güncel callback biçimiyle test edin."
     discourse_cosmetics_store_shipy_api_key: "Shipy API anahtarı."
   discourse_cosmetics_store:

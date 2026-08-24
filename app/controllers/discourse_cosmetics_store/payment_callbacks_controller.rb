@@ -5,7 +5,7 @@ module ::DiscourseCosmeticsStore
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
 
     skip_before_action :verify_authenticity_token
-    before_action :ensure_payments_enabled
+    before_action :ensure_payments_enabled, unless: :shopier_osb_callback?
 
     MAX_WEBHOOK_BYTES = 256.kilobytes
 
@@ -38,6 +38,9 @@ module ::DiscourseCosmeticsStore
       when "shipy"
         handle_shipy
         render plain: "OK", content_type: "text/plain"
+      when "shopier-osb"
+        handle_shopier_osb
+        render plain: "success", content_type: "text/plain"
       else
         raise Discourse::NotFound
       end
@@ -52,6 +55,10 @@ module ::DiscourseCosmeticsStore
 
     def ensure_payments_enabled
       raise Discourse::NotFound unless SiteSetting.discourse_cosmetics_store_payments_enabled
+    end
+
+    def shopier_osb_callback?
+      action_name == "callback" && params[:provider].to_s == "shopier-osb"
     end
 
     def raw_body!
@@ -123,39 +130,41 @@ module ::DiscourseCosmeticsStore
       product_ids << (order["productId"] || order["product_id"]).to_s
       product_ids.reject!(&:blank?)
       email = order.dig("shippingInfo", "email") || order.dig("billingInfo", "email") || order["email"]
-      package = OrbPackage.ordered.find { |row| product_ids.include?(row.shopier_product_id.to_s) }
-      raise ActiveRecord::RecordNotFound unless package
-
-      user = User.activated.with_primary_email(email.to_s.strip.downcase).first
-      raise ActiveRecord::RecordNotFound unless user
-
       amount = order.dig("totals", "total") || order["total"] || order["amount"]
       currency = (order["currency"] || order.dig("totals", "currency")).to_s.upcase
       currency = "TRY" if currency == "TL"
       amount_minor = decimal_to_minor(amount)
-      payment =
-        Payment
-          .where(
-            user_id: user.id,
-            orb_package_id: package.id,
-            provider: "shopier",
-            status: "pending",
-            amount_minor: amount_minor,
-            currency: currency,
-          )
-          .recent
-          .first
-      raise ActiveRecord::RecordNotFound unless payment
+      package = find_shopier_package!(product_ids)
+      payment = find_shopier_payment!(email, package, amount_minor, currency, order_id)
 
-      PaymentEventService.process!(provider: "shopier", external_id: order_id, raw_body: raw, payment: payment) do
-        payment.update!(provider_payment_id: order_id)
-        PaymentFulfillmentService.complete!(
-          payment: payment,
-          provider_payment_id: order_id,
-          amount_minor: amount_minor,
-          currency: currency,
-        )
+      complete_shopier_payment!(payment, order_id, amount_minor, currency, raw)
+    end
+
+    def handle_shopier_osb
+      encoded_result = params[:res].to_s
+      payload = PaymentProviders::Shopier.verify_osb!(encoded_result, params[:hash])
+      return if PaymentProviders::Shopier.osb_test?(payload)
+
+      unless SiteSetting.discourse_cosmetics_store_payments_enabled &&
+               SiteSetting.discourse_cosmetics_store_shopier_enabled
+        raise PaymentProviders::ConfigurationError, "Shopier canlı ödemeleri kapalı"
       end
+
+      order_id = payload["orderid"].to_s.strip
+      raise PaymentProviders::VerificationError, "Shopier OSB sipariş kimliği eksik" if order_id.blank?
+
+      product_ids =
+        Array(payload["productid"]).flat_map do |value|
+          value.to_s.split(/[,;|]/).map(&:strip)
+        end
+      product_ids.reject!(&:blank?)
+      package = find_shopier_package!(product_ids)
+      amount_minor = decimal_to_minor(payload["price"])
+      currency = PaymentProviders::Shopier.osb_currency(payload["currency"])
+      payment =
+        find_shopier_payment!(payload["email"], package, amount_minor, currency, order_id)
+
+      complete_shopier_payment!(payment, order_id, amount_minor, currency, encoded_result)
     end
 
     def handle_paytr
@@ -218,7 +227,71 @@ module ::DiscourseCosmeticsStore
     end
 
     def decimal_to_minor(value)
-      (BigDecimal(value.to_s) * 100).round(0).to_i
+      (BigDecimal(value.to_s.tr(",", ".")) * 100).round(0).to_i
+    rescue ArgumentError
+      raise PaymentProviders::VerificationError, "Ödeme tutarı geçersiz"
+    end
+
+    def find_shopier_package!(product_ids)
+      normalized_ids = Array(product_ids).map { |value| value.to_s.strip }.reject(&:blank?)
+      package =
+        OrbPackage.ordered.find do |row|
+          row.provider_enabled?("shopier") && normalized_ids.include?(row.shopier_product_id.to_s)
+        end
+      raise ActiveRecord::RecordNotFound unless package
+
+      package
+    end
+
+    def find_shopier_payment!(email, package, amount_minor, currency, order_id)
+      normalized_email = email.to_s.strip.downcase
+      raise PaymentProviders::VerificationError, "Shopier alıcı e-postası eksik" if normalized_email.blank?
+
+      user = User.activated.with_primary_email(normalized_email).first
+      raise ActiveRecord::RecordNotFound unless user
+
+      existing = Payment.find_by(provider: "shopier", provider_payment_id: order_id)
+      if existing
+        unless existing.user_id == user.id && existing.orb_package_id == package.id &&
+                 existing.amount_minor == amount_minor && existing.currency == currency
+          raise PaymentFulfillmentService::Mismatch, "Shopier sipariş bilgileri eşleşmiyor"
+        end
+
+        return existing
+      end
+
+      payment =
+        Payment
+          .where(
+            user_id: user.id,
+            orb_package_id: package.id,
+            provider: "shopier",
+            status: "pending",
+            amount_minor: amount_minor,
+            currency: currency,
+          )
+          .recent
+          .first
+      raise ActiveRecord::RecordNotFound unless payment
+
+      payment
+    end
+
+    def complete_shopier_payment!(payment, order_id, amount_minor, currency, raw_body)
+      PaymentEventService.process!(
+        provider: "shopier",
+        external_id: order_id,
+        raw_body: raw_body,
+        payment: payment,
+      ) do
+        payment.update!(provider_payment_id: order_id)
+        PaymentFulfillmentService.complete!(
+          payment: payment,
+          provider_payment_id: order_id,
+          amount_minor: amount_minor,
+          currency: currency,
+        )
+      end
     end
 
     def log_failure(provider, error)
