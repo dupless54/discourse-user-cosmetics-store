@@ -23,6 +23,15 @@ export default class CosmeticsStoreProductCard extends Component {
         >♥</button>
       {{/if}}
 
+      <div class="cstore-product__actions">
+        {{#unless @product.owned}}
+          <button class="cstore-product__buy" type="button" {{on "click" (fn @onOpen @product)}}>
+            <span>{{@currencySymbol}} {{@product.price}}</span><b>Satın al</b>
+          </button>
+        {{/unless}}
+        <button class="cstore-product__gift" type="button" aria-label="{{@product.name}} ürününü hediye et" {{on "click" (fn @onGift @product)}}>🎁</button>
+      </div>
+
       <button class="cstore-product__info" type="button" {{on "click" (fn @onOpen @product)}}>
         <span class="cstore-product__meta">
           {{#if @product.rarity_label}}<i>{{@product.rarity_label}}</i>{{/if}}

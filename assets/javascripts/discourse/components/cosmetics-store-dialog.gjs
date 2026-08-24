@@ -1,10 +1,15 @@
 import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
+import { action } from "@ember/object";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
 import CosmeticsStoreUserCardPreview from "./cosmetics-store-user-card-preview";
 
 export default class CosmeticsStoreDialog extends Component {
+  @tracked giftMode = this.args.startGift ?? false;
+  @tracked recipientUsername = "";
+
   get canAfford() {
     return Number(this.args.balance || 0) >= Number(this.args.product?.price || 0);
   }
@@ -21,6 +26,26 @@ export default class CosmeticsStoreDialog extends Component {
       return "Yetersiz Orbs";
     }
     return "Orbs ile satın al";
+  }
+
+  @action
+  toggleGift() {
+    this.giftMode = !this.giftMode;
+  }
+
+  @action
+  updateRecipient(event) {
+    this.recipientUsername = event.target.value;
+  }
+
+  @action
+  submitGift(event) {
+    event.preventDefault();
+    const username = this.recipientUsername.trim().replace(/^@/, "");
+    if (!username || this.args.giftBusy) {
+      return;
+    }
+    this.args.onGift(this.args.product, username);
   }
 
   <template>
@@ -56,7 +81,19 @@ export default class CosmeticsStoreDialog extends Component {
             {{else}}
               <a class="cstore-buy" href="/login?return_path=%2Fstore">Satın almak için giriş yap</a>
             {{/if}}
+
+            {{#if @viewer.logged_in}}
+              <button class="cstore-gift-toggle" type="button" disabled={{@giftBusy}} {{on "click" this.toggleGift}}>🎁 Hediye et</button>
+            {{/if}}
           </div>
+
+          {{#if this.giftMode}}
+            <form class="cstore-gift-form" {{on "submit" this.submitGift}}>
+              <label for="cstore-gift-recipient">Hediye edilecek kullanıcı</label>
+              <div><span>@</span><input id="cstore-gift-recipient" required autocomplete="off" maxlength="60" value={{this.recipientUsername}} {{on "input" this.updateRecipient}} placeholder="kullanıcı adı" /><button type="submit" disabled={{@giftBusy}}>{{if @giftBusy "Gönderiliyor…" "Hediyeyi gönder"}}</button></div>
+              <small>Fiyat ve alıcının sahiplik durumu sunucuda yeniden doğrulanır. Alıcı paketteki öğelerden birine sahipse işlem yapılmaz.</small>
+            </form>
+          {{/if}}
         </aside>
 
         <main class="cstore-dialog__live">

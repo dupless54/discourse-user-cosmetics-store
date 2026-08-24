@@ -46,7 +46,7 @@ module ::DiscourseCosmeticsStore
 
     def destroy_product
       product = Product.find(params[:id])
-      if product.purchases.exists?
+      if product.purchases.exists? || product.gifts.exists?
         return render_error(
           I18n.t("discourse_cosmetics_store.errors.product_has_purchases"),
           :unprocessable_entity,
@@ -200,6 +200,9 @@ module ::DiscourseCosmeticsStore
         :card_image_url,
         :hero_image_url,
         :preview_background_url,
+        :collection_name,
+        :collection_slug,
+        :collection_image_url,
         :rarity_label,
         :rarity_color,
         :sort_order,
@@ -265,6 +268,9 @@ module ::DiscourseCosmeticsStore
         card_image_url: product.card_image_url,
         hero_image_url: product.hero_image_url,
         preview_background_url: product.preview_background_url,
+        collection_name: product.collection_name,
+        collection_slug: product.collection_slug,
+        collection_image_url: product.collection_image_url,
         rarity_label: product.rarity_label,
         rarity_color: product.rarity_color,
         tags: Array(product.tags),

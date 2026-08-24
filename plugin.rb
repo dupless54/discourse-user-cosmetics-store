@@ -2,7 +2,7 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.1.0
+# version: 1.2.0
 # authors: dupless54
 # url: https://forum.senin.me/store
 # required_version: 3.3.0
@@ -13,7 +13,7 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
-  VERSION = "1.1.0"
+  VERSION = "1.2.0"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb
@@ -98,6 +98,7 @@ after_initialize do
   require_relative "app/models/discourse_cosmetics_store/wallet"
   require_relative "app/models/discourse_cosmetics_store/ledger_entry"
   require_relative "app/models/discourse_cosmetics_store/purchase"
+  require_relative "app/models/discourse_cosmetics_store/gift"
   require_relative "app/models/discourse_cosmetics_store/mission"
   require_relative "app/models/discourse_cosmetics_store/mission_claim"
   require_relative "app/models/discourse_cosmetics_store/favorite"
@@ -108,6 +109,7 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/item_access_extension"
   require_relative "lib/discourse_cosmetics_store/wallet_service"
   require_relative "lib/discourse_cosmetics_store/purchase_service"
+  require_relative "lib/discourse_cosmetics_store/gift_service"
   require_relative "lib/discourse_cosmetics_store/mission_progress"
   require_relative "lib/discourse_cosmetics_store/mission_claim_service"
   require_relative "lib/discourse_cosmetics_store/payment_http"
@@ -143,10 +145,20 @@ after_initialize do
 
   Discourse::Application.routes.append do
     get "/store" => "list#latest"
+    get "/store/browse" => "list#latest"
+    get "/store/browse/:category" => "list#latest",
+        constraints: { category: /avatar-frames|nameplates|card-decorations|profile-effects|bundles|items/ }
+    get "/store/orbs" => "list#latest"
+    get "/store/favorites" => "list#latest"
+    get "/store/collections" => "list#latest"
+    get "/store/collections/:collection_slug" => "list#latest",
+        constraints: { collection_slug: /[a-z0-9][a-z0-9\-]*/ }
 
     defaults format: :json do
       get "/cosmetics-store" => "discourse_cosmetics_store/store#index"
       post "/cosmetics-store/products/:id/purchase" => "discourse_cosmetics_store/store#purchase",
+           constraints: { id: /\d+/ }
+      post "/cosmetics-store/products/:id/gift" => "discourse_cosmetics_store/store#gift",
            constraints: { id: /\d+/ }
       put "/cosmetics-store/products/:id/favorite" => "discourse_cosmetics_store/store#favorite",
           constraints: { id: /\d+/ }

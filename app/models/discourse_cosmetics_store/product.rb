@@ -26,6 +26,10 @@ module ::DiscourseCosmeticsStore
              class_name: "::DiscourseCosmeticsStore::Favorite",
              dependent: :destroy,
              inverse_of: :product
+    has_many :gifts,
+             class_name: "::DiscourseCosmeticsStore::Gift",
+             dependent: :restrict_with_error,
+             inverse_of: :product
 
     validates :name, presence: true, length: { maximum: 120 }
     validates :slug, presence: true, uniqueness: true, length: { maximum: 140 }
@@ -37,11 +41,14 @@ module ::DiscourseCosmeticsStore
               numericality: { only_integer: true, greater_than_or_equal_to: 0 }
     validates :rarity_label, length: { maximum: 40 }, allow_blank: true
     validates :rarity_color, format: { with: HEX_COLOR_REGEX }, allow_blank: true
+    validates :collection_name, length: { maximum: 120 }, allow_blank: true
+    validates :collection_slug, length: { maximum: 140 }, allow_blank: true
     validate :availability_window_is_valid
     validate :external_urls_are_safe
 
     before_validation :ensure_slug
     before_validation :normalize_tags
+    before_validation :normalize_collection
 
     scope :ordered, -> { order(editor_pick: :desc, featured: :desc, sort_order: :asc, id: :desc) }
     scope :available,
@@ -95,7 +102,7 @@ module ::DiscourseCosmeticsStore
     end
 
     def external_urls_are_safe
-      %i[card_image_url hero_image_url preview_background_url].each do |attribute|
+      %i[card_image_url hero_image_url preview_background_url collection_image_url].each do |attribute|
         value = public_send(attribute).to_s.strip
         next if value.blank?
 
@@ -107,6 +114,13 @@ module ::DiscourseCosmeticsStore
           errors.add(attribute, :invalid)
         end
       end
+    end
+
+    def normalize_collection
+      self.collection_name = collection_name.to_s.strip.presence
+      source = collection_slug.presence || collection_name
+      self.collection_slug = Slug.for(source.to_s).presence if source.present?
+      self.collection_slug = nil if collection_name.blank?
     end
   end
 end

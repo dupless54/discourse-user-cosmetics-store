@@ -16,6 +16,10 @@ Bu eklenti kozmetik verilerini kopyalamaz. Ürün ve paketleri mevcut kozmetik k
 - Orbs cüzdanı ve değiştirilemez işlem defteri
 - Sunucuda doğrulanan tek seferlik görev ödülleri
 - Tekli kozmetik veya çok öğeli paket satışları
+- Paketleri katalog limitinden bağımsız vitrinleyen güvenli paket bölümü
+- Ürün kartında satın alma ve kullanıcıya hediye etme işlemleri
+- Aynı temadaki ürünleri ayrı URL altında toplayan koleksiyon sayfaları
+- URL tabanlı mağaza bölümleri ve Discord tarzı **Göz At** açılır menüsü
 - Profil efektleri ve çok öğeli paketler için ayrı vitrin bölümleri ve katmanlı önizleme
 - Satın alınan ürünlerin mevcut kozmetik seçicisine otomatik açılması
 - Stripe, PayPal, PayTR, iyzico, Shopier ve Shipy ile isteğe bağlı gerçek para karşılığı Orb yükleme
@@ -52,6 +56,11 @@ ZIP kullanıyorsanız klasörü `/var/discourse/shared/standalone/plugins/discou
 ## Kullanım
 
 - Mağaza: `/store`
+- Göz At: `/store/browse`
+- Paketler: `/store/browse/bundles`
+- Koleksiyonlar: `/store/collections`
+- Orbs: `/store/orbs`
+- Favoriler: `/store/favorites`
 - Yönetim: **Yönetici → Eklentiler → Cosmetics Store**
 - Genel ayarlar: **Yönetici → Eklentiler → Cosmetics Store → Ayarlar**
 
@@ -71,7 +80,14 @@ Bir ürünü sadece vitrine koymak, fakat herkese açık bırakmak istiyorsanız
 
 - Tekli ürün tam olarak 1 kozmetik ister.
 - Paket en az 2 kozmetik ister.
-- Kullanıcı paketin bazı parçalarına önceden sahipse, satın almada yalnız eksik sahiplikler fiilen eklenir; tekrar satır oluşturulmaz.
+- Kullanıcı paketin parçalarından birine zaten sahipse aynı paket yeniden satın alınamaz veya hediye edilemez.
+- Paketler genel katalog limiti dolsa bile mağazanın paket vitrini ve **Göz At → Paketler** sayfasında tutulur.
+
+### Hediye ve koleksiyonlar
+
+Ürün kartındaki hediye düğmesiyle başka bir aktif forum üyesine tekli kozmetik veya paket gönderilebilir. Tarayıcı yalnız ürün kimliği ve alıcı kullanıcı adını gönderir; fiyat, bakiye, ürünün satış durumu ve alıcının sahipliği sunucuda kilitli bir veritabanı işlemi içinde yeniden okunur. Alıcı paketteki öğelerden birine sahipse, gönderici kendisine hediye göndermeye çalışırsa veya bakiye yetersizse işlem yapılmaz ve hiçbir Orbs düşülmez.
+
+Yönetimde ürünlere aynı **Koleksiyon adı** verildiğinde mağaza bunları `/store/collections/<koleksiyon-slug>` altında toplar. İsteğe bağlı koleksiyon kapak görseli, koleksiyon liste ve ayrıntı sayfalarında kullanılır.
 
 ### Görevler
 
@@ -135,7 +151,15 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.1.0`
+`1.2.0`
+
+### 1.2.0
+
+- Paketlerin katalog limiti dolduğunda vitrinden kaybolması engellendi; paket ve koleksiyon ürünleri katalog yüküne açıkça dahil edildi.
+- **Göz At** açılır menüsü, aramadan otomatik geçiş ve her mağaza bölümüne doğrudan açılabilen URL rotaları eklendi.
+- Ürün kartlarına hover satın alma/hediye düğmeleri ve sunucu doğrulamalı kozmetik hediye sistemi eklendi.
+- Aynı kozmetiğe sahip alıcıya hediye gönderme, istemciden fiyat değiştirme, tekrarlı işlem ve eşzamanlı bakiye harcama girişimleri sunucuda engellendi.
+- Yönetilebilir koleksiyon adı, slug ve kapak görseli alanları ile koleksiyon liste/ayrıntı sayfaları eklendi.
 
 ### 1.1.0
 

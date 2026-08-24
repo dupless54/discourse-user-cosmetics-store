@@ -6,7 +6,7 @@ module ::DiscourseCosmeticsStore
 
     before_action :ensure_store_enabled
     before_action :ensure_logged_in,
-                  only: %i[purchase favorite unfavorite claim_mission]
+                  only: %i[purchase gift favorite unfavorite claim_mission]
 
     def index
       response.headers["Cache-Control"] = "private, no-store"
@@ -18,6 +18,26 @@ module ::DiscourseCosmeticsStore
           .includes(product_items: { cosmetic_item: [:groups, :image_upload, { effect_layers: :image_upload }] })
           .limit(limit)
           .to_a
+
+      # Bundles are a first-class storefront section. Keep them in the payload
+      # even when editor picks and single items fill the general catalog limit.
+      bundle_products =
+        Product
+          .available
+          .where(product_type: "bundle")
+          .ordered
+          .includes(product_items: { cosmetic_item: [:groups, :image_upload, { effect_layers: :image_upload }] })
+          .limit(limit)
+          .to_a
+      collection_products =
+        Product
+          .available
+          .where.not(collection_slug: [nil, ""])
+          .ordered
+          .includes(product_items: { cosmetic_item: [:groups, :image_upload, { effect_layers: :image_upload }] })
+          .limit(limit)
+          .to_a
+      products = (products + bundle_products + collection_products).uniq(&:id)
 
       usage_counts = Catalog.usage_counts
       purchased_ids = viewer_purchase_ids
@@ -57,6 +77,7 @@ module ::DiscourseCosmeticsStore
                    serialized.sort_by { |product| product[:created_at].to_s }.reverse.first(12).map { |product| product[:id] },
                },
                filters: filter_payload(serialized),
+               collections: collection_payload(serialized),
                missions: missions,
                orb_packages: serialize_orb_packages,
                payment_providers: PaymentProviders.enabled,
@@ -80,6 +101,41 @@ module ::DiscourseCosmeticsStore
                  hover_preview: SiteSetting.discourse_cosmetics_store_hover_preview_enabled,
                },
              }
+    end
+
+    def gift
+      RateLimiter.new(current_user, "cosmetics-store-gift", 10, 1.minute).performed!
+      product = Product.find(params[:id])
+      service =
+        GiftService.new(
+          sender: current_user,
+          product: product,
+          recipient_username: params[:username],
+        ).call
+
+      render json: {
+               product_id: service.product.id,
+               balance: service.wallet.balance,
+               recipient: {
+                 id: service.recipient.id,
+                 username: service.recipient.username,
+                 name: service.recipient.name.presence || service.recipient.username,
+                 avatar_url: service.recipient.avatar_template.to_s.gsub("{size}", "96"),
+               },
+               message:
+                 I18n.t(
+                   "discourse_cosmetics_store.messages.gift_sent",
+                   username: service.recipient.username,
+                 ),
+             }
+    rescue GiftService::InvalidRecipient
+      render_error(I18n.t("discourse_cosmetics_store.errors.invalid_recipient"), :unprocessable_entity)
+    rescue GiftService::Unavailable, GiftService::EmptyProduct
+      render_error(I18n.t("discourse_cosmetics_store.errors.unavailable"), :unprocessable_entity)
+    rescue GiftService::AlreadyOwned
+      render_error(I18n.t("discourse_cosmetics_store.errors.recipient_already_owns"), :unprocessable_entity)
+    rescue WalletService::InsufficientBalance
+      render_error(I18n.t("discourse_cosmetics_store.errors.insufficient_balance"), :unprocessable_entity)
     end
 
     def purchase
@@ -196,6 +252,10 @@ module ::DiscourseCosmeticsStore
         purchased: purchased,
         owned: purchased || unlocked,
         favorite: favorite_ids.include?(product.id),
+        giftable: current_user.present? && product.available_now?,
+        collection_name: product.collection_name,
+        collection_slug: product.collection_slug,
+        collection_image_url: product.collection_image_url,
         purchasable: current_user.present? && !purchased && !unlocked && product.available_now?,
         available_from: product.available_from&.iso8601,
         available_until: product.available_until&.iso8601,
@@ -402,6 +462,26 @@ module ::DiscourseCosmeticsStore
             .sort_by { |tag, count| [-count, tag] }
             .map { |tag, count| { value: tag, label: tag.tr("-", " "), count: count } },
       }
+    end
+
+    def collection_payload(products)
+      products
+        .select { |product| product[:collection_slug].present? }
+        .group_by { |product| product[:collection_slug] }
+        .map do |slug, rows|
+          {
+            slug: slug,
+            name:
+              rows.filter_map { |product| product[:collection_name].presence }.first ||
+                slug.tr("-", " ").titleize,
+            image_url:
+              rows.filter_map { |product| product[:collection_image_url].presence }.first ||
+                rows.filter_map { |product| product[:hero_image_url].presence }.first,
+            product_ids: rows.map { |product| product[:id] },
+            product_count: rows.length,
+          }
+        end
+        .sort_by { |collection| collection[:name] }
     end
 
     def render_error(message, status)

@@ -19,6 +19,9 @@ const EMPTY_PRODUCT = {
   card_image_url: "",
   hero_image_url: "",
   preview_background_url: "",
+  collection_name: "",
+  collection_slug: "",
+  collection_image_url: "",
   rarity_label: "",
   rarity_color: "",
   tags_csv: "",
@@ -355,6 +358,9 @@ export default class CosmeticsStoreAdminPage extends Component {
                 <label>Nadirlik rengi<input type="color" value={{this.editingProduct.rarity_color}} {{on "input" (fn this.updateProduct "rarity_color")}} /></label>
                 <label>Sıra<input min="0" type="number" value={{this.editingProduct.sort_order}} {{on "input" (fn this.updateProduct "sort_order")}} /></label>
                 <label>Etiketler<input value={{this.editingProduct.tags_csv}} {{on "input" (fn this.updateProduct "tags_csv")}} placeholder="anime, neon, oyun" /></label>
+                <label>Koleksiyon adı<input maxlength="120" value={{this.editingProduct.collection_name}} {{on "input" (fn this.updateProduct "collection_name")}} placeholder="Örn. Cehennem" /></label>
+                <label>Koleksiyon slug<input maxlength="140" value={{this.editingProduct.collection_slug}} {{on "input" (fn this.updateProduct "collection_slug")}} placeholder="Boşsa koleksiyon adından oluşur" /></label>
+                <label class="is-wide">Koleksiyon kapak görseli URL<input type="url" value={{this.editingProduct.collection_image_url}} {{on "input" (fn this.updateProduct "collection_image_url")}} /></label>
                 <label class="is-wide">Kart görseli URL<input type="url" value={{this.editingProduct.card_image_url}} {{on "input" (fn this.updateProduct "card_image_url")}} /></label>
                 <label class="is-wide">Hero görseli URL<input type="url" value={{this.editingProduct.hero_image_url}} {{on "input" (fn this.updateProduct "hero_image_url")}} /></label>
                 <label class="is-wide">Önizleme arka planı URL<input type="url" value={{this.editingProduct.preview_background_url}} {{on "input" (fn this.updateProduct "preview_background_url")}} /></label>
