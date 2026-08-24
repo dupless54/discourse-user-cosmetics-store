@@ -9,7 +9,9 @@ Bu eklenti kozmetik verilerini kopyalamaz. Ürün ve paketleri mevcut kozmetik k
 - `/store` adresinde responsive mağaza vitrini
 - Öne çıkanlar, editör seçimleri, en çok kullanılanlar, paketler ve yeni ürünler
 - Ürün adına, türüne, nadirliğine, etikete, fiyata ve sahipliğe göre filtreleme
-- Kozmetik önizleme kartları ve ayrıntı/satın alma penceresi
+- Oturum açmış üyenin gerçek avatarını kullanan kozmetik önizleme kartları
+- Ürünü üyenin profil kapağı ve kimliğiyle gösteren 304 × 444 user-card önizlemesi
+- Kozmetik ayrıntı ve satın alma penceresi
 - Favoriler
 - Orbs cüzdanı ve değiştirilemez işlem defteri
 - Sunucuda doğrulanan tek seferlik görev ödülleri
@@ -99,7 +101,14 @@ Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakma
 
 ## Sürüm
 
-`1.0.5`
+`1.0.6`
+
+### 1.0.6
+
+- Avatar çerçeveleri mağaza kartlarında artık ürünü inceleyen üyenin gerçek forum avatarına uygulanıyor.
+- Ürün penceresine, üyenin avatarını ve varsa kart/profil kapak görselini kullanan responsive 304 × 444 user-card önizlemesi eklendi.
+- Paket önizlemesinde avatar çerçevesi, isim plakası, kart dekorasyonu ve profil efekti aynı kart üzerinde birlikte gösteriliyor.
+- Oturum açmamış ziyaretçiler için güvenli varsayılan avatar ve kapak görünümü korunuyor.
 
 ### 1.0.5
 

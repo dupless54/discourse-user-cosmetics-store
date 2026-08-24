@@ -65,6 +65,7 @@ module ::DiscourseCosmeticsStore
                  can_purchase: current_user.present?,
                  favorites_enabled: SiteSetting.discourse_cosmetics_store_favorites_enabled,
                  missions_enabled: SiteSetting.discourse_cosmetics_store_missions_enabled,
+                 preview_user: serialize_preview_user,
                },
                settings: {
                  currency_name: SiteSetting.discourse_cosmetics_store_currency_name,
@@ -306,6 +307,26 @@ module ::DiscourseCosmeticsStore
                 created_at: entry.created_at&.iso8601,
               }
             end,
+      }
+    end
+
+    def serialize_preview_user
+      return {
+               name: "Topluluk üyesi",
+               username: "kullanici",
+               avatar_url: nil,
+               card_background_url: nil,
+               profile_background_url: nil,
+             } unless current_user
+
+      profile = current_user.user_profile
+
+      {
+        name: current_user.name.presence || current_user.username,
+        username: current_user.username,
+        avatar_url: current_user.avatar_template.to_s.gsub("{size}", "240"),
+        card_background_url: profile&.card_background_upload&.url,
+        profile_background_url: profile&.profile_background_upload&.url,
       }
     end
 

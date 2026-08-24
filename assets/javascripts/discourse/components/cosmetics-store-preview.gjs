@@ -3,6 +3,22 @@ import { htmlSafe } from "@ember/template";
 import { eq } from "discourse/truth-helpers";
 
 export default class CosmeticsStorePreview extends Component {
+  get previewUser() {
+    return this.args.previewUser ?? {};
+  }
+
+  get previewName() {
+    return (
+      this.previewUser.name ||
+      this.previewUser.username ||
+      "Topluluk üyesi"
+    );
+  }
+
+  get previewAvatarUrl() {
+    return this.previewUser.avatar_url;
+  }
+
   get previewItems() {
     return (this.args.product?.items || []).slice(0, 4).map((item) => ({
       ...item,
@@ -29,12 +45,18 @@ export default class CosmeticsStorePreview extends Component {
         {{#each this.previewItems as |item|}}
           <div class="cstore-preview-item cstore-preview-item--{{item.kind}}" style={{item.visualStyle}} title={{item.name}}>
             {{#if (eq item.kind "avatar_frame")}}
-              <span class="cstore-preview__avatar"><i></i></span>
-              {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+              <span class="cstore-preview__avatar">
+                {{#if this.previewAvatarUrl}}
+                  <img class="cstore-preview__avatar-image" src={{this.previewAvatarUrl}} alt="" loading="eager" />
+                {{else}}
+                  <i></i>
+                {{/if}}
+              </span>
+              {{#if item.image_url}}<img class="cstore-preview__frame" src={{item.image_url}} alt="" loading="lazy" />{{/if}}
             {{else if (eq item.kind "nameplate")}}
               <span class="cstore-preview__nameplate">
                 {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
-                <b>Senin.me</b>
+                <b>{{this.previewName}}</b>
               </span>
             {{else if (eq item.kind "card_decoration")}}
               <span class="cstore-preview__card">

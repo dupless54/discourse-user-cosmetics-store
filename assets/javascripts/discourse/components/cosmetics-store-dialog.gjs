@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
-import CosmeticsStorePreview from "./cosmetics-store-preview";
+import CosmeticsStoreUserCardPreview from "./cosmetics-store-user-card-preview";
 
 export default class CosmeticsStoreDialog extends Component {
   get canAfford() {
@@ -61,11 +61,7 @@ export default class CosmeticsStoreDialog extends Component {
 
         <main class="cstore-dialog__live">
           <p class="cstore-eyebrow">PROFİLİNDE BÖYLE GÖRÜNÜR</p>
-          <div class="cstore-live-card">
-            <CosmeticsStorePreview @product={{@product}} />
-            <div class="cstore-live-card__identity"><i></i><strong>Topluluk üyesi</strong><span>@kullanici</span></div>
-            <p>Tarzını toplulukta her yerde göster.</p>
-          </div>
+          <CosmeticsStoreUserCardPreview @product={{@product}} @user={{@viewer.preview_user}} />
           {{#if @product.tags.length}}
             <div class="cstore-dialog__tags">{{#each @product.tags as |tag|}}<span>#{{tag}}</span>{{/each}}</div>
           {{/if}}

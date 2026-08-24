@@ -8,7 +8,7 @@ export default class CosmeticsStoreProductCard extends Component {
   <template>
     <article class="cstore-product {{if @product.owned 'is-owned'}} {{if @hoverPreview 'has-hover-preview'}}">
       <button class="cstore-product__open" type="button" {{on "click" (fn @onOpen @product)}} aria-label="{{@product.name}} ayrıntılarını aç">
-        <CosmeticsStorePreview @product={{@product}} />
+        <CosmeticsStorePreview @product={{@product}} @previewUser={{@previewUser}} />
         <span class="cstore-product__shade"></span>
         <span class="cstore-product__peek">Canlı önizleme</span>
       </button>

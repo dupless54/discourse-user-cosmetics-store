@@ -41,6 +41,10 @@ export default class CosmeticsStore extends Component {
     return this.args.model?.viewer ?? {};
   }
 
+  get previewUser() {
+    return this.viewer.preview_user ?? {};
+  }
+
   get filters() {
     return this.args.model?.filters ?? { kinds: [], rarities: [], tags: [] };
   }
@@ -338,7 +342,7 @@ export default class CosmeticsStore extends Component {
                 <p>{{this.settings.hero_subtitle}}</p>
                 <button type="button" {{on "click" (fn this.openProduct hero)}}>Koleksiyonu incele</button>
               </div>
-              <div class="cstore-hero__preview"><CosmeticsStorePreview @product={{hero}} /></div>
+              <div class="cstore-hero__preview"><CosmeticsStorePreview @product={{hero}} @previewUser={{this.previewUser}} /></div>
             </section>
           {{else}}
             <section class="cstore-empty"><strong>Mağaza hazırlanıyor</strong><p>Yönetim panelinden ilk ürünü eklediğinde burada görünecek.</p></section>
@@ -349,7 +353,7 @@ export default class CosmeticsStore extends Component {
               <div class="cstore-section__heading"><div><p class="cstore-eyebrow">VİTRİN</p><h2>{{this.settings.editor_title}}</h2></div><button type="button" {{on "click" (fn this.setTab "browse")}}>Tümünü gör →</button></div>
               <div class="cstore-grid cstore-grid--featured">
                 {{#each this.featuredCards as |product|}}
-                  <CosmeticsStoreProductCard @product={{product}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
+                  <CosmeticsStoreProductCard @product={{product}} @previewUser={{this.previewUser}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
                 {{/each}}
               </div>
             </section>
@@ -360,7 +364,7 @@ export default class CosmeticsStore extends Component {
               <div class="cstore-section__heading"><div><p class="cstore-eyebrow">BİRLİKTE DAHA İYİ</p><h2>Kozmetik paketleri</h2></div></div>
               <div class="cstore-grid cstore-grid--wide">
                 {{#each this.bundleProducts as |product|}}
-                  <CosmeticsStoreProductCard @product={{product}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
+                  <CosmeticsStoreProductCard @product={{product}} @previewUser={{this.previewUser}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
                 {{/each}}
               </div>
             </section>
@@ -371,7 +375,7 @@ export default class CosmeticsStore extends Component {
               <div class="cstore-section__heading"><div><p class="cstore-eyebrow">TOPLULUĞUN TARZI</p><h2>En çok kullanılanlar</h2></div></div>
               <div class="cstore-grid">
                 {{#each this.popularProducts as |product|}}
-                  <CosmeticsStoreProductCard @product={{product}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
+                  <CosmeticsStoreProductCard @product={{product}} @previewUser={{this.previewUser}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
                 {{/each}}
               </div>
             </section>
@@ -395,7 +399,7 @@ export default class CosmeticsStore extends Component {
             {{#if this.browseProducts.length}}
               <div class="cstore-grid">
                 {{#each this.browseProducts as |product|}}
-                  <CosmeticsStoreProductCard @product={{product}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
+                  <CosmeticsStoreProductCard @product={{product}} @previewUser={{this.previewUser}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />
                 {{/each}}
               </div>
             {{else}}
@@ -430,7 +434,7 @@ export default class CosmeticsStore extends Component {
         <main class="cstore-section cstore-favorites-page">
           <div class="cstore-section__heading"><div><p class="cstore-eyebrow">KOLEKSİYON RADARI</p><h1>Favorilerin</h1></div></div>
           {{#if this.favoriteProducts.length}}
-            <div class="cstore-grid">{{#each this.favoriteProducts as |product|}}<CosmeticsStoreProductCard @product={{product}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />{{/each}}</div>
+            <div class="cstore-grid">{{#each this.favoriteProducts as |product|}}<CosmeticsStoreProductCard @product={{product}} @previewUser={{this.previewUser}} @currencySymbol={{this.settings.currency_symbol}} @favoritesEnabled={{this.viewer.favorites_enabled}} @hoverPreview={{this.settings.hover_preview}} @onOpen={{this.openProduct}} @onFavorite={{this.toggleFavorite}} />{{/each}}</div>
           {{else}}
             <div class="cstore-empty"><strong>Henüz favorin yok</strong><p>Beğendiğin ürünlerdeki kalbe dokun; burada saklayalım.</p><button type="button" {{on "click" (fn this.setTab "browse")}}>Mağazaya göz at</button></div>
           {{/if}}
