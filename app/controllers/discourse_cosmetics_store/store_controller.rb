@@ -221,6 +221,12 @@ module ::DiscourseCosmeticsStore
       if item.kind == "profile_effect"
         effect_fields = DiscourseUserCosmetics::Presenter.effect_fields(item)
         effect_fields[:image_url] = payload[:image_url] if effect_fields[:image_url].blank?
+        if item.respond_to?(:effect_side_offset_top)
+          effect_fields[:side_offset_top] = item.effect_side_offset_top.to_i
+        end
+        if item.respond_to?(:effect_side_offset_bottom)
+          effect_fields[:side_offset_bottom] = item.effect_side_offset_bottom.to_i
+        end
         payload.merge!(effect_fields)
       end
 
