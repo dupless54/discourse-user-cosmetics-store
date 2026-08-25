@@ -2,9 +2,9 @@
 
 # name: discourse-user-cosmetics-store
 # about: Discord tarzı Orbs mağazası, görevler ve discourse-user-cosmetics entegrasyonu.
-# version: 1.3.0
+# version: 1.3.1
 # authors: dupless54
-# url: https://forum.senin.me/store
+# url: https://senin.me/store
 # required_version: 3.3.0
 
 enabled_site_setting :discourse_cosmetics_store_enabled
@@ -13,7 +13,7 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
-  VERSION = "1.3.0"
+  VERSION = "1.3.1"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb

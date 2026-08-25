@@ -1,4 +1,4 @@
-tr:
+tr_TR:
   site_settings:
     discourse_cosmetics_store_enabled: "Orbs kozmetik mağazasını etkinleştir."
     discourse_cosmetics_store_currency_name: "Mağaza para biriminin adı."
@@ -38,7 +38,7 @@ tr:
     discourse_cosmetics_store_shipy_api_key: "Shipy API anahtarı."
   discourse_cosmetics_store:
     admin:
-      title: "Cosmetics Store"
+      title: "Kozmetik Mağazası"
       catalog: "Mağaza yönetimi"
       catalog_description: "Kozmetik ürünlerini, Orbs görevlerini ve kullanıcı cüzdanlarını yönetin."
     errors:

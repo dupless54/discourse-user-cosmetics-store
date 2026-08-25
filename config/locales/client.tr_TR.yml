@@ -1,8 +1,8 @@
-tr:
+tr_TR:
   js:
     discourse_cosmetics_store:
-      title: "Cosmetics Store"
+      title: "Kozmetik Mağazası"
       admin:
-        title: "Cosmetics Store"
+        title: "Kozmetik Mağazası"
         catalog: "Mağaza yönetimi"
         catalog_description: "Kozmetik ürünlerini, Orbs görevlerini ve kullanıcı cüzdanlarını yönetin."

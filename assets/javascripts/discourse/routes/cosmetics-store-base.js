@@ -1,5 +1,6 @@
 import { ajax } from "discourse/lib/ajax";
 import DiscourseRoute from "discourse/routes/discourse";
+import { i18n } from "discourse-i18n";
 
 export default class CosmeticsStoreBaseRoute extends DiscourseRoute {
   storeTab = "featured";
@@ -14,7 +15,7 @@ export default class CosmeticsStoreBaseRoute extends DiscourseRoute {
   }
 
   titleToken() {
-    return "Cosmetics Store";
+    return i18n("discourse_cosmetics_store.title");
   }
 
   activate() {
