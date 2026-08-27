@@ -9,8 +9,9 @@ Route by surface:
 - controllers/models and store behavior -> `app/AGENTS.md`
 - wallet/purchase/gift/payment/refund/provider services -> `lib/AGENTS.md`
 - admin UI/API -> `admin/AGENTS.md`
-- client storefront -> `assets/javascripts/AGENTS.md`
+- client storefront -> `assets/AGENTS.md`
 - migrations/schema -> `db/AGENTS.md`
+AI context files must stay out of runtime-compiled directories such as `assets/javascripts/`; keep frontend-scoped context at `assets/`.
 For multi-session work use the minimal `docs/ai/work/<feature>/{state.md,progress.md,implementation-plan.md}` packet.
 
 ## Fast task path
