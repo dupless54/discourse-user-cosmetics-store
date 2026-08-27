@@ -9,7 +9,7 @@ Route by surface:
 - controllers/models and store behavior -> `app/AGENTS.md`
 - wallet/purchase/gift/payment/refund/provider services -> `lib/AGENTS.md`
 - admin UI/API -> `admin/AGENTS.md`
-- client storefront -> `assets/javascripts/discourse/AGENTS.md`
+- client storefront -> `assets/javascripts/AGENTS.md`
 - migrations/schema -> `db/AGENTS.md`
 For multi-session work use the minimal `docs/ai/work/<feature>/{state.md,progress.md,implementation-plan.md}` packet.
 
