@@ -13,6 +13,9 @@ Route by surface:
 - migrations/schema -> `db/AGENTS.md`
 For multi-session work use the minimal `docs/ai/work/<feature>/{state.md,progress.md,implementation-plan.md}` packet.
 
+## Fast task path
+For non-trivial work, use `.agents/skills/task-packet/SKILL.md` before broad reads. Use `docs/ai/REPO_MAP.md` to locate code, `COMMANDS.md` only for validation, and `DECISIONS.md` only for architecture/payment/dependency choices. Skip the formal packet for trivial one-file edits.
+
 ## Financial and dependency invariants
 This plugin owns Orbs wallet/ledger, products, purchases, gifts, missions, favorites, orb packages, payment lifecycle, fulfillment, refunds, and payment-event audit. It consumes `discourse-user-cosmetics` as the base cosmetic catalog/ownership plugin.
 
@@ -31,4 +34,4 @@ Use current Discourse APIs verified from source. Keep business rules server-side
 
 Stop for unresolved financial semantics, refund policy, provider contract, schema/migration, security, or cross-plugin architecture. Preserve unrelated work and `.claude/settings.local.json`. No force-push/reset/clean/branch deletion/deploy/destructive DB work; remote writes only when explicitly authorized.
 
-Prefer targeted symbols/diffs/logs over broad scans. Reusable procedures are under `.agents/skills/` and load on demand.
+Prefer targeted symbols/diffs/logs over broad scans. Reusable procedures are under `.agents/skills/` and load on demand; use `task-packet` for non-trivial work.
