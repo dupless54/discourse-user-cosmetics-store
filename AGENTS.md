@@ -35,3 +35,6 @@ Use current Discourse APIs verified from source. Keep business rules server-side
 Stop for unresolved financial semantics, refund policy, provider contract, schema/migration, security, or cross-plugin architecture. Preserve unrelated work and `.claude/settings.local.json`. No force-push/reset/clean/branch deletion/deploy/destructive DB work; remote writes only when explicitly authorized.
 
 Prefer targeted symbols/diffs/logs over broad scans. Reusable procedures are under `.agents/skills/` and load on demand; use `task-packet` for non-trivial work.
+
+## Adaptive model / effort routing
+Classify execution risk with `docs/ai/EFFORT_ROUTER.md` before broad reads. Start at the lowest sufficient tier: T0 mechanical, T1 routine, T2 high-risk, T3 exceptional. Escalate for risk/ambiguity rather than task size, and de-escalate when the risky phase ends. Use platform-native workers under `.claude/agents/` or `.codex/agents/` when supported; never trade away correctness, security, or validation to save tokens.
