@@ -5,6 +5,9 @@ tr_TR:
       nav:
         inventory: "Envanter"
         history: "Geçmiş"
+      notifications:
+        gift_received_title: "Kozmetik hediyesi aldın"
+        gift_received_description: "sana %{product_name} hediye etti"
       inventory:
         eyebrow: "KOZMETİKLERİN"
         title: "Envanter"
