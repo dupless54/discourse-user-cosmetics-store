@@ -3,6 +3,21 @@
 module ::DiscourseCosmeticsStore
   class CosmeticsAccess
     class << self
+      def owned_item_ids(user:, items:)
+        items = Array(items)
+        return {} unless user
+        return {} if items.empty?
+
+        if DiscourseCosmeticsStore.base_integration_ready?
+          return DiscourseUserCosmetics::Integration.owned_item_ids(user: user, items: items)
+        end
+
+        DiscourseUserCosmetics::UserItem
+          .where(user_id: user.id, item_id: items.map(&:id))
+          .pluck(:item_id)
+          .index_with(true)
+      end
+
       def entitled_item_ids(user:, items:)
         items = Array(items)
         return {} unless user
@@ -27,11 +42,7 @@ module ::DiscourseCosmeticsStore
 
       def legacy_entitled_item_ids(user:, items:)
         item_ids = items.map(&:id)
-        directly_owned_ids =
-          DiscourseUserCosmetics::UserItem
-            .where(user_id: user.id, item_id: item_ids)
-            .pluck(:item_id)
-            .to_set
+        directly_owned_ids = owned_item_ids(user: user, items: items).keys.to_set
 
         groups_by_item = Hash.new { |hash, item_id| hash[item_id] = [] }
         DiscourseUserCosmetics::ItemGroup.where(item_id: item_ids).pluck(:item_id, :group_id).each do |item_id, group_id|
