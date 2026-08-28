@@ -82,7 +82,7 @@ export default class CosmeticsStoreInventory extends Component {
   }
 
   <template>
-    <div class="cstore-shell">
+    <div class="cstore-shell" data-testid="cosmetics-inventory">
       {{#if @viewer.logged_in}}
         <main class="cstore-section cstore-favorites-page">
           <div class="cstore-section__heading">
@@ -105,15 +105,15 @@ export default class CosmeticsStoreInventory extends Component {
           </div>
 
           <div class="cstore-wallet-stats">
-            <span>
+            <span data-testid="inventory-owned-count">
               <strong>{{this.stats.directly_owned_count}}</strong>
               <small>{{i18n "discourse_cosmetics_store.inventory.directly_owned"}}</small>
             </span>
-            <span>
+            <span data-testid="inventory-unlocked-count">
               <strong>{{this.stats.unlocked_count}}</strong>
               <small>{{i18n "discourse_cosmetics_store.inventory.unlocked"}}</small>
             </span>
-            <span>
+            <span data-testid="inventory-catalog-count">
               <strong>{{this.stats.catalog_count}}</strong>
               <small>{{i18n "discourse_cosmetics_store.inventory.catalog"}}</small>
             </span>
@@ -123,6 +123,7 @@ export default class CosmeticsStoreInventory extends Component {
             <div>
               <button
                 type="button"
+                data-testid="inventory-mode-owned"
                 class={{if (eq this.mode "owned") "btn btn-primary" "btn btn-default"}}
                 aria-pressed={{eq this.mode "owned"}}
                 {{on "click" (fn this.setMode "owned")}}
@@ -131,6 +132,7 @@ export default class CosmeticsStoreInventory extends Component {
               </button>
               <button
                 type="button"
+                data-testid="inventory-mode-unlocked"
                 class={{if (eq this.mode "unlocked") "btn btn-primary" "btn btn-default"}}
                 aria-pressed={{eq this.mode "unlocked"}}
                 {{on "click" (fn this.setMode "unlocked")}}
@@ -141,7 +143,11 @@ export default class CosmeticsStoreInventory extends Component {
 
             <label>
               {{i18n "discourse_cosmetics_store.inventory.filter_kind"}}
-              <select value={{this.selectedKind}} {{on "change" this.updateKind}}>
+              <select
+                data-testid="inventory-kind-filter"
+                value={{this.selectedKind}}
+                {{on "change" this.updateKind}}
+              >
                 <option value="">{{i18n "discourse_cosmetics_store.inventory.all_kinds"}}</option>
                 {{#each this.kindOptions as |kind|}}
                   <option value={{kind.kind}}>{{kind.label}} ({{kind.visible_count}})</option>
@@ -153,7 +159,10 @@ export default class CosmeticsStoreInventory extends Component {
           {{#if this.visibleItems.length}}
             <div class="cstore-grid">
               {{#each this.visibleItems as |item|}}
-                <article class="cstore-product {{if item.directly_owned 'is-owned'}}">
+                <article
+                  class="cstore-product {{if item.directly_owned 'is-owned'}}"
+                  data-item-id={{item.id}}
+                >
                   <div class="cstore-product__open">
                     {{#if item.image_url}}
                       <img src={{item.image_url}} alt="" loading="lazy" />
