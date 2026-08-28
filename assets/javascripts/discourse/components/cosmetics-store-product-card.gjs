@@ -22,6 +22,10 @@ export default class CosmeticsStoreProductCard extends Component {
     return !this.args.product?.favorite && !this.args.product?.favoriteable;
   }
 
+  get giftDisabled() {
+    return !this.args.product?.giftable;
+  }
+
   get primaryActionLabel() {
     return this.args.product?.sale_state === "upcoming" ? "Yakında" : "Satın al";
   }
@@ -54,7 +58,7 @@ export default class CosmeticsStoreProductCard extends Component {
             <span>{{@currencySymbol}} {{@product.price}}</span><b>{{dIcon "cart-shopping"}} {{this.primaryActionLabel}}</b>
           </button>
         {{/unless}}
-        <button class="cstore-product__gift" type="button" disabled={{not @product.giftable}} aria-label="{{@product.name}} ürününü hediye et" {{on "click" (fn @onGift @product)}}>{{dIcon "gift"}}</button>
+        <button class="cstore-product__gift" type="button" disabled={{this.giftDisabled}} aria-label="{{@product.name}} ürününü hediye et" {{on "click" (fn @onGift @product)}}>{{dIcon "gift"}}</button>
       </div>
 
       <button class="cstore-product__info" type="button" {{on "click" (fn @onOpen @product)}}>
