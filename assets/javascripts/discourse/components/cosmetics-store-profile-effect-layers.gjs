@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { htmlSafe } from "@ember/template";
+import { prefersReducedMotion } from "../lib/cosmetics-store-motion";
 
 const CARD_WIDTH = 304;
 const CARD_HEIGHT = 444;
@@ -18,6 +19,10 @@ export default class CosmeticsStoreProfileEffectLayers extends Component {
   }
 
   get layers() {
+    if (prefersReducedMotion()) {
+      return [];
+    }
+
     return (Array.isArray(this.effect.layers) ? this.effect.layers : [])
       .filter(
         (layer) =>
