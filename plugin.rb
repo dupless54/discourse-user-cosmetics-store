@@ -35,6 +35,10 @@ module ::DiscourseCosmeticsStore
     lib/discourse_user_cosmetics/selection_service.rb
     lib/discourse_user_cosmetics/integration.rb
   ].freeze
+  BASE_PLUGIN_LOADOUT_RUBY_FILES = %w[
+    app/models/discourse_user_cosmetics/loadout.rb
+    lib/discourse_user_cosmetics/loadout_service.rb
+  ].freeze
 
   def self.base_plugin_ready?
     defined?(::DiscourseUserCosmetics::Item) &&
@@ -84,6 +88,7 @@ module ::DiscourseCosmeticsStore
     end
 
     load_base_integration_if_available!(root)
+    load_base_loadouts_if_available!(root)
     base_plugin_ready?
   rescue StandardError, LoadError => error
     Rails.logger.error(
@@ -104,6 +109,16 @@ module ::DiscourseCosmeticsStore
     end
 
     base_integration_ready?
+  end
+
+  def self.load_base_loadouts_if_available!(root = base_plugin_root)
+    return true if defined?(::DiscourseUserCosmetics::Loadout) &&
+      defined?(::DiscourseUserCosmetics::LoadoutService)
+
+    return false unless BASE_PLUGIN_LOADOUT_RUBY_FILES.all? { |path| File.file?(File.join(root, path)) }
+
+    BASE_PLUGIN_LOADOUT_RUBY_FILES.each { |path| require File.join(root, path) }
+    defined?(::DiscourseUserCosmetics::Loadout) && defined?(::DiscourseUserCosmetics::LoadoutService)
   end
 
   def self.install_item_access_extension!
