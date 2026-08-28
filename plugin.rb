@@ -16,6 +16,7 @@ register_asset "stylesheets/discourse-cosmetics-store-loadouts.scss"
 register_asset "stylesheets/discourse-cosmetics-store-preview.scss"
 register_asset "stylesheets/discourse-cosmetics-store-availability.scss"
 register_asset "stylesheets/discourse-cosmetics-store-wardrobe.scss"
+register_asset "stylesheets/discourse-cosmetics-store-activity.scss"
 
 %w[cart-shopping check clock eye gift heart image palette paper-plane right-to-bracket xmark].each do |icon|
   register_svg_icon icon
@@ -195,6 +196,7 @@ after_initialize do
   require_relative "app/controllers/discourse_cosmetics_store/inventory_controller"
   require_relative "app/controllers/discourse_cosmetics_store/loadouts_controller"
   require_relative "app/controllers/discourse_cosmetics_store/preview_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/activity_controller"
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
@@ -228,6 +230,7 @@ after_initialize do
     get "/store/inventory" => "list#latest"
     get "/store/loadouts" => "list#latest"
     get "/store/preview" => "list#latest"
+    get "/store/activity" => "list#latest"
     get "/store/collections" => "list#latest"
     get "/store/collections/:collection_slug" => "list#latest",
         constraints: { collection_slug: /[a-z0-9][a-z0-9\-]*/ }
@@ -249,6 +252,7 @@ after_initialize do
            constraints: { id: /\d+/ }
       get "/cosmetics-store/preview" => "discourse_cosmetics_store/preview#index"
       post "/cosmetics-store/preview/apply" => "discourse_cosmetics_store/preview#apply"
+      get "/cosmetics-store/activity" => "discourse_cosmetics_store/activity#index"
       post "/cosmetics-store/products/:id/purchase" => "discourse_cosmetics_store/store#purchase",
            constraints: { id: /\d+/ }
       post "/cosmetics-store/products/:id/gift" => "discourse_cosmetics_store/store#gift",
