@@ -17,27 +17,23 @@ module ::DiscourseCosmeticsStore
                       }
       end
 
-      items =
-        DiscourseUserCosmetics::Item.enabled
-          .ordered
-          .includes(:image_upload, effect_layers: :image_upload)
-          .to_a
+      products = collection_products
+      items = inventory_items(products)
       owned_item_ids = CosmeticsAccess.owned_item_ids(user: current_user, items: items)
       entitled_item_ids = CosmeticsAccess.entitled_item_ids(user: current_user, items: items)
 
-      visible_items =
-        items.select do |item|
-          owned_item_ids.key?(item.id) || entitled_item_ids.key?(item.id)
-        end
-
       render json: {
-               inventory: inventory_payload(
-                 items: visible_items,
-                 catalog_count: items.length,
-                 owned_item_ids: owned_item_ids,
-                 entitled_item_ids: entitled_item_ids,
-               ),
+               inventory:
+                 collections_only? ?
+                   empty_inventory :
+                   inventory_payload(
+                     items: visible_items(items, owned_item_ids, entitled_item_ids),
+                     catalog_count: items.length,
+                     owned_item_ids: owned_item_ids,
+                     entitled_item_ids: entitled_item_ids,
+                   ),
                collections: collection_progress_payload(
+                 products: products,
                  items_by_id: items.index_by(&:id),
                  owned_item_ids: owned_item_ids,
                  entitled_item_ids: entitled_item_ids,
@@ -53,6 +49,36 @@ module ::DiscourseCosmeticsStore
 
     def ensure_store_enabled
       raise Discourse::NotFound unless SiteSetting.discourse_cosmetics_store_enabled
+    end
+
+    def collections_only?
+      params[:scope].to_s == "collections"
+    end
+
+    def collection_products
+      Product.available
+        .where.not(collection_slug: [nil, ""])
+        .ordered
+        .includes(:product_items)
+        .to_a
+    end
+
+    def inventory_items(products)
+      scope =
+        if collections_only?
+          item_ids = products.flat_map { |product| product.product_items.map(&:cosmetic_item_id) }.uniq
+          DiscourseUserCosmetics::Item.enabled.where(id: item_ids)
+        else
+          DiscourseUserCosmetics::Item.enabled.ordered
+        end
+
+      scope.includes(:image_upload, effect_layers: :image_upload).to_a
+    end
+
+    def visible_items(items, owned_item_ids, entitled_item_ids)
+      items.select do |item|
+        owned_item_ids.key?(item.id) || entitled_item_ids.key?(item.id)
+      end
     end
 
     def empty_inventory
@@ -113,14 +139,7 @@ module ::DiscourseCosmeticsStore
       )
     end
 
-    def collection_progress_payload(items_by_id:, owned_item_ids:, entitled_item_ids:)
-      products =
-        Product.available
-          .where.not(collection_slug: [nil, ""])
-          .ordered
-          .includes(:product_items)
-          .to_a
-
+    def collection_progress_payload(products:, items_by_id:, owned_item_ids:, entitled_item_ids:)
       products
         .group_by(&:collection_slug)
         .map do |slug, rows|
