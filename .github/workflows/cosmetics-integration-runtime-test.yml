@@ -7,6 +7,7 @@ on:
       - feature/cosmetics-inventory-collections
       - feature/cosmetics-loadouts-ui
       - feature/cosmetics-live-preview-studio
+      - feature/cosmetics-rarity-limited-seasonal
 
 permissions:
   contents: read
