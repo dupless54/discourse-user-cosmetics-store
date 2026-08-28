@@ -42,6 +42,16 @@ export default {
           defaultPrefixValue = "palette";
         };
       });
+
+      api.addCommunitySectionLink((baseSectionLink) => {
+        return class CosmeticsActivitySectionLink extends baseSectionLink {
+          name = "cosmetics-activity";
+          route = "cosmetics-store-activity";
+          text = i18n("discourse_cosmetics_store.nav.activity");
+          title = i18n("discourse_cosmetics_store.activity.subtitle");
+          defaultPrefixValue = "clock";
+        };
+      });
     });
   },
 };
