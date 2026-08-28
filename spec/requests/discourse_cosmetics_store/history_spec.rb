@@ -2,9 +2,9 @@
 
 RSpec.describe "Cosmetics Store history" do
   fab!(:user)
-  fab!(:recipient) { Fabricate(:user) }
-  fab!(:sender) { Fabricate(:user) }
-  fab!(:other_user) { Fabricate(:user) }
+  fab!(:recipient, :user)
+  fab!(:sender, :user)
+  fab!(:other_user, :user)
 
   before do
     skip "base cosmetics plugin is not installed in this test job" unless DiscourseCosmeticsStore.base_plugin_ready?
