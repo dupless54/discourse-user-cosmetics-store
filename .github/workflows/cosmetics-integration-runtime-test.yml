@@ -8,6 +8,7 @@ on:
       - feature/cosmetics-loadouts-ui
       - feature/cosmetics-live-preview-studio
       - feature/cosmetics-rarity-limited-seasonal
+      - feature/cosmetics-admin-health-check
 
 permissions:
   contents: read
