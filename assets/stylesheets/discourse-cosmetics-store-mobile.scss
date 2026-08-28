@@ -125,7 +125,7 @@
   .cstore-product__actions {
     top: auto;
     right: 0.6rem;
-    bottom: 0.6rem;
+    bottom: calc(118px + 0.75rem);
   }
 
   // Turn the product dialog into a real mobile sheet. Using dvh prevents the
@@ -283,6 +283,10 @@
 
   .cstore-product__open {
     aspect-ratio: 16 / 9;
+  }
+
+  .cstore-product__actions {
+    bottom: calc(104px + 0.7rem);
   }
 
   .cstore-product__info {
