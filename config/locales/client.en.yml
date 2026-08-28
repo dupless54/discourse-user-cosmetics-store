@@ -5,6 +5,7 @@ en:
       nav:
         inventory: "Inventory"
         loadouts: "Loadouts"
+        preview: "Preview Studio"
       inventory:
         eyebrow: "YOUR COSMETICS"
         title: "Inventory"
@@ -58,6 +59,26 @@ en:
         renamed: "Cosmetic set renamed."
         deleted: "Cosmetic set deleted."
         applied: "%{name} applied."
+        kinds:
+          avatar_frame: "Avatar frame"
+          nameplate: "Nameplate"
+          card_decoration: "Card decoration"
+          profile_effect: "Profile effect"
+      preview:
+        eyebrow: "LIVE LOOK LAB"
+        title: "Preview Studio"
+        subtitle: "Mix cosmetics available to your account without changing what you wear until you apply the complete look."
+        controls_label: "Preview cosmetic controls"
+        none: "None"
+        empty_kind: "No cosmetics of this type are currently available to your account."
+        preview_eyebrow: "LIVE PREVIEW"
+        preview_title: "Your combined look"
+        temporary_note: "Changes stay private until you apply them."
+        sample_bio: "Preview how your cosmetics work together on a Discourse-style user card."
+        apply_action: "Apply this look"
+        applying: "Applying…"
+        reset_action: "Reset"
+        applied: "Your cosmetic look was applied."
         kinds:
           avatar_frame: "Avatar frame"
           nameplate: "Nameplate"
