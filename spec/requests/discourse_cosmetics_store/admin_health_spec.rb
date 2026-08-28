@@ -39,6 +39,10 @@ RSpec.describe DiscourseCosmeticsStore::AdminController do
       "invalid_availability",
       "payment_providers",
     )
-    expect(health.to_json).not_to include("secret", "password", "api_key", "merchant_key")
+
+    serialized_health = health.to_json
+    %w[secret password api_key merchant_key].each do |sensitive_key|
+      expect(serialized_health).not_to include(sensitive_key)
+    end
   end
 end
