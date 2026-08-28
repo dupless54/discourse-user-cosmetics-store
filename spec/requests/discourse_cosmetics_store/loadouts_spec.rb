@@ -73,6 +73,9 @@ RSpec.describe "Cosmetics Store loadouts" do
   it "rejects an unavailable saved set without changing the current selection" do
     saved_frame = create_item("Saved frame", "avatar_frame")
     current_frame = create_item("Current frame", "avatar_frame")
+    restricted_group = Fabricate(:group)
+    DiscourseUserCosmetics::ItemGroup.create!(item_id: saved_frame.id, group_id: restricted_group.id)
+
     integration.grant!(user: user, item: saved_frame)
     integration.grant!(user: user, item: current_frame)
     integration.equip!(user: user, item: saved_frame)
