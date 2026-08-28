@@ -6,6 +6,7 @@ on:
       - refactor/use-cosmetics-integration-api-v2
       - feature/cosmetics-inventory-collections
       - feature/store-purchase-gift-history
+      - feature/store-gift-notifications
 
 permissions:
   contents: read
