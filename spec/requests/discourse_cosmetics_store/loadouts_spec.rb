@@ -2,7 +2,7 @@
 
 RSpec.describe "Cosmetics Store loadouts" do
   fab!(:user)
-  fab!(:other_user)
+  fab!(:other_user, :user)
 
   before do
     skip "base cosmetics loadout contract is not installed in this test job" unless loadouts_supported?
