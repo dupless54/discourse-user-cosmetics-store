@@ -9,6 +9,7 @@ on:
       - feature/cosmetics-live-preview-studio
       - feature/cosmetics-rarity-limited-seasonal
       - feature/cosmetics-admin-health-check
+      - feature/cosmetics-admin-audit-log
 
 permissions:
   contents: read
