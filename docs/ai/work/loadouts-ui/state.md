@@ -6,5 +6,5 @@
 - Security: authenticated endpoints, Base-owned user scoping, foreign IDs preserve 404, atomic apply remains Base-owned.
 - Tests: request lifecycle/IDOR/unavailable atomic apply and QUnit render/state coverage.
 - The first runtime candidate exposed an invalid test fixture: an ungrouped Base cosmetic is public by design, so revoking direct ownership did not remove entitlement. The fixture now uses a group-restricted saved cosmetic and verifies a real entitlement loss without changing production behavior.
-- Exact-head CI evidence belongs in PR #19 metadata, not this tracked file, so validation evidence cannot invalidate itself.
+- CI evidence is maintained outside tracked files.
 - Merge status: blocked; explicit user authorization required.
