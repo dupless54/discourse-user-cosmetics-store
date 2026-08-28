@@ -51,7 +51,7 @@ RSpec.describe "Cosmetics Store integration contract" do
 
     service = DiscourseCosmeticsStore::PurchaseService.new(user: user, product: product).call
 
-    expect(service.purchase).to be_completed
+    expect(service.purchase.status).to eq("completed")
     expect(DiscourseUserCosmetics::Integration.owns?(user: user, item: item)).to eq(true)
     expect(service.wallet.balance).to eq(375)
   end
@@ -67,7 +67,7 @@ RSpec.describe "Cosmetics Store integration contract" do
         recipient_username: recipient.username,
       ).call
 
-    expect(service.gift).to be_completed
+    expect(service.gift.status).to eq("completed")
     expect(DiscourseUserCosmetics::Integration.owns?(user: recipient, item: item)).to eq(true)
     expect(service.wallet.balance).to eq(400)
   end
