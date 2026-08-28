@@ -4,6 +4,8 @@ module ::DiscourseCosmeticsStore
   class GiftNotification
     def self.deliver(gift:, sender:, recipient:, product:)
       return unless gift&.persisted? && sender&.persisted? && recipient&.persisted? && product&.persisted?
+      return unless Notification.types[DiscourseCosmeticsStore::GIFT_NOTIFICATION_NAME] ==
+                      DiscourseCosmeticsStore::GIFT_NOTIFICATION_TYPE
 
       data =
         {
