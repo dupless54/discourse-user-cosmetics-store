@@ -1,0 +1,598 @@
+// Final storefront polish. This layer intentionally depends on Discourse
+// semantic theme variables so it remains compatible with light/dark themes.
+
+.cstore-shell {
+  --cstore-soft-surface: color-mix(in srgb, var(--primary) 4%, var(--secondary));
+  --cstore-raised-surface: color-mix(in srgb, var(--primary) 7%, var(--secondary));
+  --cstore-accent-soft: color-mix(in srgb, var(--tertiary) 14%, var(--secondary));
+  --cstore-accent-border: color-mix(in srgb, var(--tertiary) 32%, var(--content-border-color));
+  --cstore-shadow-sm: 0 4px 14px rgb(0 0 0 / 8%);
+  --cstore-shadow-md: 0 14px 36px rgb(0 0 0 / 12%);
+  --cstore-shadow-lg: 0 28px 80px rgb(0 0 0 / 24%);
+}
+
+.cstore-nav {
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+  padding: 0.65rem;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--secondary) 94%, transparent);
+  box-shadow: var(--cstore-shadow-sm);
+  backdrop-filter: blur(14px);
+
+  nav {
+    gap: 0.2rem;
+
+    button {
+      position: relative;
+      min-height: 38px;
+      padding: 0 0.8rem;
+      border-radius: 9px;
+      transition:
+        background 0.16s ease,
+        color 0.16s ease,
+        transform 0.16s ease;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--cstore-soft-surface);
+        transform: translateY(-1px);
+      }
+
+      &.is-active {
+        background: var(--cstore-accent-soft);
+        color: var(--tertiary);
+      }
+    }
+  }
+}
+
+.cstore-nav__brand {
+  min-height: 40px;
+  padding: 0 0.7rem 0 0.35rem;
+  border-radius: 10px;
+
+  span {
+    display: grid;
+    width: 31px;
+    height: 31px;
+    place-items: center;
+    border-radius: 9px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--tertiary) 86%, var(--secondary)),
+      color-mix(in srgb, var(--tertiary) 58%, var(--primary))
+    );
+    box-shadow: 0 7px 18px color-mix(in srgb, var(--tertiary) 24%, transparent);
+    color: var(--secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.cstore-nav__browse-menu {
+  // The legacy stylesheet opens the menu on hover/focus. The component now
+  // owns open state and Discourse's click-outside modifier closes it.
+  &:not(.is-open) .cstore-nav__dropdown {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none;
+    transform: translateY(-6px) scale(0.985) !important;
+  }
+
+  &.is-open .cstore-nav__dropdown {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto;
+    transform: none !important;
+  }
+}
+
+.cstore-nav__dropdown {
+  width: 255px;
+  padding: 0.45rem;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 12px;
+  background: var(--secondary);
+  box-shadow: var(--cstore-shadow-md);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease,
+    visibility 0.14s ease;
+
+  button {
+    min-height: 38px;
+    border-radius: 8px !important;
+    transition: background 0.12s ease;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--cstore-accent-soft) !important;
+      color: var(--tertiary) !important;
+    }
+  }
+}
+
+.cstore-nav__tools {
+  > label {
+    min-height: 40px;
+    border-radius: 10px;
+    background: var(--cstore-soft-surface);
+    transition:
+      border-color 0.16s ease,
+      box-shadow 0.16s ease,
+      background 0.16s ease;
+
+    &:focus-within {
+      border-color: var(--tertiary);
+      background: var(--secondary);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--tertiary) 13%, transparent);
+      outline: 0;
+    }
+  }
+}
+
+.cstore-balance {
+  min-height: 40px;
+  border-color: var(--cstore-accent-border) !important;
+  border-radius: 10px !important;
+  background: var(--cstore-accent-soft) !important;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: color-mix(in srgb, var(--tertiary) 20%, var(--secondary)) !important;
+    transform: translateY(-1px);
+  }
+}
+
+.cstore-hero {
+  min-height: 390px;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--tertiary) 18%, var(--content-border-color));
+  border-radius: 18px;
+  background:
+    radial-gradient(
+      circle at 82% 16%,
+      color-mix(in srgb, var(--tertiary) 14%, transparent),
+      transparent 32rem
+    ),
+    var(--cstore-soft-surface);
+  box-shadow: var(--cstore-shadow-md);
+}
+
+.cstore-hero__shade {
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 78%) 0%,
+    rgb(0 0 0 / 55%) 48%,
+    rgb(0 0 0 / 14%) 100%
+  );
+}
+
+.cstore-hero__copy {
+  h1 {
+    max-width: 720px;
+    margin-bottom: 0.8rem;
+    font-size: clamp(2.2rem, 4.6vw, 4rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+  }
+
+  > p:not(.cstore-eyebrow) {
+    max-width: 590px;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  button {
+    display: inline-flex;
+    min-height: 43px;
+    align-items: center;
+    margin-top: 1.15rem;
+    padding: 0 1rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--tertiary) 24%, transparent);
+    transition:
+      transform 0.16s ease,
+      box-shadow 0.16s ease,
+      filter 0.16s ease;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: 0 11px 28px color-mix(in srgb, var(--tertiary) 30%, transparent);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.cstore-section__heading,
+.cstore-results__bar {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.7rem;
+
+  > button {
+    min-height: 36px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--content-border-color, var(--primary-low));
+    border-radius: 9px;
+    background: var(--cstore-soft-surface);
+    font-weight: 600;
+    transition:
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--cstore-raised-surface);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.cstore-grid,
+.cstore-grid--featured {
+  gap: 1rem;
+}
+
+.cstore-product {
+  overflow: hidden;
+  border-color: var(--content-border-color, var(--primary-low));
+  border-radius: 14px;
+  background: var(--secondary);
+  box-shadow: var(--cstore-shadow-sm);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--cstore-accent-border);
+    box-shadow: var(--cstore-shadow-md);
+    transform: translateY(-3px);
+  }
+
+  &.is-owned::after {
+    top: 9px;
+    left: 9px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 12%);
+  }
+}
+
+.cstore-product__open {
+  height: 220px;
+}
+
+.cstore-product__peek {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+
+  .d-icon {
+    font-size: 0.85em;
+  }
+}
+
+.cstore-product__info {
+  min-height: 118px;
+  padding: 0.9rem;
+
+  > strong {
+    font-size: 1rem;
+  }
+}
+
+.cstore-product__meta i {
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 999px;
+  background: var(--cstore-soft-surface);
+  font-weight: 700;
+}
+
+.cstore-product__actions {
+  right: 9px;
+  bottom: auto;
+  gap: 0.4rem;
+
+  button {
+    min-height: 40px;
+    border: 1px solid var(--content-border-color, var(--primary-low));
+    border-radius: 9px;
+    box-shadow: var(--cstore-shadow-sm);
+  }
+}
+
+.cstore-product__buy {
+  background: var(--tertiary);
+
+  b {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+}
+
+.cstore-product__gift {
+  width: 40px;
+  background: var(--secondary);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--cstore-accent-border);
+    background: var(--cstore-accent-soft);
+    color: var(--tertiary);
+  }
+}
+
+.cstore-favorite {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  box-shadow: var(--cstore-shadow-sm);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover,
+  &.is-active {
+    background: color-mix(in srgb, var(--danger) 12%, var(--secondary));
+    transform: translateY(-1px);
+  }
+}
+
+.cstore-owned-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--success);
+}
+
+.cstore-filters,
+.cstore-ledger,
+.cstore-mission,
+.cstore-orbs__hero,
+.cstore-collection-hero,
+.cstore-collections-grid > button,
+.cstore-empty {
+  border-radius: 14px;
+  box-shadow: var(--cstore-shadow-sm);
+}
+
+.cstore-filters {
+  background: var(--cstore-soft-surface);
+
+  input:not([type="checkbox"]),
+  select {
+    border-radius: 9px;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus {
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--tertiary) 12%, transparent);
+      outline: 0;
+    }
+  }
+}
+
+.cstore-filter-reset {
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 9px;
+  background: var(--secondary);
+  font-weight: 600;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--cstore-raised-surface);
+  }
+}
+
+.cstore-collections-grid > button {
+  overflow: hidden;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--cstore-accent-border);
+    box-shadow: var(--cstore-shadow-md);
+    transform: translateY(-3px);
+  }
+}
+
+.cstore-dialog__backdrop {
+  background: rgb(0 0 0 / 62%);
+  backdrop-filter: blur(8px);
+}
+
+.cstore-dialog__window {
+  width: min(930px, calc(100vw - 28px));
+  max-height: min(700px, calc(100vh - 28px));
+  overflow: hidden;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 18px;
+  background: var(--secondary);
+  box-shadow: var(--cstore-shadow-lg);
+}
+
+.cstore-dialog__close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--secondary) 88%, transparent);
+  color: var(--primary);
+  backdrop-filter: blur(8px);
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--cstore-raised-surface);
+    transform: translateY(-1px);
+  }
+}
+
+.cstore-dialog__details {
+  background: var(--cstore-soft-surface);
+
+  h2 {
+    color: var(--primary);
+    letter-spacing: -0.02em;
+  }
+
+  > p:not(.cstore-eyebrow) {
+    color: var(--primary-high, var(--primary));
+  }
+}
+
+.cstore-dialog__items article,
+.cstore-dialog__purchase > div {
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 10px;
+  background: var(--secondary);
+}
+
+.cstore-dialog__items article small,
+.cstore-dialog__purchase > div small {
+  color: var(--primary-medium);
+}
+
+.cstore-buy,
+.cstore-gift-toggle,
+.cstore-gift-form button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 9px;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease,
+    background 0.15s ease;
+
+  &:not(:disabled):hover,
+  &:not(:disabled):focus-visible {
+    transform: translateY(-1px);
+  }
+}
+
+.cstore-buy {
+  background: var(--tertiary);
+  color: var(--secondary);
+}
+
+.cstore-gift-toggle {
+  border: 1px solid var(--cstore-accent-border);
+  background: var(--cstore-accent-soft);
+  color: var(--tertiary);
+
+  &:not(:disabled):hover,
+  &:not(:disabled):focus-visible {
+    background: color-mix(in srgb, var(--tertiary) 20%, var(--secondary));
+  }
+}
+
+.cstore-owned-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--success) 34%, var(--content-border-color));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--success) 11%, var(--secondary));
+  color: var(--success);
+}
+
+.cstore-gift-form {
+  border-color: var(--cstore-accent-border);
+  border-radius: 12px;
+  background: var(--cstore-accent-soft);
+
+  > div {
+    border-color: var(--content-border-color, var(--primary-low));
+    border-radius: 9px;
+    background: var(--secondary);
+
+    input {
+      color: var(--primary);
+    }
+
+    button {
+      background: var(--tertiary);
+      color: var(--secondary);
+    }
+  }
+}
+
+.cstore-dialog__live {
+  background:
+    radial-gradient(
+      circle at 62% 28%,
+      color-mix(in srgb, var(--tertiary) 15%, transparent),
+      transparent 24rem
+    ),
+    var(--secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cstore-shell *,
+  .cstore-shell *::before,
+  .cstore-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (width <= 800px) {
+  .cstore-nav {
+    border-radius: 12px;
+  }
+
+  .cstore-hero {
+    border-radius: 14px;
+  }
+
+  .cstore-hero__copy {
+    padding: 1.5rem;
+  }
+
+  .cstore-dialog__window {
+    border-radius: 14px;
+  }
+}
+
+@media (width <= 520px) {
+  .cstore-nav {
+    padding: 0.5rem;
+  }
+
+  .cstore-product {
+    border-radius: 12px;
+  }
+
+  .cstore-product__actions {
+    opacity: 1;
+    transform: none;
+  }
+
+  .cstore-hero__copy button {
+    width: 100%;
+    justify-content: center;
+  }
+}

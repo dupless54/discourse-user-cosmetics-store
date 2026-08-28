@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
 import CosmeticsStorePreview from "./cosmetics-store-preview";
 
 export default class CosmeticsStoreProductCard extends Component {
@@ -10,7 +11,7 @@ export default class CosmeticsStoreProductCard extends Component {
       <button class="cstore-product__open" type="button" {{on "click" (fn @onOpen @product)}} aria-label="{{@product.name}} ayrıntılarını aç">
         <CosmeticsStorePreview @product={{@product}} @previewUser={{@previewUser}} />
         <span class="cstore-product__shade"></span>
-        <span class="cstore-product__peek">Canlı önizleme</span>
+        <span class="cstore-product__peek">{{dIcon "eye"}} Canlı önizleme</span>
       </button>
 
       {{#if @favoritesEnabled}}
@@ -20,16 +21,16 @@ export default class CosmeticsStoreProductCard extends Component {
           aria-label={{if @product.favorite "Favoriden çıkar" "Favoriye ekle"}}
           aria-pressed={{@product.favorite}}
           {{on "click" (fn @onFavorite @product)}}
-        >♥</button>
+        >{{dIcon "heart"}}</button>
       {{/if}}
 
       <div class="cstore-product__actions">
         {{#unless @product.owned}}
           <button class="cstore-product__buy" type="button" {{on "click" (fn @onOpen @product)}}>
-            <span>{{@currencySymbol}} {{@product.price}}</span><b>Satın al</b>
+            <span>{{@currencySymbol}} {{@product.price}}</span><b>{{dIcon "cart-shopping"}} Satın al</b>
           </button>
         {{/unless}}
-        <button class="cstore-product__gift" type="button" aria-label="{{@product.name}} ürününü hediye et" {{on "click" (fn @onGift @product)}}>🎁</button>
+        <button class="cstore-product__gift" type="button" aria-label="{{@product.name}} ürününü hediye et" {{on "click" (fn @onGift @product)}}>{{dIcon "gift"}}</button>
       </div>
 
       <button class="cstore-product__info" type="button" {{on "click" (fn @onOpen @product)}}>
@@ -40,7 +41,7 @@ export default class CosmeticsStoreProductCard extends Component {
         <strong>{{@product.name}}</strong>
         <small>{{if (eq @product.product_type "bundle") "Paket" "Kozmetik"}} · {{@product.item_count}} parça</small>
         <span class="cstore-product__price">
-          {{#if @product.owned}}Koleksiyonda{{else}}{{@currencySymbol}} {{@product.price}}{{/if}}
+          {{#if @product.owned}}<span class="cstore-owned-inline">{{dIcon "check"}} Koleksiyonunda</span>{{else}}{{@currencySymbol}} {{@product.price}}{{/if}}
         </span>
       </button>
     </article>

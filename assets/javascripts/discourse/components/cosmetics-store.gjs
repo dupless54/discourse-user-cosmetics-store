@@ -7,6 +7,7 @@ import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import dCloseOnClickOutside from "discourse/ui-kit/modifiers/d-close-on-click-outside";
 import CosmeticsStoreDialog from "./cosmetics-store-dialog";
 import CosmeticsStorePreview from "./cosmetics-store-preview";
 import CosmeticsStoreProductCard from "./cosmetics-store-product-card";
@@ -268,6 +269,11 @@ export default class CosmeticsStore extends Component {
   }
 
   @action
+  closeBrowseMenu() {
+    this.browseMenuOpen = false;
+  }
+
+  @action
   openProduct(product) {
     this.selectedProduct = product;
     this.giftProductId = null;
@@ -458,7 +464,7 @@ export default class CosmeticsStore extends Component {
         </button>
         <nav aria-label="Mağaza bölümleri">
           <button class={{if (eq this.activeTab "featured") "is-active"}} type="button" {{on "click" (fn this.navigateTo "featured")}}>Öne Çıkanlar</button>
-          <div class="cstore-nav__browse-menu {{if this.browseMenuOpen 'is-open'}}">
+          <div class="cstore-nav__browse-menu {{if this.browseMenuOpen 'is-open'}}" {{dCloseOnClickOutside this.closeBrowseMenu}}>
             <button class={{if (eq this.activeTab "browse") "is-active"}} type="button" aria-haspopup="true" aria-expanded={{this.browseMenuOpen}} {{on "click" this.toggleBrowseMenu}}>Göz At <span>⌄</span></button>
             <div class="cstore-nav__dropdown" role="menu">
               <button type="button" {{on "click" (fn this.navigateTo "browse")}}>Tümüne göz at</button>
@@ -497,7 +503,7 @@ export default class CosmeticsStore extends Component {
                 <p class="cstore-eyebrow">SENİN.ME KOLEKSİYONU</p>
                 <h1>{{this.settings.hero_title}}</h1>
                 <p>{{this.settings.hero_subtitle}}</p>
-                <button type="button" {{on "click" (fn this.openProduct hero)}}>Koleksiyonu incele</button>
+                <button type="button" {{on "click" (fn this.navigateTo "collections")}}>Koleksiyonları keşfet →</button>
               </div>
               <div class="cstore-hero__preview"><CosmeticsStorePreview @product={{hero}} @previewUser={{this.previewUser}} /></div>
             </section>
