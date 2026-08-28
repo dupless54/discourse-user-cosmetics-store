@@ -66,5 +66,7 @@ en:
       mission_claimed: "The mission reward was added to your wallet."
       favorite_added: "Product added to favorites."
       favorite_removed: "Product removed from favorites."
+      cosmetic_equipped: "Cosmetic equipped."
+      cosmetic_unequipped: "Cosmetic unequipped."
       wallet_adjusted: "The user balance was updated."
       refund_recorded: "The Shopier refund was recorded and the related Orbs were reversed."
