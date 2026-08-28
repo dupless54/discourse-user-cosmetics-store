@@ -190,6 +190,8 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/payment_fulfillment_service"
   require_relative "lib/discourse_cosmetics_store/payment_refund_service"
   require_relative "lib/discourse_cosmetics_store/payment_event_service"
+  require_relative "lib/discourse_cosmetics_store/admin_audit"
+  require_relative "lib/discourse_cosmetics_store/admin_audit_hooks"
   require_relative "lib/discourse_cosmetics_store/seeder"
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
   require_relative "app/controllers/discourse_cosmetics_store/inventory_controller"
@@ -198,6 +200,12 @@ after_initialize do
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
+
+  unless DiscourseCosmeticsStore::AdminController.ancestors.include?(
+           DiscourseCosmeticsStore::AdminAuditHooks
+         )
+    DiscourseCosmeticsStore::AdminController.prepend(DiscourseCosmeticsStore::AdminAuditHooks)
+  end
 
   unless DiscourseCosmeticsStore.install_cosmetics_integration!
     Rails.logger.error(
