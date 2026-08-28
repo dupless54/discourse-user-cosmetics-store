@@ -22,6 +22,16 @@ export default {
           defaultPrefixValue = "image";
         };
       });
+
+      api.addCommunitySectionLink((baseSectionLink) => {
+        return class CosmeticsLoadoutsSectionLink extends baseSectionLink {
+          name = "cosmetics-loadouts";
+          route = "cosmetics-store-loadouts";
+          text = i18n("discourse_cosmetics_store.nav.loadouts");
+          title = i18n("discourse_cosmetics_store.loadouts.subtitle");
+          defaultPrefixValue = "check";
+        };
+      });
     });
   },
 };
