@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "cosmetics_access"
+
 module ::DiscourseCosmeticsStore
   class PurchaseService
     class Unavailable < StandardError; end
@@ -42,10 +44,7 @@ module ::DiscourseCosmeticsStore
         )
 
         @product.cosmetic_items.each do |item|
-          DiscourseUserCosmetics::UserItem.find_or_create_by!(
-            user_id: user.id,
-            item_id: item.id,
-          )
+          CosmeticsAccess.grant!(user: user, item: item)
         end
 
         @product.update_columns(purchase_count: @product.purchase_count.to_i + 1)
@@ -60,27 +59,7 @@ module ::DiscourseCosmeticsStore
     private
 
     def user_owns_any_item?
-      item_ids = @product.cosmetic_items.map(&:id)
-      directly_owned_ids =
-        DiscourseUserCosmetics::UserItem
-          .where(user_id: user.id, item_id: item_ids)
-          .pluck(:item_id)
-          .to_set
-      group_ids = user.group_ids.to_set
-      locked_item_ids = Catalog.locked_item_ids.to_set
-
-      @product.cosmetic_items.any? do |item|
-        next true if item.is_default?
-
-        directly_owned = directly_owned_ids.include?(item.id)
-        group_access = item.groups.any? { |group| group_ids.include?(group.id) }
-
-        if SiteSetting.discourse_cosmetics_store_enabled && locked_item_ids.include?(item.id)
-          directly_owned || group_access
-        else
-          directly_owned || group_access || item.groups.empty?
-        end
-      end
+      CosmeticsAccess.entitled_item_ids(user: user, items: @product.cosmetic_items).any?
     end
   end
 end
