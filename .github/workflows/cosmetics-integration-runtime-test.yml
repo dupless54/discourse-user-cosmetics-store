@@ -8,6 +8,7 @@ on:
       - feature/cosmetics-loadouts-ui
       - feature/cosmetics-live-preview-studio
       - feature/cosmetics-rarity-limited-seasonal
+      - integration/cosmetics-store-release-candidate
 
 permissions:
   contents: read
@@ -76,9 +77,11 @@ jobs:
           abort "base loadout API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:loadouts_supported?) && DiscourseUserCosmetics::Integration.loadouts_supported?;
           abort "base preview read API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:current_selections_for);
           abort "base preview apply API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:apply_selections!);
+          abort "base selection API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:equip!) && DiscourseUserCosmetics::Integration.respond_to?(:unequip!);
           abort "store integration unavailable" unless DiscourseCosmeticsStore.base_integration_ready?;
           abort "store provider installation failed" unless DiscourseCosmeticsStore.install_cosmetics_integration!;
-          puts "cosmetics preview integration contract OK"'
+          abort "store selection facade unavailable" unless DiscourseCosmeticsStore::CosmeticsAccess.selection_actions_supported?;
+          puts "cosmetics preview/selection integration contract OK"'
 
       - name: Run Store specs directly
         working-directory: discourse
