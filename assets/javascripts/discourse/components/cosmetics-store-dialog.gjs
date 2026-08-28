@@ -63,7 +63,7 @@ export default class CosmeticsStoreDialog extends Component {
           <div class="cstore-dialog__items">
             {{#each @product.items as |item|}}
               <article>
-                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{else}}<span>{{dIcon "sparkles"}}</span>{{/if}}
+                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{else}}<span>{{dIcon "image"}}</span>{{/if}}
                 <div><strong>{{item.name}}</strong><small>{{item.kind_label}}</small></div>
               </article>
             {{/each}}
