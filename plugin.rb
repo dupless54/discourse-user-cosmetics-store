@@ -11,6 +11,11 @@ enabled_site_setting :discourse_cosmetics_store_enabled
 
 register_asset "stylesheets/discourse-cosmetics-store.scss"
 register_asset "stylesheets/discourse-cosmetics-store-native.scss"
+register_asset "stylesheets/discourse-cosmetics-store-polish.scss"
+
+%w[cart-shopping check eye gift heart image paper-plane right-to-bracket xmark].each do |icon|
+  register_svg_icon icon
+end
 
 module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
