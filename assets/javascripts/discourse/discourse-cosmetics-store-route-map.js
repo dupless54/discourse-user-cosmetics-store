@@ -6,6 +6,7 @@ export default function cosmeticsStoreRoutes() {
   });
   this.route("cosmetics-store-orbs", { path: "/store/orbs" });
   this.route("cosmetics-store-favorites", { path: "/store/favorites" });
+  this.route("cosmetics-store-inventory", { path: "/store/inventory" });
   this.route("cosmetics-store-collections", { path: "/store/collections" });
   this.route("cosmetics-store-collection", {
     path: "/store/collections/:collection_slug",
