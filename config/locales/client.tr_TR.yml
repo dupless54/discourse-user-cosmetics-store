@@ -32,6 +32,9 @@ tr_TR:
           card_decoration: "Kart dekorasyonları"
           profile_effect: "Profil efektleri"
       collections:
+        progress_eyebrow: "İLERLEMEN"
+        progress_title: "Koleksiyon ilerlemesi"
+        progress_subtitle: "Doğrudan sahiplik ile mevcut erişim ayrı ayrı takip edilir."
         owned_progress: "%{total} kozmetikten %{owned} tanesine sahipsin"
         unlocked_progress: "%{total} kozmetikten %{unlocked} tanesine erişimin var"
         owned_complete: "Koleksiyonun tamamı senin"
