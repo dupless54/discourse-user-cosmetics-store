@@ -6,6 +6,7 @@ on:
       - refactor/use-cosmetics-integration-api-v2
       - feature/cosmetics-inventory-collections
       - feature/cosmetics-loadouts-ui
+      - feature/cosmetics-live-preview-studio
 
 permissions:
   contents: read
@@ -32,11 +33,11 @@ jobs:
           path: discourse
           fetch-depth: 1
 
-      - name: Checkout exact User Cosmetics loadout candidate
+      - name: Checkout exact User Cosmetics preview candidate
         uses: actions/checkout@v6
         with:
           repository: dupless54/discourse-user-cosmetics
-          ref: 7e15ca7176e81194c714f50390152b4892f7669c
+          ref: 8ba41ad7550c4f2001a7a125a3b5370b342f9b97
           path: discourse/plugins/discourse-user-cosmetics
           fetch-depth: 1
 
@@ -72,9 +73,11 @@ jobs:
           bin/rails runner '
           abort "base Integration API unavailable" unless defined?(DiscourseUserCosmetics::Integration);
           abort "base loadout API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:loadouts_supported?) && DiscourseUserCosmetics::Integration.loadouts_supported?;
+          abort "base preview read API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:current_selections_for);
+          abort "base preview apply API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:apply_selections!);
           abort "store integration unavailable" unless DiscourseCosmeticsStore.base_integration_ready?;
           abort "store provider installation failed" unless DiscourseCosmeticsStore.install_cosmetics_integration!;
-          puts "cosmetics loadout integration contract OK"'
+          puts "cosmetics preview integration contract OK"'
 
       - name: Run Store specs directly
         working-directory: discourse
