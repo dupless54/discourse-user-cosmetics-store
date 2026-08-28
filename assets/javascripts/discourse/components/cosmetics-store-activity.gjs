@@ -58,12 +58,7 @@ export default class CosmeticsStoreActivity extends Component {
           event.amount === null || event.amount === undefined
             ? null
             : this.formatAmount(event.amount),
-        amount_class:
-          Number(event.amount) > 0
-            ? "is-positive"
-            : Number(event.amount) < 0
-              ? "is-negative"
-              : "",
+        amount_class: this.amountClass(event.amount),
       }));
   }
 
@@ -108,6 +103,17 @@ export default class CosmeticsStoreActivity extends Component {
           `discourse_cosmetics_store.activity.events.orb.${event.entry_type}`
         );
     }
+  }
+
+  amountClass(amount) {
+    const value = Number(amount);
+    if (value > 0) {
+      return "is-positive";
+    }
+    if (value < 0) {
+      return "is-negative";
+    }
+    return "";
   }
 
   formatAmount(amount) {
@@ -179,17 +185,42 @@ export default class CosmeticsStoreActivity extends Component {
           </section>
 
           <div class="cstore-activity__filters" role="group" aria-label={{i18n "discourse_cosmetics_store.activity.filters.label"}}>
-            {{#each (array "all" "purchase" "gifts" "orb") as |filter|}}
-              <button
-                type="button"
-                class={{if (eq this.filter filter) "btn btn-primary" "btn btn-default"}}
-                aria-pressed={{eq this.filter filter}}
-                data-testid={{concat "activity-filter-" filter}}
-                {{on "click" (fn this.setFilter filter)}}
-              >
-                {{i18n (concat "discourse_cosmetics_store.activity.filters." filter)}}
-              </button>
-            {{/each}}
+            <button
+              type="button"
+              class={{if (eq this.filter "all") "btn btn-primary" "btn btn-default"}}
+              aria-pressed={{eq this.filter "all"}}
+              data-testid="activity-filter-all"
+              {{on "click" (fn this.setFilter "all")}}
+            >
+              {{i18n "discourse_cosmetics_store.activity.filters.all"}}
+            </button>
+            <button
+              type="button"
+              class={{if (eq this.filter "purchase") "btn btn-primary" "btn btn-default"}}
+              aria-pressed={{eq this.filter "purchase"}}
+              data-testid="activity-filter-purchase"
+              {{on "click" (fn this.setFilter "purchase")}}
+            >
+              {{i18n "discourse_cosmetics_store.activity.filters.purchase"}}
+            </button>
+            <button
+              type="button"
+              class={{if (eq this.filter "gifts") "btn btn-primary" "btn btn-default"}}
+              aria-pressed={{eq this.filter "gifts"}}
+              data-testid="activity-filter-gifts"
+              {{on "click" (fn this.setFilter "gifts")}}
+            >
+              {{i18n "discourse_cosmetics_store.activity.filters.gifts"}}
+            </button>
+            <button
+              type="button"
+              class={{if (eq this.filter "orb") "btn btn-primary" "btn btn-default"}}
+              aria-pressed={{eq this.filter "orb"}}
+              data-testid="activity-filter-orb"
+              {{on "click" (fn this.setFilter "orb")}}
+            >
+              {{i18n "discourse_cosmetics_store.activity.filters.orb"}}
+            </button>
           </div>
 
           {{#if this.visibleEvents.length}}
