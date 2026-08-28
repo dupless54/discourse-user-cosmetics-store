@@ -72,8 +72,90 @@ RSpec.describe "Cosmetics Store inventory" do
     expect(response.parsed_body["collections"].map { |row| row["slug"] }).to include("scope-set")
   end
 
-  def create_item(name)
-    DiscourseUserCosmetics::Item.create!(kind: "avatar_frame", name: name, enabled: true)
+  it "reports the current equipped item and selection capability" do
+    skip_unless_selection_actions_supported!
+    item = create_item("Equipped frame")
+    DiscourseUserCosmetics::UserItem.create!(user_id: user.id, item_id: item.id)
+    DiscourseUserCosmetics::Integration.equip!(user: user, item: item)
+
+    sign_in(user)
+    get "/cosmetics-store/inventory.json"
+
+    expect(response.status).to eq(200)
+    payload = response.parsed_body
+    row = payload.dig("inventory", "items").find { |candidate| candidate["id"] == item.id }
+    expect(row["equipped"]).to eq(true)
+    expect(payload.dig("viewer", "can_manage_selection")).to eq(true)
+  end
+
+  it "equips an entitled cosmetic through the Base integration contract" do
+    skip_unless_selection_actions_supported!
+    item = create_item("Quick equip frame")
+    group = Fabricate(:group)
+    item.item_groups.create!(group: group)
+    GroupUser.create!(group: group, user: user)
+
+    sign_in(user)
+    put "/cosmetics-store/inventory/#{item.id}/equip.json"
+
+    expect(response.status).to eq(200)
+    expect(response.parsed_body.dig("equipped_item_ids", "avatar_frame")).to eq(item.id)
+    selection = DiscourseUserCosmetics::UserSelection.find_by(user_id: user.id)
+    expect(selection.avatar_frame_id).to eq(item.id)
+  end
+
+  it "rejects equip when the cosmetic is not entitled and preserves the selection" do
+    skip_unless_selection_actions_supported!
+    current = create_item("Current frame")
+    unavailable = create_item("Restricted frame")
+    group = Fabricate(:group)
+    unavailable.item_groups.create!(group: group)
+    DiscourseUserCosmetics::UserItem.create!(user_id: user.id, item_id: current.id)
+    DiscourseUserCosmetics::Integration.equip!(user: user, item: current)
+
+    sign_in(user)
+    put "/cosmetics-store/inventory/#{unavailable.id}/equip.json"
+
+    expect(response.status).to eq(403)
+    selection = DiscourseUserCosmetics::UserSelection.find_by(user_id: user.id)
+    expect(selection.avatar_frame_id).to eq(current.id)
+  end
+
+  it "unequips one cosmetic kind without changing other slots" do
+    skip_unless_selection_actions_supported!
+    frame = create_item("Frame to remove")
+    nameplate = create_item("Plate to keep", kind: "nameplate")
+    [frame, nameplate].each do |item|
+      DiscourseUserCosmetics::UserItem.create!(user_id: user.id, item_id: item.id)
+      DiscourseUserCosmetics::Integration.equip!(user: user, item: item)
+    end
+
+    sign_in(user)
+    delete "/cosmetics-store/inventory/avatar_frame/equip.json"
+
+    expect(response.status).to eq(200)
+    expect(response.parsed_body.dig("equipped_item_ids", "avatar_frame")).to be_nil
+    expect(response.parsed_body.dig("equipped_item_ids", "nameplate")).to eq(nameplate.id)
+    selection = DiscourseUserCosmetics::UserSelection.find_by(user_id: user.id)
+    expect(selection.avatar_frame_id).to be_nil
+    expect(selection.nameplate_id).to eq(nameplate.id)
+  end
+
+  it "requires authentication for selection mutations" do
+    skip_unless_selection_actions_supported!
+    item = create_item("Private action frame")
+
+    put "/cosmetics-store/inventory/#{item.id}/equip.json"
+
+    expect(response.status).to eq(403)
+  end
+
+  def skip_unless_selection_actions_supported!
+    skip "base cosmetics selection integration is unavailable" unless DiscourseCosmeticsStore::CosmeticsAccess.selection_actions_supported?
+  end
+
+  def create_item(name, kind: "avatar_frame")
+    DiscourseUserCosmetics::Item.create!(kind: kind, name: name, enabled: true)
   end
 
   def create_collection_product(item, slug)
