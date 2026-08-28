@@ -201,9 +201,9 @@ after_initialize do
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
 
-  unless DiscourseCosmeticsStore::AdminController.ancestors.include?(
-           DiscourseCosmeticsStore::AdminAuditHooks
-         )
+  if DiscourseCosmeticsStore::AdminController.ancestors.exclude?(
+       DiscourseCosmeticsStore::AdminAuditHooks
+     )
     DiscourseCosmeticsStore::AdminController.prepend(DiscourseCosmeticsStore::AdminAuditHooks)
   end
 
