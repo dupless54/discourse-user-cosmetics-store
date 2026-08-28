@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../../lib/discourse_cosmetics_store/health_check"
+
 module ::DiscourseCosmeticsStore
   class AdminController < ::Admin::AdminController
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
@@ -17,6 +19,7 @@ module ::DiscourseCosmeticsStore
           .includes(:image_upload, effect_layers: :image_upload)
 
       render json: {
+               health: HealthCheck.call,
                products: products.map { |product| serialize_product(product) },
                cosmetic_items: cosmetic_items.map { |item| serialize_cosmetic_item(item) },
                missions: Mission.ordered.map { |mission| serialize_mission(mission) },

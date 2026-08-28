@@ -28,6 +28,145 @@
   transform: none;
 }
 
+.cstore-health {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 1.5em;
+  padding: 1em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius, 8px);
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.cstore-health__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+
+  p,
+  h2,
+  span {
+    margin: 0;
+  }
+
+  p {
+    color: var(--tertiary);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  h2 {
+    margin-top: 0.15em;
+  }
+
+  span {
+    display: block;
+    margin-top: 0.3em;
+    color: var(--primary-medium);
+  }
+}
+
+.cstore-health__overall,
+.cstore-health__check-heading span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: var(--font-down-2);
+  font-weight: 700;
+}
+
+.cstore-health__overall {
+  flex: 0 0 auto;
+  padding: 0.35em 0.65em;
+  background: var(--success-low, var(--primary-very-low));
+  color: var(--success, var(--primary));
+}
+
+.cstore-health--warning .cstore-health__overall {
+  background: var(--highlight-low, var(--primary-very-low));
+  color: var(--primary);
+}
+
+.cstore-health--critical .cstore-health__overall {
+  background: var(--danger-low, var(--primary-very-low));
+  color: var(--danger);
+}
+
+.cstore-health__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.65em;
+  margin-top: 1em;
+}
+
+.cstore-health__check {
+  min-width: 0;
+  padding: 0.75em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius, 6px);
+  background: var(--primary-very-low);
+
+  > b {
+    display: block;
+    margin-top: 0.55em;
+    color: var(--primary);
+  }
+
+  > p {
+    margin: 0.35em 0 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    line-height: 1.4;
+  }
+}
+
+.cstore-health__check-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5em;
+
+  strong {
+    min-width: 0;
+  }
+
+  span {
+    flex: 0 0 auto;
+    padding: 0.2em 0.45em;
+    background: var(--success-low, var(--secondary));
+    color: var(--success, var(--primary));
+  }
+}
+
+.cstore-health__check--warning .cstore-health__check-heading span {
+  background: var(--highlight-low, var(--secondary));
+  color: var(--primary);
+}
+
+.cstore-health__check--critical .cstore-health__check-heading span {
+  background: var(--danger-low, var(--secondary));
+  color: var(--danger);
+}
+
+.cstore-health__checked-at {
+  display: block;
+  margin-top: 0.8em;
+  color: var(--primary-medium);
+}
+
+@media (max-width: 600px) {
+  .cstore-health__heading {
+    flex-direction: column;
+  }
+
+  .cstore-health__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cstore-shell,
   .cstore-admin {
