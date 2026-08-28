@@ -46,6 +46,10 @@ export default class CosmeticsStoreAuditAdmin extends Component {
     return this.args.entries ?? [];
   }
 
+  get filtersEmpty() {
+    return !this.query && !this.selectedAction;
+  }
+
   get actionOptions() {
     return [...new Set(this.entries.map((entry) => entry.action))]
       .sort()
@@ -142,7 +146,7 @@ export default class CosmeticsStoreAuditAdmin extends Component {
         <button
           class="btn btn-default"
           type="button"
-          disabled={{if (or this.query this.selectedAction) false true}}
+          disabled={{this.filtersEmpty}}
           {{on "click" this.resetFilters}}
         >
           Filtreleri temizle
