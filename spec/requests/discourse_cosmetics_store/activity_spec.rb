@@ -2,9 +2,9 @@
 
 RSpec.describe "Cosmetics Store activity" do
   fab!(:user)
-  fab!(:recipient) { Fabricate(:user) }
-  fab!(:sender) { Fabricate(:user) }
-  fab!(:other_user) { Fabricate(:user) }
+  fab!(:recipient, :user)
+  fab!(:sender, :user)
+  fab!(:other_user, :user)
 
   before do
     enable_current_plugin
