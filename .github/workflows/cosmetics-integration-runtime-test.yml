@@ -6,6 +6,7 @@ on:
       - refactor/use-cosmetics-integration-api-v2
       - feature/cosmetics-inventory-collections
       - feature/cosmetics-loadouts-ui
+      - feature/store-wardrobe-quick-equip
 
 permissions:
   contents: read
@@ -72,9 +73,11 @@ jobs:
           bin/rails runner '
           abort "base Integration API unavailable" unless defined?(DiscourseUserCosmetics::Integration);
           abort "base loadout API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:loadouts_supported?) && DiscourseUserCosmetics::Integration.loadouts_supported?;
+          abort "base selection API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:equip!) && DiscourseUserCosmetics::Integration.respond_to?(:unequip!);
           abort "store integration unavailable" unless DiscourseCosmeticsStore.base_integration_ready?;
           abort "store provider installation failed" unless DiscourseCosmeticsStore.install_cosmetics_integration!;
-          puts "cosmetics loadout integration contract OK"'
+          abort "store selection facade unavailable" unless DiscourseCosmeticsStore::CosmeticsAccess.selection_actions_supported?;
+          puts "cosmetics loadout/selection integration contract OK"'
 
       - name: Run Store specs directly
         working-directory: discourse
