@@ -97,6 +97,9 @@ export default class CosmeticsStoreInventory extends Component {
               <a class="btn btn-default" href="/store">
                 {{i18n "discourse_cosmetics_store.title"}}
               </a>
+              <a class="btn btn-default" href="/store/loadouts">
+                {{i18n "discourse_cosmetics_store.nav.loadouts"}}
+              </a>
               <a class="btn btn-primary" href="/my/preferences/cosmetics">
                 {{dIcon "check"}}
                 {{i18n "discourse_cosmetics_store.inventory.manage_action"}}
