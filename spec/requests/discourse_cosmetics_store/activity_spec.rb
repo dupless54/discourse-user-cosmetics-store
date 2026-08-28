@@ -15,7 +15,8 @@ RSpec.describe "Cosmetics Store activity" do
     get "/cosmetics-store/activity.json"
 
     expect(response.status).to eq(200)
-    expect(response.headers["Cache-Control"]).to include("private", "no-store")
+    expect(response.headers["Cache-Control"]).to include("private")
+    expect(response.headers["Cache-Control"]).to include("no-store")
     expect(response.parsed_body.dig("viewer", "logged_in")).to eq(false)
     expect(response.parsed_body.dig("activity", "events")).to eq([])
     expect(response.parsed_body.dig("activity", "wallet", "balance")).to eq(0)
@@ -91,7 +92,8 @@ RSpec.describe "Cosmetics Store activity" do
     get "/cosmetics-store/activity.json"
 
     expect(response.status).to eq(200)
-    expect(response.headers["Cache-Control"]).to include("private", "no-store")
+    expect(response.headers["Cache-Control"]).to include("private")
+    expect(response.headers["Cache-Control"]).to include("no-store")
 
     payload = response.parsed_body
     events = payload.dig("activity", "events")
