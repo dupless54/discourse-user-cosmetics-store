@@ -30,46 +30,48 @@ export default class CosmeticsStoreCollectionProgress extends Component {
 
   <template>
     {{#if this.collections.length}}
-      <section class="cstore-section">
-        <div class="cstore-section__heading">
-          <div>
-            <p class="cstore-eyebrow">
-              {{i18n "discourse_cosmetics_store.collections.progress_eyebrow"}}
-            </p>
-            <h2>{{i18n "discourse_cosmetics_store.collections.progress_title"}}</h2>
-            <span>{{i18n "discourse_cosmetics_store.collections.progress_subtitle"}}</span>
+      <div class="cstore-shell">
+        <section class="cstore-section">
+          <div class="cstore-section__heading">
+            <div>
+              <p class="cstore-eyebrow">
+                {{i18n "discourse_cosmetics_store.collections.progress_eyebrow"}}
+              </p>
+              <h2>{{i18n "discourse_cosmetics_store.collections.progress_title"}}</h2>
+              <span>{{i18n "discourse_cosmetics_store.collections.progress_subtitle"}}</span>
+            </div>
+            <a class="btn btn-default" href="/store/inventory">
+              {{i18n "discourse_cosmetics_store.nav.inventory"}}
+            </a>
           </div>
-          <a class="btn btn-default" href="/store/inventory">
-            {{i18n "discourse_cosmetics_store.nav.inventory"}}
-          </a>
-        </div>
 
-        <div class="cstore-missions">
-          {{#each this.collections as |collection|}}
-            <article class="cstore-mission">
-              <div>
-                <strong>{{collection.name}}</strong>
-                <p>{{collection.owned_label}}</p>
-                <progress
-                  class="cstore-progress"
-                  value={{collection.directly_owned_item_count}}
-                  max={{collection.item_count}}
-                ></progress>
-                <small>{{collection.directly_owned_item_count}} / {{collection.item_count}}</small>
-              </div>
-              <div>
-                <p>{{collection.unlocked_label}}</p>
-                <progress
-                  class="cstore-progress"
-                  value={{collection.unlocked_item_count}}
-                  max={{collection.item_count}}
-                ></progress>
-                <small>{{collection.unlocked_item_count}} / {{collection.item_count}}</small>
-              </div>
-            </article>
-          {{/each}}
-        </div>
-      </section>
+          <div class="cstore-missions">
+            {{#each this.collections as |collection|}}
+              <article class="cstore-mission">
+                <div>
+                  <strong>{{collection.name}}</strong>
+                  <p>{{collection.owned_label}}</p>
+                  <progress
+                    class="cstore-progress"
+                    value={{collection.directly_owned_item_count}}
+                    max={{collection.item_count}}
+                  ></progress>
+                  <small>{{collection.directly_owned_item_count}} / {{collection.item_count}}</small>
+                </div>
+                <div>
+                  <p>{{collection.unlocked_label}}</p>
+                  <progress
+                    class="cstore-progress"
+                    value={{collection.unlocked_item_count}}
+                    max={{collection.item_count}}
+                  ></progress>
+                  <small>{{collection.unlocked_item_count}} / {{collection.item_count}}</small>
+                </div>
+              </article>
+            {{/each}}
+          </div>
+        </section>
+      </div>
     {{/if}}
   </template>
 }
