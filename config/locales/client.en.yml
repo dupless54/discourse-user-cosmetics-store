@@ -5,6 +5,9 @@ en:
       nav:
         inventory: "Inventory"
         history: "History"
+      notifications:
+        gift_received_title: "Cosmetics gift received"
+        gift_received_description: "sent you %{product_name}"
       inventory:
         eyebrow: "YOUR COSMETICS"
         title: "Inventory"
