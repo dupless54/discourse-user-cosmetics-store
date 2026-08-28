@@ -64,5 +64,7 @@ tr_TR:
       mission_claimed: "Görev ödülü cüzdanına eklendi."
       favorite_added: "Ürün favorilerine eklendi."
       favorite_removed: "Ürün favorilerinden çıkarıldı."
+      cosmetic_equipped: "Kozmetik takıldı."
+      cosmetic_unequipped: "Kozmetik çıkarıldı."
       wallet_adjusted: "Kullanıcı bakiyesi güncellendi."
       refund_recorded: "Shopier iadesi kaydedildi ve ilgili Orb tutarı geri alındı."
