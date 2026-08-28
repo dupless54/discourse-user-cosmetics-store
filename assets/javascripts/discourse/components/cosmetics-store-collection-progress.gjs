@@ -7,38 +7,25 @@ export default class CosmeticsStoreCollectionProgress extends Component {
       return [];
     }
 
-    const rows = (this.args.model?.collections ?? []).filter(
-      (collection) => collection.item_count > 0
-    );
     const slug = this.args.model?.collection_slug;
-
-    if (!slug) {
-      return rows;
-    }
-
-    return rows.filter((collection) => collection.slug === slug);
-  }
-
-  ownedLabel(collection) {
-    if (collection.directly_owned_complete) {
-      return i18n("discourse_cosmetics_store.collections.owned_complete");
-    }
-
-    return i18n("discourse_cosmetics_store.collections.owned_progress", {
-      owned: collection.directly_owned_item_count,
-      total: collection.item_count,
-    });
-  }
-
-  unlockedLabel(collection) {
-    if (collection.unlocked_complete) {
-      return i18n("discourse_cosmetics_store.collections.unlocked_complete");
-    }
-
-    return i18n("discourse_cosmetics_store.collections.unlocked_progress", {
-      unlocked: collection.unlocked_item_count,
-      total: collection.item_count,
-    });
+    return (this.args.model?.collections ?? [])
+      .filter((collection) => collection.item_count > 0)
+      .filter((collection) => !slug || collection.slug === slug)
+      .map((collection) => ({
+        ...collection,
+        owned_label: collection.directly_owned_complete
+          ? i18n("discourse_cosmetics_store.collections.owned_complete")
+          : i18n("discourse_cosmetics_store.collections.owned_progress", {
+              owned: collection.directly_owned_item_count,
+              total: collection.item_count,
+            }),
+        unlocked_label: collection.unlocked_complete
+          ? i18n("discourse_cosmetics_store.collections.unlocked_complete")
+          : i18n("discourse_cosmetics_store.collections.unlocked_progress", {
+              unlocked: collection.unlocked_item_count,
+              total: collection.item_count,
+            }),
+      }));
   }
 
   <template>
@@ -62,7 +49,7 @@ export default class CosmeticsStoreCollectionProgress extends Component {
             <article class="cstore-mission">
               <div>
                 <strong>{{collection.name}}</strong>
-                <p>{{this.ownedLabel collection}}</p>
+                <p>{{collection.owned_label}}</p>
                 <progress
                   class="cstore-progress"
                   value={{collection.directly_owned_item_count}}
@@ -71,7 +58,7 @@ export default class CosmeticsStoreCollectionProgress extends Component {
                 <small>{{collection.directly_owned_item_count}} / {{collection.item_count}}</small>
               </div>
               <div>
-                <p>{{this.unlockedLabel collection}}</p>
+                <p>{{collection.unlocked_label}}</p>
                 <progress
                   class="cstore-progress"
                   value={{collection.unlocked_item_count}}
