@@ -4,6 +4,7 @@ tr_TR:
       title: "Kozmetik Mağazası"
       nav:
         inventory: "Envanter"
+        history: "Geçmiş"
       inventory:
         eyebrow: "KOZMETİKLERİN"
         title: "Envanter"
@@ -31,6 +32,36 @@ tr_TR:
           nameplate: "İsim plakaları"
           card_decoration: "Kart dekorasyonları"
           profile_effect: "Profil efektleri"
+      history:
+        eyebrow: "MAĞAZA HAREKETLERİN"
+        title: "Satın alma ve hediye geçmişi"
+        subtitle: "Bu hesapla yaptığın kozmetik satın alımlarını ve gönderdiğin ya da aldığın hediyeleri incele."
+        tabs:
+          purchases: "Satın alımlar"
+          gifts_sent: "Gönderilen hediyeler"
+          gifts_received: "Alınan hediyeler"
+        stats:
+          purchases: "Satın alma"
+          gifts_sent: "Gönderilen"
+          gifts_received: "Alınan"
+        status:
+          completed: "Tamamlandı"
+          refunded: "İade edildi"
+        sent_to: "@%{username} kullanıcısına gönderildi"
+        received_from: "@%{username} kullanıcısından alındı"
+        profile_action: "Profili gör"
+        unknown_product: "Kullanılamayan ürün"
+        truncated: "Toplam %{total} kaydın en yeni %{limit} tanesi gösteriliyor."
+        empty:
+          purchases_title: "Henüz satın alım yok"
+          purchases_description: "Orbs ile satın aldığın kozmetikler burada görünür."
+          gifts_sent_title: "Henüz hediye göndermedin"
+          gifts_sent_description: "Diğer üyelere gönderdiğin kozmetikler burada görünür."
+          gifts_received_title: "Henüz hediye almadın"
+          gifts_received_description: "Diğer üyelerin sana hediye ettiği kozmetikler burada görünür."
+        login_title: "Mağaza geçmişini görmek için giriş yap"
+        login_description: "Satın alma ve hediye geçmişi yalnızca forum hesabına özeldir."
+        login_action: "Giriş yap"
       collections:
         progress_eyebrow: "İLERLEMEN"
         progress_title: "Koleksiyon ilerlemesi"
