@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - refactor/use-cosmetics-integration-api-v2
+      - feature/cosmetics-inventory-collections
 
 permissions:
   contents: read
