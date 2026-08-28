@@ -32,6 +32,9 @@ en:
           card_decoration: "Card decorations"
           profile_effect: "Profile effects"
       collections:
+        progress_eyebrow: "YOUR PROGRESS"
+        progress_title: "Collection progress"
+        progress_subtitle: "Ownership and current access are tracked separately."
         owned_progress: "%{owned} of %{total} owned"
         unlocked_progress: "%{unlocked} of %{total} unlocked"
         owned_complete: "Collection owned"
