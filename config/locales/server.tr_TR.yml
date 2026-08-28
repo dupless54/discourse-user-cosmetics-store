@@ -55,6 +55,9 @@ tr_TR:
       invalid_amount: "Geçersiz bakiye değişikliği."
       product_has_purchases: "Satın alma veya hediye geçmişi olan ürün silinemez; ürünü pasifleştir."
       payment_unavailable: "Bu ödeme yöntemi şu anda kullanılamıyor."
+      loadout_limit: "En fazla 10 kozmetik seti kaydedebilirsin."
+      invalid_loadout_name: "Geçerli bir kozmetik seti adı gir."
+      loadout_unavailable: "Kayıtlı kozmetiklerden en az biri artık kullanılamadığı için bu set uygulanamıyor."
     messages:
       purchased: "Ürün koleksiyonuna eklendi."
       gift_sent: "Hediye @%{username} kullanıcısına gönderildi."
