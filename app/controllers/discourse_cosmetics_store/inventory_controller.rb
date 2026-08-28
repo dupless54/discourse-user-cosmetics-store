@@ -5,6 +5,8 @@ module ::DiscourseCosmeticsStore
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
 
     before_action :ensure_store_enabled
+    before_action :ensure_logged_in, only: %i[equip unequip]
+    before_action :ensure_selection_actions_supported, only: %i[equip unequip]
 
     def index
       response.headers["Cache-Control"] = "private, no-store"
@@ -21,6 +23,7 @@ module ::DiscourseCosmeticsStore
       items = inventory_items(products)
       owned_item_ids = CosmeticsAccess.owned_item_ids(user: current_user, items: items)
       entitled_item_ids = CosmeticsAccess.entitled_item_ids(user: current_user, items: items)
+      equipped_item_ids = current_equipped_item_ids
 
       render json: {
                inventory:
@@ -31,6 +34,7 @@ module ::DiscourseCosmeticsStore
                      catalog_count: items.length,
                      owned_item_ids: owned_item_ids,
                      entitled_item_ids: entitled_item_ids,
+                     equipped_item_ids: equipped_item_ids,
                    ),
                collections: collection_progress_payload(
                  products: products,
@@ -41,14 +45,38 @@ module ::DiscourseCosmeticsStore
                viewer: {
                  logged_in: true,
                  username: current_user.username,
+                 can_manage_selection: CosmeticsAccess.selection_actions_supported?,
                },
              }
+    end
+
+    def equip
+      RateLimiter.new(current_user, "cosmetics-store-selection", 30, 1.minute).performed!
+      item = DiscourseUserCosmetics::Item.enabled.find(params[:id])
+      CosmeticsAccess.equip!(user: current_user, item: item)
+
+      render json: selection_payload(
+               message: I18n.t("discourse_cosmetics_store.messages.cosmetic_equipped"),
+             )
+    end
+
+    def unequip
+      RateLimiter.new(current_user, "cosmetics-store-selection", 30, 1.minute).performed!
+      CosmeticsAccess.unequip!(user: current_user, kind: params[:kind])
+
+      render json: selection_payload(
+               message: I18n.t("discourse_cosmetics_store.messages.cosmetic_unequipped"),
+             )
     end
 
     private
 
     def ensure_store_enabled
       raise Discourse::NotFound unless SiteSetting.discourse_cosmetics_store_enabled
+    end
+
+    def ensure_selection_actions_supported
+      raise Discourse::NotFound unless CosmeticsAccess.selection_actions_supported?
     end
 
     def collections_only?
@@ -94,13 +122,14 @@ module ::DiscourseCosmeticsStore
       }
     end
 
-    def inventory_payload(items:, catalog_count:, owned_item_ids:, entitled_item_ids:)
+    def inventory_payload(items:, catalog_count:, owned_item_ids:, entitled_item_ids:, equipped_item_ids:)
       rows =
         items.map do |item|
           serialize_item(
             item,
             directly_owned: owned_item_ids.key?(item.id),
             unlocked: entitled_item_ids.key?(item.id),
+            equipped: equipped_item_ids[item.kind] == item.id,
           )
         end
 
@@ -127,7 +156,7 @@ module ::DiscourseCosmeticsStore
       }
     end
 
-    def serialize_item(item, directly_owned:, unlocked:)
+    def serialize_item(item, directly_owned:, unlocked:, equipped:)
       DiscourseUserCosmetics::Presenter.serialize_item(item).merge(
         kind: item.kind,
         description: item.description,
@@ -136,7 +165,23 @@ module ::DiscourseCosmeticsStore
         is_default: item.is_default?,
         directly_owned: directly_owned,
         unlocked: unlocked,
+        equipped: equipped,
       )
+    end
+
+    def current_equipped_item_ids
+      summary = DiscourseUserCosmetics::Presenter.summary_for(current_user) || {}
+
+      DiscourseUserCosmetics::Item::KINDS.index_with do |kind|
+        summary[kind]&.dig(:id)
+      end
+    end
+
+    def selection_payload(message:)
+      {
+        equipped_item_ids: current_equipped_item_ids,
+        message: message,
+      }
     end
 
     def collection_progress_payload(products:, items_by_id:, owned_item_ids:, entitled_item_ids:)
