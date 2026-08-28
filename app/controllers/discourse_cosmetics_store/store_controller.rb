@@ -13,7 +13,7 @@ module ::DiscourseCosmeticsStore
       limit = SiteSetting.discourse_cosmetics_store_products_limit.to_i.clamp(12, 300)
       products =
         Product
-          .available
+          .catalog_visible
           .ordered
           .includes(product_items: { cosmetic_item: [:groups, :image_upload, { effect_layers: :image_upload }] })
           .limit(limit)
@@ -23,7 +23,7 @@ module ::DiscourseCosmeticsStore
       # even when editor picks and single items fill the general catalog limit.
       bundle_products =
         Product
-          .available
+          .catalog_visible
           .where(product_type: "bundle")
           .ordered
           .includes(product_items: { cosmetic_item: [:groups, :image_upload, { effect_layers: :image_upload }] })
@@ -31,7 +31,7 @@ module ::DiscourseCosmeticsStore
           .to_a
       collection_products =
         Product
-          .available
+          .catalog_visible
           .where.not(collection_slug: [nil, ""])
           .ordered
           .includes(product_items: { cosmetic_item: [:groups, :image_upload, { effect_layers: :image_upload }] })
@@ -53,6 +53,7 @@ module ::DiscourseCosmeticsStore
             access_context: access_context,
           )
         end
+      active_serialized = serialized.select { |product| product[:sale_state] == "active" }
 
       wallet = current_user ? WalletService.fetch(current_user) : nil
       missions = serialize_missions
@@ -61,20 +62,34 @@ module ::DiscourseCosmeticsStore
                products: serialized,
                sections: {
                  editor_picks:
-                   serialized.select { |product| product[:editor_pick] }.map { |product| product[:id] },
+                   active_serialized
+                     .select { |product| product[:editor_pick] }
+                     .map { |product| product[:id] },
                  featured:
-                   serialized.select { |product| product[:featured] }.map { |product| product[:id] },
+                   active_serialized
+                     .select { |product| product[:featured] }
+                     .map { |product| product[:id] },
                  popular:
-                   serialized
+                   active_serialized
                      .sort_by { |product| [-product[:popularity_score], product[:sort_order], product[:id]] }
                      .first(12)
                      .map { |product| product[:id] },
                  bundles:
-                   serialized.select { |product| product[:product_type] == "bundle" }.first(12).map { |product| product[:id] },
+                   active_serialized
+                     .select { |product| product[:product_type] == "bundle" }
+                     .first(12)
+                     .map { |product| product[:id] },
                  profile_effects:
-                   serialized.select { |product| product[:kinds].include?("profile_effect") }.first(12).map { |product| product[:id] },
+                   active_serialized
+                     .select { |product| product[:kinds].include?("profile_effect") }
+                     .first(12)
+                     .map { |product| product[:id] },
                  newest:
-                   serialized.sort_by { |product| product[:created_at].to_s }.reverse.first(12).map { |product| product[:id] },
+                   active_serialized
+                     .sort_by { |product| product[:created_at].to_s }
+                     .reverse
+                     .first(12)
+                     .map { |product| product[:id] },
                },
                filters: filter_payload(serialized),
                collections: collection_payload(serialized),
@@ -99,6 +114,7 @@ module ::DiscourseCosmeticsStore
                  hero_subtitle: SiteSetting.discourse_cosmetics_store_hero_subtitle,
                  editor_title: SiteSetting.discourse_cosmetics_store_editor_title,
                  hover_preview: SiteSetting.discourse_cosmetics_store_hover_preview_enabled,
+                 server_now: Time.zone.now.iso8601,
                },
              }
     end
@@ -228,6 +244,8 @@ module ::DiscourseCosmeticsStore
       usage_count = items.sum { |item| usage_counts[item.id].to_i }
       purchased = purchased_ids.include?(product.id)
       unlocked = items.present? && items.all? { |item| item_unlocked_for_viewer?(item, access_context) }
+      sale_state = product.sale_state
+      available_now = sale_state == "active"
 
       {
         id: product.id,
@@ -255,11 +273,14 @@ module ::DiscourseCosmeticsStore
         purchased: purchased,
         owned: purchased || unlocked,
         favorite: favorite_ids.include?(product.id),
-        giftable: current_user.present? && product.available_now?,
+        favoriteable: available_now,
+        giftable: current_user.present? && available_now,
         collection_name: product.collection_name,
         collection_slug: product.collection_slug,
         collection_image_url: product.collection_image_url,
-        purchasable: current_user.present? && !purchased && !unlocked && product.available_now?,
+        purchasable: current_user.present? && !purchased && !unlocked && available_now,
+        availability_type: product.availability_type,
+        sale_state: sale_state,
         available_from: product.available_from&.iso8601,
         available_until: product.available_until&.iso8601,
         created_at: product.created_at&.iso8601,
@@ -450,6 +471,13 @@ module ::DiscourseCosmeticsStore
     end
 
     def filter_payload(products)
+      availability_counts = Hash.new(0)
+      products.each do |product|
+        type = product[:availability_type]
+        availability_counts[type] += 1 if %w[limited seasonal].include?(type)
+        availability_counts["upcoming"] += 1 if product[:sale_state] == "upcoming"
+      end
+
       {
         kinds:
           products
@@ -463,6 +491,12 @@ module ::DiscourseCosmeticsStore
             .filter_map { |product| product[:rarity_label].presence }
             .tally
             .map { |label, count| { value: label, label: label, count: count } },
+        availability:
+          [
+            { value: "limited", label: "Sınırlı süre", count: availability_counts["limited"] },
+            { value: "seasonal", label: "Sezonluk", count: availability_counts["seasonal"] },
+            { value: "upcoming", label: "Yakında", count: availability_counts["upcoming"] },
+          ].select { |row| row[:count].positive? },
         tags:
           products
             .flat_map { |product| product[:tags] }
