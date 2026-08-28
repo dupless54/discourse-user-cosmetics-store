@@ -1,0 +1,599 @@
+// Discourse-native storefront presentation layer.
+// Keep product/payment behavior in the existing components; this file only
+// aligns the public store with core Discourse layout, colors, spacing, and
+// responsive behavior.
+
+.cosmetics-store-route {
+  background: var(--d-content-background, var(--secondary));
+
+  #main-outlet {
+    width: auto;
+    max-width: var(--d-max-width);
+    padding-right: var(--space-4, 1em);
+    padding-left: var(--space-4, 1em);
+  }
+
+  .wrap {
+    max-width: var(--d-max-width);
+  }
+}
+
+.cstore-shell {
+  --cstore-bg: var(--d-content-background, var(--secondary));
+  --cstore-panel: var(--primary-very-low);
+  --cstore-panel-2: var(--secondary);
+  --cstore-panel-3: var(--primary-low);
+  --cstore-line: var(--content-border-color, var(--primary-low));
+  --cstore-text: var(--primary);
+  --cstore-muted: var(--primary-medium);
+  --cstore-accent: var(--tertiary);
+  --cstore-accent-2: var(--tertiary);
+  --cstore-green: var(--success);
+  --cstore-gold: var(--highlight);
+  --cstore-radius: var(--d-border-radius, 4px);
+
+  min-height: 0;
+  background: transparent;
+  color: var(--primary);
+
+  button,
+  input,
+  select,
+  textarea {
+    color: var(--primary);
+  }
+}
+
+// Top-level navigation follows the same visual hierarchy as core navigation:
+// a simple title row, pills, controls, and the site's normal content width.
+.cstore-nav {
+  position: static;
+  z-index: auto;
+  display: flex;
+  min-height: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2, 0.5em) var(--space-4, 1em);
+  margin: 0 0 var(--space-4, 1em);
+  padding: var(--space-4, 1em) 0;
+  border-bottom: 1px solid var(--cstore-line);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+
+  button {
+    color: var(--primary-high, var(--primary));
+  }
+
+  nav {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1, 0.25em);
+
+    button {
+      min-height: 34px;
+      padding: 0 var(--space-3, 0.75em);
+      border-radius: var(--d-button-border-radius, var(--d-border-radius));
+      font-weight: normal;
+
+      &:hover,
+      &:focus-visible {
+        background: var(--primary-very-low);
+        color: var(--primary);
+        outline: none;
+      }
+
+      &.is-active {
+        background: var(--tertiary-low, var(--primary-low));
+        color: var(--tertiary-hover, var(--tertiary));
+        font-weight: 600;
+
+        &::after {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+.cstore-nav__brand {
+  min-height: 36px;
+  gap: var(--space-2, 0.5em);
+  padding: 0;
+  color: var(--primary) !important;
+  font-size: var(--font-up-1, 1.1487em);
+
+  span {
+    display: none;
+  }
+}
+
+.cstore-nav__browse-menu {
+  > button span {
+    color: var(--primary-medium);
+  }
+}
+
+.cstore-nav__dropdown {
+  top: calc(100% + var(--space-1, 0.25em));
+  width: 240px;
+  padding: var(--space-2, 0.5em);
+  border: 1px solid var(--cstore-line);
+  border-radius: var(--d-border-radius, 4px);
+  background: var(--secondary);
+  box-shadow: var(--shadow-dropdown, 0 6px 14px rgb(0 0 0 / 15%));
+
+  button {
+    color: var(--primary) !important;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--primary-very-low) !important;
+      color: var(--primary) !important;
+    }
+  }
+
+  > span {
+    background: var(--cstore-line);
+  }
+}
+
+.cstore-nav__tools {
+  flex: 0 1 auto;
+  gap: var(--space-2, 0.5em);
+  margin-left: auto;
+
+  > label {
+    width: clamp(180px, 22vw, 300px);
+    min-height: 36px;
+    padding: 0 var(--space-2, 0.5em);
+    border: 1px solid var(--cstore-line);
+    border-radius: var(--d-input-border-radius, var(--d-border-radius));
+    background: var(--secondary);
+    color: var(--primary-medium);
+
+    &:focus-within {
+      border-color: var(--tertiary);
+      outline: 1px solid var(--tertiary);
+    }
+
+    input {
+      color: var(--primary);
+
+      &::placeholder {
+        color: var(--primary-medium);
+      }
+    }
+  }
+}
+
+.cstore-balance {
+  min-height: 36px;
+  height: auto;
+  padding: 0 var(--space-3, 0.75em) !important;
+  border: 1px solid var(--cstore-line) !important;
+  border-radius: var(--d-button-border-radius, var(--d-border-radius)) !important;
+  background: var(--primary-very-low) !important;
+  color: var(--primary) !important;
+
+  span {
+    color: var(--tertiary);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--primary-low) !important;
+  }
+}
+
+.cstore-notice {
+  position: static;
+  max-width: none;
+  margin: 0 0 var(--space-4, 1em);
+  padding: var(--space-3, 0.75em) var(--space-4, 1em);
+  border: 1px solid var(--success);
+  border-radius: var(--d-border-radius, 4px);
+  background: var(--success-low, var(--primary-very-low));
+  box-shadow: none;
+  color: var(--primary);
+}
+
+.cstore-featured,
+.cstore-orbs,
+.cstore-favorites-page,
+.cstore-collections-page {
+  width: 100%;
+  margin: 0;
+  padding: 0 0 var(--space-8, 3em);
+}
+
+.cstore-section {
+  margin-top: var(--space-6, 2em);
+}
+
+.cstore-section__heading,
+.cstore-results__bar {
+  align-items: center;
+  margin-bottom: var(--space-3, 0.75em);
+  padding-bottom: var(--space-2, 0.5em);
+  border-bottom: 1px solid var(--cstore-line);
+
+  h1,
+  h2 {
+    margin-top: 0;
+    color: var(--primary);
+    letter-spacing: normal;
+  }
+
+  > button {
+    min-height: 32px;
+    border: 0;
+    border-radius: var(--d-button-border-radius, var(--d-border-radius));
+    background: var(--primary-very-low);
+    color: var(--primary);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--primary-low);
+    }
+  }
+}
+
+.cstore-eyebrow {
+  color: var(--tertiary);
+  font-size: var(--font-down-2, 0.8706em);
+  letter-spacing: 0.04em;
+}
+
+// Hero stays visually prominent but uses Discourse surfaces and borders rather
+// than imposing a separate dark application theme.
+.cstore-hero {
+  min-height: 360px;
+  border: 1px solid var(--cstore-line);
+  border-radius: var(--d-border-radius, 4px);
+  background: var(--primary-very-low);
+  box-shadow: none;
+}
+
+.cstore-hero__shade {
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 72%) 0%,
+    rgb(0 0 0 / 52%) 50%,
+    rgb(0 0 0 / 18%) 100%
+  );
+}
+
+.cstore-hero:not(:has(.cstore-hero__art)) .cstore-hero__shade {
+  background: transparent;
+}
+
+.cstore-hero__copy {
+  padding: clamp(24px, 5vw, 56px);
+
+  h1 {
+    color: var(--primary);
+    font-size: clamp(30px, 4vw, 50px);
+    line-height: var(--line-height-small, 1.2);
+    letter-spacing: normal;
+  }
+
+  > p:not(.cstore-eyebrow) {
+    color: var(--primary-high, var(--primary));
+  }
+
+  button {
+    min-height: 36px;
+    padding: 0 var(--space-4, 1em);
+    border: 0;
+    border-radius: var(--d-button-border-radius, var(--d-border-radius));
+    background: var(--tertiary);
+    color: var(--secondary);
+    font-weight: 600;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: none;
+      transform: none;
+      filter: brightness(0.95);
+    }
+  }
+}
+
+.cstore-hero:has(.cstore-hero__art) .cstore-hero__copy {
+  h1,
+  > p:not(.cstore-eyebrow) {
+    color: white;
+  }
+}
+
+.cstore-grid,
+.cstore-grid--featured {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3, 0.75em);
+}
+
+.cstore-grid--wide {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cstore-product {
+  border: 1px solid var(--cstore-line);
+  border-radius: var(--d-border-radius, 4px);
+  background: var(--secondary);
+  box-shadow: none;
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--primary-low-mid, var(--primary-low));
+    box-shadow: none;
+    transform: none;
+  }
+
+  &.is-owned::after {
+    background: var(--success);
+    color: var(--secondary);
+  }
+}
+
+.cstore-product__info {
+  min-height: 112px;
+
+  > small {
+    color: var(--primary-medium);
+  }
+}
+
+.cstore-product__meta i {
+  background: var(--primary-very-low);
+  color: var(--primary-high, var(--primary));
+}
+
+.cstore-product__price {
+  color: var(--primary);
+}
+
+.cstore-product__actions {
+  button {
+    border-radius: var(--d-button-border-radius, var(--d-border-radius));
+    box-shadow: none;
+  }
+}
+
+.cstore-product__buy {
+  background: var(--tertiary);
+  color: var(--secondary);
+}
+
+.cstore-product__gift {
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.cstore-favorite {
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  background: var(--secondary);
+  color: var(--primary-medium);
+  backdrop-filter: none;
+
+  &:hover,
+  &.is-active {
+    color: var(--danger);
+  }
+}
+
+.cstore-preview,
+.cstore-preview-item {
+  background: var(--primary-very-low);
+}
+
+// Browse follows the familiar Discourse two-column settings/filter pattern.
+.cstore-browse {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(210px, 260px) minmax(0, 1fr);
+  gap: var(--space-6, 2em);
+  margin: 0;
+  padding: 0 0 var(--space-8, 3em);
+}
+
+.cstore-filters {
+  position: static;
+  align-self: start;
+  padding: var(--space-4, 1em);
+  border: 1px solid var(--cstore-line);
+  border-radius: var(--d-border-radius, 4px);
+  background: var(--primary-very-low);
+  box-shadow: none;
+
+  h2 {
+    color: var(--primary);
+  }
+
+  label {
+    color: var(--primary-high, var(--primary));
+  }
+
+  input:not([type="checkbox"]),
+  select {
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid var(--cstore-line);
+    border-radius: var(--d-input-border-radius, var(--d-border-radius));
+    background: var(--secondary);
+    color: var(--primary);
+
+    &:focus {
+      border-color: var(--tertiary);
+      outline: 1px solid var(--tertiary);
+    }
+  }
+}
+
+.cstore-filter-reset {
+  min-height: 34px;
+  border: 0;
+  border-radius: var(--d-button-border-radius, var(--d-border-radius));
+  background: var(--primary-low);
+  color: var(--primary);
+}
+
+.cstore-results {
+  min-width: 0;
+}
+
+.cstore-results__bar {
+  select {
+    min-height: 34px;
+    border: 1px solid var(--cstore-line);
+    border-radius: var(--d-input-border-radius, var(--d-border-radius));
+    background: var(--secondary);
+    color: var(--primary);
+  }
+}
+
+.cstore-empty,
+.cstore-ledger,
+.cstore-mission,
+.cstore-orbs__hero,
+.cstore-collection-hero,
+.cstore-collections-grid > button {
+  border-color: var(--cstore-line);
+  border-radius: var(--d-border-radius, 4px);
+  background: var(--secondary);
+  box-shadow: none;
+  color: var(--primary);
+}
+
+.cstore-muted,
+.cstore-empty p,
+.cstore-mission p,
+.cstore-ledger small,
+.cstore-collection-hero span {
+  color: var(--primary-medium);
+}
+
+.cstore-orb-balance,
+.cstore-wallet-stats span {
+  border-color: var(--cstore-line);
+  background: var(--primary-very-low);
+  color: var(--primary);
+}
+
+.cstore-orb-balance__topup,
+.cstore-empty a,
+.cstore-empty button,
+.cstore-mission__reward button {
+  border-radius: var(--d-button-border-radius, var(--d-border-radius));
+}
+
+.cstore-collections-grid > button:hover,
+.cstore-collections-grid > button:focus-visible {
+  border-color: var(--primary-low-mid, var(--primary-low));
+  box-shadow: none;
+  transform: none;
+}
+
+@media (width <= 1100px) {
+  .cstore-grid,
+  .cstore-grid--featured {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cstore-grid--wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 800px) {
+  .cosmetics-store-route #main-outlet {
+    padding-right: var(--space-2, 0.5em);
+    padding-left: var(--space-2, 0.5em);
+  }
+
+  .cstore-nav {
+    align-items: stretch;
+  }
+
+  .cstore-nav__brand,
+  .cstore-nav nav,
+  .cstore-nav__tools {
+    width: 100%;
+  }
+
+  .cstore-nav nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: var(--space-1, 0.25em);
+  }
+
+  .cstore-nav nav button {
+    flex: 0 0 auto;
+  }
+
+  .cstore-nav__tools {
+    margin-left: 0;
+  }
+
+  .cstore-nav__tools > label {
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+  .cstore-browse {
+    display: block;
+  }
+
+  .cstore-filters {
+    margin-bottom: var(--space-4, 1em);
+  }
+
+  .cstore-hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .cstore-hero__preview {
+    display: none;
+  }
+
+  .cstore-grid,
+  .cstore-grid--featured,
+  .cstore-grid--wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 520px) {
+  .cstore-nav__tools {
+    flex-wrap: wrap;
+  }
+
+  .cstore-nav__tools > label,
+  .cstore-balance {
+    width: 100%;
+  }
+
+  .cstore-balance {
+    justify-content: center;
+  }
+
+  .cstore-section__heading,
+  .cstore-results__bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cstore-grid,
+  .cstore-grid--featured,
+  .cstore-grid--wide {
+    grid-template-columns: 1fr;
+  }
+
+  .cstore-product__open {
+    height: 230px;
+  }
+}

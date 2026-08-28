@@ -36,5 +36,14 @@ Stop for unresolved financial semantics, refund policy, provider contract, schem
 
 Prefer targeted symbols/diffs/logs over broad scans. Reusable procedures are under `.agents/skills/` and load on demand; use `task-packet` for non-trivial work.
 
+## Review and merge governance
+- Claude, Gemini, Codex, or other AI reviewer/verifier approvals are optional evidence, not default merge gates. Do not wait for or request them merely to satisfy workflow unless the user explicitly requires that reviewer in the current task.
+- PR creation/update is not merge authorization. Merge only when the user has explicitly authorized merge for the current task.
+- Before merge, validate the exact changed paths and the latest exact PR head SHA.
+- The official `Discourse Plugin` CI workflow on that exact head must conclude GREEN. If GitHub exposes an additional required `Discourse` CI/check context, it must also conclude GREEN.
+- All required checks/contexts must be successful; pending, cancelled, failed, missing, or stale-head evidence is not GREEN. A new commit invalidates earlier CI evidence.
+- AI review approval never substitutes for required Discourse CI. `NO_CI != GREEN`.
+- Prefer squash merge with `expected_head_sha` when the repository allows it.
+
 ## Adaptive model / effort routing
 Classify execution risk with `docs/ai/EFFORT_ROUTER.md` before broad reads. Start at the lowest sufficient tier: T0 mechanical, T1 routine, T2 high-risk, T3 exceptional. Escalate for risk/ambiguity rather than task size, and de-escalate when the risky phase ends. Use platform-native workers under `.claude/agents/` or `.codex/agents/` when supported; never trade away correctness, security, or validation to save tokens.
