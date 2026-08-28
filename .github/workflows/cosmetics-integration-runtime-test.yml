@@ -1,0 +1,86 @@
+name: Cosmetics Integration Runtime Test
+
+on:
+  push:
+    branches:
+      - refactor/use-cosmetics-integration-api-v2
+
+permissions:
+  contents: read
+
+jobs:
+  discourse-ruby:
+    runs-on: ubuntu-latest
+    container: discourse/discourse_test:release
+    timeout-minutes: 25
+    env:
+      RAILS_ENV: test
+      LOAD_PLUGINS: 1
+      PGUSER: discourse
+      PGPASSWORD: discourse
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout pinned Discourse
+        uses: actions/checkout@v6
+        with:
+          repository: discourse/discourse
+          ref: 504fee3518fdbb10537eb1a92e54ff551dd66cc3
+          path: discourse
+          fetch-depth: 1
+
+      - name: Checkout exact User Cosmetics integration candidate
+        uses: actions/checkout@v6
+        with:
+          repository: dupless54/discourse-user-cosmetics
+          ref: 378cdea2a3d9783eeb3cd7f25c86e5b5c17a1001
+          path: discourse/plugins/discourse-user-cosmetics
+          fetch-depth: 1
+
+      - name: Checkout Store branch
+        uses: actions/checkout@v6
+        with:
+          path: discourse/plugins/discourse-user-cosmetics-store
+          fetch-depth: 1
+
+      - name: Prepare Discourse test environment
+        working-directory: discourse
+        run: |
+          chown root:root .
+          redis-server /etc/redis/redis.conf &
+          chown -R postgres /var/run/postgresql
+          sudo -E -u postgres script/start_test_db.rb
+          sudo -u postgres psql -c "CREATE ROLE $PGUSER LOGIN SUPERUSER PASSWORD '$PGPASSWORD';" || true
+          sudo -u postgres createdb -O "$PGUSER" discourse_test
+          ln -s /var/www/discourse/vendor/bundle vendor/bundle
+          bundle config set --local path vendor/bundle
+          bundle config set --local deployment true
+          bundle config set --local without development
+          bundle install --jobs $(($(nproc) - 1))
+          pnpm install --frozen-lockfile
+
+      - name: Migrate both plugins
+        working-directory: discourse
+        run: bin/rake db:migrate
+
+      - name: Verify public integration contract is active
+        working-directory: discourse
+        run: >-
+          bin/rails runner '
+          abort "base Integration API unavailable" unless defined?(DiscourseUserCosmetics::Integration);
+          abort "store integration unavailable" unless DiscourseCosmeticsStore.base_integration_ready?;
+          abort "store provider installation failed" unless DiscourseCosmeticsStore.install_cosmetics_integration!;
+          puts "cosmetics integration contract OK"'
+
+      - name: Run Store specs directly
+        working-directory: discourse
+        run: bin/rspec plugins/discourse-user-cosmetics-store/spec
+
+      - name: Run Store specs via Discourse plugin task
+        working-directory: discourse
+        run: bin/rake 'plugin:spec[discourse-user-cosmetics-store]'
+
+      - name: Run Store QUnit
+        working-directory: discourse
+        run: bin/qunit --standalone --target discourse-user-cosmetics-store
