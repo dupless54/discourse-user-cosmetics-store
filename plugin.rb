@@ -14,8 +14,9 @@ register_asset "stylesheets/discourse-cosmetics-store-native.scss"
 register_asset "stylesheets/discourse-cosmetics-store-polish.scss"
 register_asset "stylesheets/discourse-cosmetics-store-loadouts.scss"
 register_asset "stylesheets/discourse-cosmetics-store-preview.scss"
+register_asset "stylesheets/discourse-cosmetics-store-availability.scss"
 
-%w[cart-shopping check eye gift heart image palette paper-plane right-to-bracket xmark].each do |icon|
+%w[cart-shopping check clock eye gift heart image palette paper-plane right-to-bracket xmark].each do |icon|
   register_svg_icon icon
 end
 
