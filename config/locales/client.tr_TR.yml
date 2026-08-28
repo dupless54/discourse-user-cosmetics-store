@@ -5,6 +5,7 @@ tr_TR:
       nav:
         inventory: "Envanter"
         loadouts: "Kozmetik Setleri"
+        preview: "Önizleme Stüdyosu"
       inventory:
         eyebrow: "KOZMETİKLERİN"
         title: "Envanter"
@@ -58,6 +59,26 @@ tr_TR:
         renamed: "Kozmetik setinin adı değiştirildi."
         deleted: "Kozmetik seti silindi."
         applied: "%{name} uygulandı."
+        kinds:
+          avatar_frame: "Avatar çerçevesi"
+          nameplate: "İsim plakası"
+          card_decoration: "Kart dekorasyonu"
+          profile_effect: "Profil efekti"
+      preview:
+        eyebrow: "CANLI GÖRÜNÜM LABORATUVARI"
+        title: "Önizleme Stüdyosu"
+        subtitle: "Hesabına açık kozmetikleri özgürce karıştır; tüm görünümü uygulayana kadar takılı kozmetiklerin değişmesin."
+        controls_label: "Kozmetik önizleme kontrolleri"
+        none: "Yok"
+        empty_kind: "Bu türde hesabın için şu anda kullanılabilir kozmetik yok."
+        preview_eyebrow: "CANLI ÖNİZLEME"
+        preview_title: "Birleşik görünümün"
+        temporary_note: "Uygula demeden yaptığın değişiklikler yalnızca bu önizlemede kalır."
+        sample_bio: "Kozmetiklerinin Discourse tarzı kullanıcı kartında birlikte nasıl göründüğünü incele."
+        apply_action: "Bu görünümü uygula"
+        applying: "Uygulanıyor…"
+        reset_action: "Sıfırla"
+        applied: "Kozmetik görünümün uygulandı."
         kinds:
           avatar_frame: "Avatar çerçevesi"
           nameplate: "İsim plakası"
