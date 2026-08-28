@@ -2,6 +2,39 @@ tr_TR:
   js:
     discourse_cosmetics_store:
       title: "Kozmetik Mağazası"
+      nav:
+        inventory: "Envanter"
+      inventory:
+        eyebrow: "KOZMETİKLERİN"
+        title: "Envanter"
+        subtitle: "Doğrudan sahip olduğun ve hesabın için şu anda erişilebilir olan kozmetikleri ayrı ayrı gör."
+        directly_owned: "Sahip olunan"
+        unlocked: "Erişilebilir"
+        catalog: "Katalog"
+        mode_owned: "Sahip olduklarım"
+        mode_unlocked: "Erişebildiklerim"
+        filter_kind: "Kozmetik türü"
+        all_kinds: "Tüm türler"
+        owned_badge: "Sahibisin"
+        unlocked_badge: "Erişim var"
+        default_badge: "Varsayılan"
+        empty_owned_title: "Henüz sahip olduğun kozmetik yok"
+        empty_owned_description: "Satın aldığın, hediye aldığın veya doğrudan hesabına verilen kozmetikler burada görünür."
+        empty_unlocked_title: "Erişilebilir kozmetik yok"
+        empty_unlocked_description: "Hesabın için şu anda kullanılabilir olan kozmetikler burada görünür."
+        login_title: "Envanterini görmek için giriş yap"
+        login_description: "Kozmetik sahipliğin ve erişim durumun forum hesabına özeldir."
+        login_action: "Giriş yap"
+        kinds:
+          avatar_frame: "Avatar çerçeveleri"
+          nameplate: "İsim plakaları"
+          card_decoration: "Kart dekorasyonları"
+          profile_effect: "Profil efektleri"
+      collections:
+        owned_progress: "%{total} kozmetikten %{owned} tanesine sahipsin"
+        unlocked_progress: "%{total} kozmetikten %{unlocked} tanesine erişimin var"
+        owned_complete: "Koleksiyonun tamamı senin"
+        unlocked_complete: "Tamamına şu anda erişimin var"
       admin:
         title: "Kozmetik Mağazası"
         catalog: "Mağaza yönetimi"
