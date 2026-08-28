@@ -36,15 +36,15 @@ RSpec.describe DiscourseCosmeticsStore::Product do
   end
 
   it "keeps upcoming products catalog-visible while excluding expired products" do
-    travel_to(now) do
-      active = product!(available_until: now + 1.day)
-      upcoming = product!(available_from: now + 1.hour, available_until: now + 2.days)
-      expired = product!(available_until: now - 1.minute)
+    allow(Time.zone).to receive(:now).and_return(now)
 
-      visible_ids = described_class.catalog_visible.pluck(:id)
+    active = product!(available_until: now + 1.day)
+    upcoming = product!(available_from: now + 1.hour, available_until: now + 2.days)
+    expired = product!(available_until: now - 1.minute)
 
-      expect(visible_ids).to include(active.id, upcoming.id)
-      expect(visible_ids).not_to include(expired.id)
-    end
+    visible_ids = described_class.catalog_visible.pluck(:id)
+
+    expect(visible_ids).to include(active.id, upcoming.id)
+    expect(visible_ids).not_to include(expired.id)
   end
 end
