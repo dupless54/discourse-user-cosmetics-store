@@ -101,7 +101,7 @@ RSpec.describe "Cosmetics Store inventory" do
     expect(response.status).to eq(200)
     expect(response.parsed_body.dig("equipped_item_ids", "avatar_frame")).to eq(item.id)
     selection = DiscourseUserCosmetics::UserSelection.find_by(user_id: user.id)
-    expect(selection.avatar_frame_id).to eq(item.id)
+    expect(selection.avatar_frame_item_id).to eq(item.id)
   end
 
   it "rejects equip when the cosmetic is not entitled and preserves the selection" do
@@ -118,7 +118,7 @@ RSpec.describe "Cosmetics Store inventory" do
 
     expect(response.status).to eq(403)
     selection = DiscourseUserCosmetics::UserSelection.find_by(user_id: user.id)
-    expect(selection.avatar_frame_id).to eq(current.id)
+    expect(selection.avatar_frame_item_id).to eq(current.id)
   end
 
   it "unequips one cosmetic kind without changing other slots" do
@@ -137,8 +137,8 @@ RSpec.describe "Cosmetics Store inventory" do
     expect(response.parsed_body.dig("equipped_item_ids", "avatar_frame")).to be_nil
     expect(response.parsed_body.dig("equipped_item_ids", "nameplate")).to eq(nameplate.id)
     selection = DiscourseUserCosmetics::UserSelection.find_by(user_id: user.id)
-    expect(selection.avatar_frame_id).to be_nil
-    expect(selection.nameplate_id).to eq(nameplate.id)
+    expect(selection.avatar_frame_item_id).to be_nil
+    expect(selection.nameplate_item_id).to eq(nameplate.id)
   end
 
   it "requires authentication for selection mutations" do
