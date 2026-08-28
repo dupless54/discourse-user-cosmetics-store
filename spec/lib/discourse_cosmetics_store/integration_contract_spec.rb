@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Cosmetics Store integration contract" do
+RSpec.describe DiscourseCosmeticsStore::EntitlementProvider do
   fab!(:user)
   fab!(:recipient) { Fabricate(:user, active: true) }
 
