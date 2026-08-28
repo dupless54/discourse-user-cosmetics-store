@@ -6,6 +6,7 @@ import { on } from "@ember/modifier";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 import {
   activeProductFilterCount,
@@ -84,6 +85,10 @@ export default class CosmeticsStoreFavoritesPage extends Component {
 
   get hasActiveFilters() {
     return this.activeFilterCount > 0;
+  }
+
+  get resetDisabled() {
+    return !this.hasActiveFilters;
   }
 
   get favoriteCountLabel() {
@@ -425,7 +430,12 @@ export default class CosmeticsStoreFavoritesPage extends Component {
               {{#if this.hasActiveFilters}}
                 <span class="cstore-favorites-center__active-count">{{this.activeFilterLabel}}</span>
               {{/if}}
-              <button class="cstore-filter-reset" type="button" disabled={{unless this.hasActiveFilters true}} {{on "click" this.resetFilters}}>
+              <button
+                class="cstore-filter-reset"
+                type="button"
+                disabled={{this.resetDisabled}}
+                {{on "click" this.resetFilters}}
+              >
                 {{i18n "discourse_cosmetics_store.favorites_filters.reset"}}
               </button>
             </aside>
