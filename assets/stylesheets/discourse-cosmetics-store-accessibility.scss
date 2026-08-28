@@ -1,0 +1,56 @@
+// Accessibility and motion preferences for Store-owned UI.
+// Loaded after the visual styles so keyboard focus cannot be erased by
+// legacy `outline: 0` rules in the storefront theme.
+
+.cstore-shell,
+.cstore-admin {
+  :is(button, a[href], input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--tertiary, #da0a46) !important;
+    outline-offset: 2px;
+  }
+}
+
+.cstore-nav__tools > label:has(input:focus-visible),
+.cstore-filters label:has(:focus-visible),
+.cstore-results__bar label:has(:focus-visible) {
+  border-color: var(--tertiary, #da0a46);
+}
+
+.cstore-product:focus-within {
+  z-index: 2;
+  border-color: color-mix(in srgb, var(--tertiary, #da0a46) 70%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tertiary, #da0a46) 28%, transparent),
+    0 18px 40px rgb(0 0 0 / 22%);
+}
+
+.has-hover-preview:focus-within .cstore-product__peek {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cstore-shell,
+  .cstore-admin {
+    scroll-behavior: auto !important;
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  .cstore-product:hover,
+  .cstore-product:focus-within,
+  .cstore-hero__copy button:hover,
+  .cstore-hero__copy button:focus-visible,
+  .has-hover-preview:hover .cstore-preview__surface,
+  .has-hover-preview:focus-within .cstore-preview__surface,
+  .cstore-product__peek,
+  .cstore-product__actions,
+  .cstore-nav__dropdown {
+    transform: none !important;
+  }
+}

@@ -9,6 +9,7 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import { prefersReducedMotion } from "../lib/cosmetics-store-motion";
 import CosmeticsStoreProfileEffectLayers from "./cosmetics-store-profile-effect-layers";
 
 const SLOT_KINDS = [
@@ -17,6 +18,7 @@ const SLOT_KINDS = [
   "card_decoration",
   "profile_effect",
 ];
+const MOTION_HEAVY_KINDS = new Set(["card_decoration", "profile_effect"]);
 
 export default class CosmeticsStorePreviewStudio extends Component {
   @tracked selections;
@@ -36,6 +38,8 @@ export default class CosmeticsStorePreviewStudio extends Component {
   }
 
   get slotRows() {
+    const reduceMotion = prefersReducedMotion();
+
     return SLOT_KINDS.map((kind) => ({
       kind,
       label: i18n(`discourse_cosmetics_store.preview.kinds.${kind}`),
@@ -45,6 +49,9 @@ export default class CosmeticsStorePreviewStudio extends Component {
         .map((item) => ({
           ...item,
           selected: this.selections[kind] === item.id,
+          showThumbnailImage:
+            Boolean(item.image_url) &&
+            (!reduceMotion || !MOTION_HEAVY_KINDS.has(kind)),
         })),
     }));
   }
@@ -95,9 +102,21 @@ export default class CosmeticsStorePreviewStudio extends Component {
     );
   }
 
+  get showCardDecorationImage() {
+    return Boolean(
+      this.cardDecoration?.image_url && !prefersReducedMotion(),
+    );
+  }
+
+  get hasCardDecorationGradient() {
+    return Boolean(
+      this.cardDecoration?.gradient_from && this.cardDecoration?.gradient_to,
+    );
+  }
+
   get cardDecorationStyle() {
     const item = this.cardDecoration;
-    if (item?.image_url || !item?.gradient_from || !item?.gradient_to) {
+    if (!item?.gradient_from || !item?.gradient_to) {
       return htmlSafe("");
     }
 
@@ -221,7 +240,7 @@ export default class CosmeticsStorePreviewStudio extends Component {
                     {{on "click" (fn this.selectItemForSlot slot.kind item.id)}}
                   >
                     <span class="cstore-preview-choice__thumb">
-                      {{#if item.image_url}}
+                      {{#if item.showThumbnailImage}}
                         <img src={{item.image_url}} alt="" loading="lazy" />
                       {{else}}
                         {{dIcon "palette"}}
@@ -267,14 +286,14 @@ export default class CosmeticsStorePreviewStudio extends Component {
 
             <article class="cstore-preview-studio-card">
               {{#if this.cardDecoration}}
-                {{#if this.cardDecoration.image_url}}
+                {{#if this.showCardDecorationImage}}
                   <img
                     class="cstore-preview-studio-card__decoration"
                     src={{this.cardDecoration.image_url}}
                     alt=""
                     aria-hidden="true"
                   />
-                {{else}}
+                {{else if this.hasCardDecorationGradient}}
                   <div
                     class="cstore-preview-studio-card__decoration-gradient"
                     style={{this.cardDecorationStyle}}
