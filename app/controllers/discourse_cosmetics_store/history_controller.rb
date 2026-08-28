@@ -40,6 +40,7 @@ module ::DiscourseCosmeticsStore
                    gifts_sent: HISTORY_LIMIT,
                    gifts_received: HISTORY_LIMIT,
                  },
+                 currency_symbol: SiteSetting.discourse_cosmetics_store_currency_symbol,
                },
                viewer: {
                  logged_in: true,
@@ -90,6 +91,7 @@ module ::DiscourseCosmeticsStore
           gifts_sent: HISTORY_LIMIT,
           gifts_received: HISTORY_LIMIT,
         },
+        currency_symbol: SiteSetting.discourse_cosmetics_store_currency_symbol,
       }
     end
 
