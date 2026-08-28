@@ -18,6 +18,7 @@ tr_TR:
         owned_badge: "Sahibisin"
         unlocked_badge: "Erişim var"
         default_badge: "Varsayılan"
+        manage_action: "Takılı kozmetikleri yönet"
         empty_owned_title: "Henüz sahip olduğun kozmetik yok"
         empty_owned_description: "Satın aldığın, hediye aldığın veya doğrudan hesabına verilen kozmetikler burada görünür."
         empty_unlocked_title: "Erişilebilir kozmetik yok"
