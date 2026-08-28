@@ -213,8 +213,11 @@
   .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(
       304px,
-      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
-      calc((100dvh - 10rem) * 0.6847)
+      calc(
+        100% - var(--cstore-user-card-effect-side-space, 0px) -
+          var(--cstore-user-card-effect-side-space, 0px)
+      ),
+      46dvh
     );
     max-width: 100%;
     flex: 0 0 auto;
@@ -299,8 +302,11 @@
   .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(
       276px,
-      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
-      calc((100dvh - 8.5rem) * 0.6847)
+      calc(
+        100% - var(--cstore-user-card-effect-side-space, 0px) -
+          var(--cstore-user-card-effect-side-space, 0px)
+      ),
+      44dvh
     );
   }
 }
@@ -335,8 +341,11 @@
   .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(
       248px,
-      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
-      calc((100dvh - 8rem) * 0.6847)
+      calc(
+        100% - var(--cstore-user-card-effect-side-space, 0px) -
+          var(--cstore-user-card-effect-side-space, 0px)
+      ),
+      42dvh
     );
   }
 }
@@ -350,8 +359,11 @@
   .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(
       220px,
-      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
-      calc((100dvh - 5rem) * 0.6847)
+      calc(
+        100% - var(--cstore-user-card-effect-side-space, 0px) -
+          var(--cstore-user-card-effect-side-space, 0px)
+      ),
+      42dvh
     );
   }
 }
