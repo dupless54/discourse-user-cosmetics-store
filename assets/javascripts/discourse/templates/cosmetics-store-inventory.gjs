@@ -1,5 +1,8 @@
-import CosmeticsStore from "../components/cosmetics-store";
+import CosmeticsStoreInventory from "../components/cosmetics-store-inventory";
 
 <template>
-  <CosmeticsStore @model={{@model}} />
+  <CosmeticsStoreInventory
+    @inventory={{@model.inventory}}
+    @viewer={{@model.viewer}}
+  />
 </template>
