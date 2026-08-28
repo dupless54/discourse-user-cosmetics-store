@@ -12,6 +12,9 @@
 }
 
 .cstore-nav {
+  position: relative;
+  z-index: 40;
+  overflow: visible;
   gap: 0.65rem;
   margin-bottom: 1.25rem;
   padding: 0.65rem;
@@ -71,8 +74,8 @@
 }
 
 .cstore-nav__browse-menu {
-  // The legacy stylesheet opens the menu on hover/focus. The component now
-  // owns open state and Discourse's click-outside modifier closes it.
+  // Click/touch state is component-owned. Fine-pointer devices additionally
+  // expose the menu on hover without changing the persistent open state.
   &:not(.is-open) .cstore-nav__dropdown {
     visibility: hidden !important;
     opacity: 0 !important;
@@ -85,6 +88,15 @@
     opacity: 1 !important;
     pointer-events: auto;
     transform: none !important;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover .cstore-nav__dropdown {
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto;
+      transform: none !important;
+    }
   }
 }
 
