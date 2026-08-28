@@ -45,7 +45,7 @@ module ::DiscourseCosmeticsStore
     def apply
       no_store!
       render json: integration.apply_loadout!(user: current_user, loadout_id: params[:id])
-    rescue Discourse::InvalidAccess, Discourse::NotFound
+    rescue Discourse::InvalidAccess
       render_error(I18n.t("discourse_cosmetics_store.errors.loadout_unavailable"), :unprocessable_entity)
     end
 
