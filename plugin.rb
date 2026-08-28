@@ -230,6 +230,10 @@ after_initialize do
     defaults format: :json do
       get "/cosmetics-store" => "discourse_cosmetics_store/store#index"
       get "/cosmetics-store/inventory" => "discourse_cosmetics_store/inventory#index"
+      put "/cosmetics-store/inventory/:id/equip" => "discourse_cosmetics_store/inventory#equip",
+          constraints: { id: /\d+/ }
+      delete "/cosmetics-store/inventory/:kind/equip" => "discourse_cosmetics_store/inventory#unequip",
+             constraints: { kind: /avatar_frame|nameplate|card_decoration|profile_effect/ }
       get "/cosmetics-store/loadouts" => "discourse_cosmetics_store/loadouts#index"
       post "/cosmetics-store/loadouts" => "discourse_cosmetics_store/loadouts#create"
       put "/cosmetics-store/loadouts/:id" => "discourse_cosmetics_store/loadouts#update",
