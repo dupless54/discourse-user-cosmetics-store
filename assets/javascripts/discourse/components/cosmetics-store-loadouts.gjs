@@ -5,6 +5,7 @@ import { action } from "@ember/object";
 import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import { eq } from "discourse/truth-helpers";
 import { i18n } from "discourse-i18n";
 
 const MAX_LOADOUTS = 10;
@@ -25,8 +26,12 @@ export default class CosmeticsStoreLoadouts extends Component {
   @tracked notice = null;
 
   get rows() {
+    const actionsDisabled = Boolean(this.busyId);
+
     return this.loadouts.map((loadout) => ({
       ...loadout,
+      actions_disabled: actionsDisabled,
+      apply_disabled: !loadout.can_apply || actionsDisabled,
       slot_rows: SLOT_KINDS.map((kind) => ({
         kind,
         label: i18n(`discourse_cosmetics_store.loadouts.kinds.${kind}`),
@@ -46,6 +51,18 @@ export default class CosmeticsStoreLoadouts extends Component {
       this.newName.trim().length > 0 &&
       !this.creating
     );
+  }
+
+  get createDisabled() {
+    return !this.canCreate;
+  }
+
+  get atLimit() {
+    return this.loadouts.length >= MAX_LOADOUTS;
+  }
+
+  get renameSaveDisabled() {
+    return !this.editingName.trim().length || Boolean(this.busyId);
   }
 
   get countLabel() {
@@ -220,7 +237,7 @@ export default class CosmeticsStoreLoadouts extends Component {
             class="btn btn-primary"
             data-testid="create-loadout"
             type="submit"
-            disabled={{not this.canCreate}}
+            disabled={{this.createDisabled}}
           >
             {{#if this.creating}}
               {{i18n "discourse_cosmetics_store.loadouts.saving"}}
@@ -229,7 +246,7 @@ export default class CosmeticsStoreLoadouts extends Component {
             {{/if}}
           </button>
         </form>
-        {{#if (gte this.loadouts.length 10)}}
+        {{#if this.atLimit}}
           <small class="cstore-loadouts__limit">
             {{i18n "discourse_cosmetics_store.loadouts.limit_reached"}}
           </small>
@@ -276,8 +293,12 @@ export default class CosmeticsStoreLoadouts extends Component {
                     data-slot-kind={{slot.kind}}
                   >
                     <div class="cstore-loadout-slot__preview">
-                      {{#if slot.item.image_url}}
-                        <img src={{slot.item.image_url}} alt="" loading="lazy" />
+                      {{#if slot.item}}
+                        {{#if slot.item.image_url}}
+                          <img src={{slot.item.image_url}} alt="" loading="lazy" />
+                        {{else}}
+                          <span aria-hidden="true">◇</span>
+                        {{/if}}
                       {{else}}
                         <span aria-hidden="true">◇</span>
                       {{/if}}
@@ -304,7 +325,7 @@ export default class CosmeticsStoreLoadouts extends Component {
                   <button
                     class="btn btn-primary"
                     type="button"
-                    disabled={{or (not this.editingName.length) this.busyId}}
+                    disabled={{this.renameSaveDisabled}}
                     {{on "click" (fn this.saveRename loadout)}}
                   >
                     {{i18n "discourse_cosmetics_store.loadouts.save_name"}}
@@ -312,7 +333,7 @@ export default class CosmeticsStoreLoadouts extends Component {
                   <button
                     class="btn btn-default"
                     type="button"
-                    disabled={{this.busyId}}
+                    disabled={{loadout.actions_disabled}}
                     {{on "click" this.cancelRename}}
                   >
                     {{i18n "discourse_cosmetics_store.loadouts.cancel"}}
@@ -322,7 +343,7 @@ export default class CosmeticsStoreLoadouts extends Component {
                     class="btn btn-primary"
                     data-testid="apply-loadout"
                     type="button"
-                    disabled={{or (not loadout.can_apply) this.busyId}}
+                    disabled={{loadout.apply_disabled}}
                     {{on "click" (fn this.applyLoadout loadout)}}
                   >
                     {{i18n "discourse_cosmetics_store.loadouts.apply_action"}}
@@ -331,7 +352,7 @@ export default class CosmeticsStoreLoadouts extends Component {
                     class="btn btn-default"
                     data-testid="rename-loadout"
                     type="button"
-                    disabled={{this.busyId}}
+                    disabled={{loadout.actions_disabled}}
                     {{on "click" (fn this.startRename loadout)}}
                   >
                     {{i18n "discourse_cosmetics_store.loadouts.rename_action"}}
@@ -340,7 +361,7 @@ export default class CosmeticsStoreLoadouts extends Component {
                     class="btn btn-danger"
                     data-testid="delete-loadout"
                     type="button"
-                    disabled={{this.busyId}}
+                    disabled={{loadout.actions_disabled}}
                     {{on "click" (fn this.deleteLoadout loadout)}}
                   >
                     {{i18n "discourse_cosmetics_store.loadouts.delete_action"}}
