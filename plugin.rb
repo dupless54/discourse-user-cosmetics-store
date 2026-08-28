@@ -174,6 +174,7 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/seeder"
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
   require_relative "app/controllers/discourse_cosmetics_store/inventory_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/loadouts_controller"
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
@@ -205,6 +206,7 @@ after_initialize do
     get "/store/orbs" => "list#latest"
     get "/store/favorites" => "list#latest"
     get "/store/inventory" => "list#latest"
+    get "/store/loadouts" => "list#latest"
     get "/store/collections" => "list#latest"
     get "/store/collections/:collection_slug" => "list#latest",
         constraints: { collection_slug: /[a-z0-9][a-z0-9\-]*/ }
@@ -212,6 +214,14 @@ after_initialize do
     defaults format: :json do
       get "/cosmetics-store" => "discourse_cosmetics_store/store#index"
       get "/cosmetics-store/inventory" => "discourse_cosmetics_store/inventory#index"
+      get "/cosmetics-store/loadouts" => "discourse_cosmetics_store/loadouts#index"
+      post "/cosmetics-store/loadouts" => "discourse_cosmetics_store/loadouts#create"
+      put "/cosmetics-store/loadouts/:id" => "discourse_cosmetics_store/loadouts#update",
+          constraints: { id: /\d+/ }
+      delete "/cosmetics-store/loadouts/:id" => "discourse_cosmetics_store/loadouts#destroy",
+             constraints: { id: /\d+/ }
+      post "/cosmetics-store/loadouts/:id/apply" => "discourse_cosmetics_store/loadouts#apply",
+           constraints: { id: /\d+/ }
       post "/cosmetics-store/products/:id/purchase" => "discourse_cosmetics_store/store#purchase",
            constraints: { id: /\d+/ }
       post "/cosmetics-store/products/:id/gift" => "discourse_cosmetics_store/store#gift",
