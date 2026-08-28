@@ -60,7 +60,7 @@ module("Component | CosmeticsStoreFavoritesPage", function (hooks) {
           favorite: true,
           rarity_label: "Legendary",
           tags: ["gold"],
-          popularity_score: 10,
+          popularity_score: 30,
         }),
         product({
           id: 2,
