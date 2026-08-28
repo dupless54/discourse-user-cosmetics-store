@@ -4,6 +4,7 @@ en:
       title: "Cosmetics Store"
       nav:
         inventory: "Inventory"
+        history: "History"
       inventory:
         eyebrow: "YOUR COSMETICS"
         title: "Inventory"
@@ -31,6 +32,36 @@ en:
           nameplate: "Nameplates"
           card_decoration: "Card decorations"
           profile_effect: "Profile effects"
+      history:
+        eyebrow: "YOUR STORE ACTIVITY"
+        title: "Purchase & gift history"
+        subtitle: "Review your cosmetic purchases and gifts sent or received from this account."
+        tabs:
+          purchases: "Purchases"
+          gifts_sent: "Gifts sent"
+          gifts_received: "Gifts received"
+        stats:
+          purchases: "Purchases"
+          gifts_sent: "Sent"
+          gifts_received: "Received"
+        status:
+          completed: "Completed"
+          refunded: "Refunded"
+        sent_to: "Sent to @%{username}"
+        received_from: "Received from @%{username}"
+        profile_action: "View profile"
+        unknown_product: "Unavailable product"
+        truncated: "Showing the latest %{limit} of %{total} records."
+        empty:
+          purchases_title: "No purchases yet"
+          purchases_description: "Cosmetics you purchase with Orbs will appear here."
+          gifts_sent_title: "No gifts sent yet"
+          gifts_sent_description: "Cosmetics you send to other members will appear here."
+          gifts_received_title: "No gifts received yet"
+          gifts_received_description: "Cosmetics gifted to you by other members will appear here."
+        login_title: "Sign in to view your store history"
+        login_description: "Purchase and gift history is private to your forum account."
+        login_action: "Sign in"
       collections:
         progress_eyebrow: "YOUR PROGRESS"
         progress_title: "Collection progress"
