@@ -64,10 +64,14 @@ module("Component | Cosmetics Store reduced motion", function (hooks) {
         },
       ],
     };
+    this.previewUser = {};
 
     await render(
       <template>
-        <CosmeticsStorePreview @product={{this.product}} @previewUser={{hash}} />
+        <CosmeticsStorePreview
+          @product={{this.product}}
+          @previewUser={{this.previewUser}}
+        />
       </template>
     );
 
