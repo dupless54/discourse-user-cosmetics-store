@@ -82,125 +82,125 @@ export default class CosmeticsStoreInventory extends Component {
   }
 
   <template>
-    {{#if @viewer.logged_in}}
-      <main class="cstore-inventory-page">
-        <section class="cstore-inventory-hero">
-          <div>
-            <p class="cstore-eyebrow">
-              {{i18n "discourse_cosmetics_store.inventory.eyebrow"}}
-            </p>
-            <h1>{{i18n "discourse_cosmetics_store.inventory.title"}}</h1>
-            <p>{{i18n "discourse_cosmetics_store.inventory.subtitle"}}</p>
-          </div>
-          <a class="btn btn-default" href="/my/preferences/cosmetics">
-            {{dIcon "check"}}
-            {{i18n "discourse_cosmetics_store.inventory.manage_action"}}
-          </a>
-        </section>
-
-        <section class="cstore-inventory-stats" aria-label={{i18n "discourse_cosmetics_store.inventory.title"}}>
-          <article>
-            <span>{{dIcon "check"}}</span>
+    <div class="cstore-shell">
+      {{#if @viewer.logged_in}}
+        <main class="cstore-section cstore-favorites-page">
+          <div class="cstore-section__heading">
             <div>
+              <p class="cstore-eyebrow">
+                {{i18n "discourse_cosmetics_store.inventory.eyebrow"}}
+              </p>
+              <h1>{{i18n "discourse_cosmetics_store.inventory.title"}}</h1>
+              <span>{{i18n "discourse_cosmetics_store.inventory.subtitle"}}</span>
+            </div>
+            <div>
+              <a class="btn btn-default" href="/store">
+                {{i18n "discourse_cosmetics_store.title"}}
+              </a>
+              <a class="btn btn-primary" href="/my/preferences/cosmetics">
+                {{dIcon "check"}}
+                {{i18n "discourse_cosmetics_store.inventory.manage_action"}}
+              </a>
+            </div>
+          </div>
+
+          <div class="cstore-wallet-stats">
+            <span>
               <strong>{{this.stats.directly_owned_count}}</strong>
               <small>{{i18n "discourse_cosmetics_store.inventory.directly_owned"}}</small>
-            </div>
-          </article>
-          <article>
-            <span>{{dIcon "eye"}}</span>
-            <div>
+            </span>
+            <span>
               <strong>{{this.stats.unlocked_count}}</strong>
               <small>{{i18n "discourse_cosmetics_store.inventory.unlocked"}}</small>
-            </div>
-          </article>
-          <article>
-            <span>{{dIcon "image"}}</span>
-            <div>
+            </span>
+            <span>
               <strong>{{this.stats.catalog_count}}</strong>
               <small>{{i18n "discourse_cosmetics_store.inventory.catalog"}}</small>
-            </div>
-          </article>
-        </section>
-
-        <section class="cstore-inventory-toolbar">
-          <div class="cstore-inventory-modes" role="group" aria-label={{i18n "discourse_cosmetics_store.inventory.title"}}>
-            <button
-              type="button"
-              class={{if (eq this.mode "owned") "is-active"}}
-              aria-pressed={{eq this.mode "owned"}}
-              {{on "click" (fn this.setMode "owned")}}
-            >
-              {{i18n "discourse_cosmetics_store.inventory.mode_owned"}}
-            </button>
-            <button
-              type="button"
-              class={{if (eq this.mode "unlocked") "is-active"}}
-              aria-pressed={{eq this.mode "unlocked"}}
-              {{on "click" (fn this.setMode "unlocked")}}
-            >
-              {{i18n "discourse_cosmetics_store.inventory.mode_unlocked"}}
-            </button>
+            </span>
           </div>
 
-          <label>
-            <span>{{i18n "discourse_cosmetics_store.inventory.filter_kind"}}</span>
-            <select value={{this.selectedKind}} {{on "change" this.updateKind}}>
-              <option value="">{{i18n "discourse_cosmetics_store.inventory.all_kinds"}}</option>
-              {{#each this.kindOptions as |kind|}}
-                <option value={{kind.kind}}>{{kind.label}} ({{kind.visible_count}})</option>
-              {{/each}}
-            </select>
-          </label>
-        </section>
+          <div class="cstore-results__bar">
+            <div>
+              <button
+                type="button"
+                class={{if (eq this.mode "owned") "btn btn-primary" "btn btn-default"}}
+                aria-pressed={{eq this.mode "owned"}}
+                {{on "click" (fn this.setMode "owned")}}
+              >
+                {{i18n "discourse_cosmetics_store.inventory.mode_owned"}}
+              </button>
+              <button
+                type="button"
+                class={{if (eq this.mode "unlocked") "btn btn-primary" "btn btn-default"}}
+                aria-pressed={{eq this.mode "unlocked"}}
+                {{on "click" (fn this.setMode "unlocked")}}
+              >
+                {{i18n "discourse_cosmetics_store.inventory.mode_unlocked"}}
+              </button>
+            </div>
 
-        {{#if this.visibleItems.length}}
-          <section class="cstore-inventory-grid">
-            {{#each this.visibleItems as |item|}}
-              <article class="cstore-inventory-card {{if item.directly_owned 'is-owned' 'is-unlocked'}}">
-                <div class="cstore-inventory-card__preview">
-                  {{#if item.image_url}}
-                    <img src={{item.image_url}} alt="" loading="lazy" />
-                  {{else}}
-                    <span aria-hidden="true">{{dIcon "image"}}</span>
-                  {{/if}}
-                </div>
+            <label>
+              {{i18n "discourse_cosmetics_store.inventory.filter_kind"}}
+              <select value={{this.selectedKind}} {{on "change" this.updateKind}}>
+                <option value="">{{i18n "discourse_cosmetics_store.inventory.all_kinds"}}</option>
+                {{#each this.kindOptions as |kind|}}
+                  <option value={{kind.kind}}>{{kind.label}} ({{kind.visible_count}})</option>
+                {{/each}}
+              </select>
+            </label>
+          </div>
 
-                <div class="cstore-inventory-card__body">
-                  <div class="cstore-inventory-card__badges">
-                    {{#if item.directly_owned}}
-                      <span class="is-owned">{{dIcon "check"}} {{i18n "discourse_cosmetics_store.inventory.owned_badge"}}</span>
-                    {{else if item.unlocked}}
-                      <span>{{dIcon "eye"}} {{i18n "discourse_cosmetics_store.inventory.unlocked_badge"}}</span>
-                    {{/if}}
-                    {{#if item.is_default}}
-                      <span>{{i18n "discourse_cosmetics_store.inventory.default_badge"}}</span>
+          {{#if this.visibleItems.length}}
+            <div class="cstore-grid">
+              {{#each this.visibleItems as |item|}}
+                <article class="cstore-product {{if item.directly_owned 'is-owned'}}">
+                  <div class="cstore-product__open">
+                    {{#if item.image_url}}
+                      <img src={{item.image_url}} alt="" loading="lazy" />
+                    {{else}}
+                      <span aria-hidden="true">{{dIcon "image"}}</span>
                     {{/if}}
                   </div>
-                  <strong>{{item.name}}</strong>
-                  <small>{{item.kind_label}}</small>
-                  {{#if item.description}}<p>{{item.description}}</p>{{/if}}
-                  {{#if item.rarity_label}}<em>{{item.rarity_label}}</em>{{/if}}
-                </div>
-              </article>
-            {{/each}}
+
+                  <div class="cstore-product__info">
+                    <span class="cstore-product__meta">
+                      {{#if item.directly_owned}}
+                        <i>{{dIcon "check"}} {{i18n "discourse_cosmetics_store.inventory.owned_badge"}}</i>
+                      {{else if item.unlocked}}
+                        <i>{{dIcon "eye"}} {{i18n "discourse_cosmetics_store.inventory.unlocked_badge"}}</i>
+                      {{/if}}
+                      {{#if item.is_default}}
+                        <i>{{i18n "discourse_cosmetics_store.inventory.default_badge"}}</i>
+                      {{/if}}
+                    </span>
+                    <strong>{{item.name}}</strong>
+                    <small>{{item.kind_label}}</small>
+                    {{#if item.description}}<p>{{item.description}}</p>{{/if}}
+                    {{#if item.rarity_label}}
+                      <span class="cstore-product__price">{{item.rarity_label}}</span>
+                    {{/if}}
+                  </div>
+                </article>
+              {{/each}}
+            </div>
+          {{else}}
+            <section class="cstore-empty">
+              <strong>{{this.emptyTitle}}</strong>
+              <p>{{this.emptyDescription}}</p>
+            </section>
+          {{/if}}
+        </main>
+      {{else}}
+        <main class="cstore-section cstore-favorites-page">
+          <section class="cstore-empty">
+            <strong>{{i18n "discourse_cosmetics_store.inventory.login_title"}}</strong>
+            <p>{{i18n "discourse_cosmetics_store.inventory.login_description"}}</p>
+            <a class="btn btn-primary" href="/login?return_path=%2Fstore%2Finventory">
+              {{i18n "discourse_cosmetics_store.inventory.login_action"}}
+            </a>
           </section>
-        {{else}}
-          <section class="cstore-empty cstore-inventory-empty">
-            <strong>{{this.emptyTitle}}</strong>
-            <p>{{this.emptyDescription}}</p>
-          </section>
-        {{/if}}
-      </main>
-    {{else}}
-      <main class="cstore-section cstore-inventory-page">
-        <section class="cstore-empty">
-          <strong>{{i18n "discourse_cosmetics_store.inventory.login_title"}}</strong>
-          <p>{{i18n "discourse_cosmetics_store.inventory.login_description"}}</p>
-          <a class="btn btn-primary" href="/login?return_path=%2Fstore%2Finventory">
-            {{i18n "discourse_cosmetics_store.inventory.login_action"}}
-          </a>
-        </section>
-      </main>
-    {{/if}}
+        </main>
+      {{/if}}
+    </div>
   </template>
 }
