@@ -32,6 +32,16 @@ export default {
           defaultPrefixValue = "check";
         };
       });
+
+      api.addCommunitySectionLink((baseSectionLink) => {
+        return class CosmeticsPreviewSectionLink extends baseSectionLink {
+          name = "cosmetics-preview";
+          route = "cosmetics-store-preview";
+          text = i18n("discourse_cosmetics_store.nav.preview");
+          title = i18n("discourse_cosmetics_store.preview.subtitle");
+          defaultPrefixValue = "palette";
+        };
+      });
     });
   },
 };
