@@ -2,6 +2,39 @@ en:
   js:
     discourse_cosmetics_store:
       title: "Cosmetics Store"
+      nav:
+        inventory: "Inventory"
+      inventory:
+        eyebrow: "YOUR COSMETICS"
+        title: "Inventory"
+        subtitle: "See cosmetics you own directly and cosmetics currently unlocked for your account."
+        directly_owned: "Owned"
+        unlocked: "Unlocked"
+        catalog: "Catalog"
+        mode_owned: "Owned by me"
+        mode_unlocked: "Available to me"
+        filter_kind: "Cosmetic type"
+        all_kinds: "All types"
+        owned_badge: "Owned"
+        unlocked_badge: "Access"
+        default_badge: "Default"
+        empty_owned_title: "No owned cosmetics yet"
+        empty_owned_description: "Cosmetics you buy, receive as a gift, or are granted directly will appear here."
+        empty_unlocked_title: "No unlocked cosmetics"
+        empty_unlocked_description: "Cosmetics currently available to your account will appear here."
+        login_title: "Sign in to view your inventory"
+        login_description: "Your cosmetic ownership and access are private to your forum account."
+        login_action: "Sign in"
+        kinds:
+          avatar_frame: "Avatar frames"
+          nameplate: "Nameplates"
+          card_decoration: "Card decorations"
+          profile_effect: "Profile effects"
+      collections:
+        owned_progress: "%{owned} of %{total} owned"
+        unlocked_progress: "%{unlocked} of %{total} unlocked"
+        owned_complete: "Collection owned"
+        unlocked_complete: "All currently unlocked"
       admin:
         title: "Cosmetics Store"
         catalog: "Store management"
