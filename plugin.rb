@@ -15,6 +15,7 @@ register_asset "stylesheets/discourse-cosmetics-store-polish.scss"
 register_asset "stylesheets/discourse-cosmetics-store-loadouts.scss"
 register_asset "stylesheets/discourse-cosmetics-store-preview.scss"
 register_asset "stylesheets/discourse-cosmetics-store-availability.scss"
+register_asset "stylesheets/discourse-cosmetics-store-accessibility.scss"
 register_asset "stylesheets/discourse-cosmetics-store-wardrobe.scss"
 register_asset "stylesheets/discourse-cosmetics-store-activity.scss"
 
