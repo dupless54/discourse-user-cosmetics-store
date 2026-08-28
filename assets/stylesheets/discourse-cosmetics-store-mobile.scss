@@ -1,0 +1,357 @@
+// Mobile-first storefront corrections.
+// Loaded after base/native/polish so these rules only resolve narrow-screen
+// layout conflicts without changing desktop behavior.
+
+@media (width <= 800px) {
+  .cosmetics-store-route #main-outlet {
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  .cstore-shell {
+    min-width: 0;
+  }
+
+  // Keep the mobile store chrome compact: brand + balance on the first row,
+  // section tabs on the second row. The search field stays hidden by the
+  // existing native mobile rules.
+  .cstore-nav {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .cstore-nav__brand {
+    width: auto;
+    min-width: 0;
+    min-height: 38px;
+    padding: 0;
+  }
+
+  .cstore-nav__tools {
+    width: auto;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .cstore-nav__tools > label {
+    display: none;
+  }
+
+  .cstore-balance {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    justify-content: center;
+  }
+
+  .cstore-nav nav {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    padding: 0 0 0.2rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cstore-nav nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cstore-nav nav > button,
+  .cstore-nav__browse-menu {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .cstore-nav nav button {
+    min-height: 36px;
+    padding-inline: 0.7rem;
+    white-space: nowrap;
+  }
+
+  .cstore-nav__dropdown {
+    width: min(260px, calc(100vw - 1.5rem));
+    max-height: min(420px, calc(100dvh - var(--header-offset, 0px) - 120px));
+  }
+
+  .cstore-featured,
+  .cstore-orbs,
+  .cstore-favorites-page,
+  .cstore-collections-page,
+  .cstore-browse {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cstore-hero {
+    min-height: auto;
+  }
+
+  .cstore-hero__copy {
+    padding: clamp(1.25rem, 5vw, 1.75rem);
+  }
+
+  .cstore-hero__copy h1 {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+    line-height: 1.02;
+  }
+
+  .cstore-hero__copy > p:not(.cstore-eyebrow) {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .cstore-hero__preview {
+    display: none;
+  }
+
+  // Product previews follow the available card width instead of a
+  // desktop-derived fixed height.
+  .cstore-product__open {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .cstore-product__actions {
+    top: auto;
+    right: 0.6rem;
+    bottom: 0.6rem;
+  }
+
+  // Turn the product dialog into a real mobile sheet. Using dvh prevents the
+  // browser address bar / bottom toolbar from cutting off the preview.
+  .cstore-dialog {
+    padding:
+      max(0.4rem, env(safe-area-inset-top))
+      max(0.4rem, env(safe-area-inset-right))
+      max(0.4rem, env(safe-area-inset-bottom))
+      max(0.4rem, env(safe-area-inset-left));
+    overflow: hidden;
+  }
+
+  .cstore-dialog__window {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 14px;
+    transform: none;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cstore-dialog__close {
+    position: fixed;
+    z-index: 20;
+    top: max(0.9rem, calc(env(safe-area-inset-top) + 0.45rem));
+    right: max(0.9rem, calc(env(safe-area-inset-right) + 0.45rem));
+  }
+
+  .cstore-dialog__details,
+  .cstore-dialog__live {
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+    padding: clamp(1rem, 4.5vw, 1.4rem);
+  }
+
+  .cstore-dialog__details {
+    padding-top: 1.35rem;
+  }
+
+  .cstore-dialog__items {
+    margin-block: 0.9rem;
+  }
+
+  .cstore-dialog__purchase {
+    margin-top: 1rem;
+  }
+
+  .cstore-gift-form > div {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .cstore-gift-form > div button {
+    grid-column: 1 / -1;
+    min-height: 42px;
+  }
+
+  .cstore-dialog__live {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 1rem;
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+
+  .cstore-dialog__live > .cstore-eyebrow {
+    align-self: stretch;
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+
+  // Fit the complete user-card preview, including effect overflow, to both the
+  // available width and viewport height. This keeps landscape phones and small
+  // Android webviews from producing clipped previews.
+  .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(
+      304px,
+      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
+      calc((100dvh - 10rem) * 0.6847)
+    );
+    max-width: 100%;
+    flex: 0 0 auto;
+    margin-inline: auto;
+  }
+
+  .cstore-dialog__tags {
+    width: 100%;
+    max-width: 304px;
+  }
+}
+
+@media (width <= 520px) {
+  .cstore-nav {
+    border-radius: 12px;
+  }
+
+  .cstore-nav__brand span {
+    width: 36px;
+    height: 36px;
+  }
+
+  .cstore-section {
+    margin-top: 1.5rem;
+  }
+
+  // Keep the section title and its action on one compact row when possible.
+  .cstore-featured .cstore-section__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.65rem;
+  }
+
+  .cstore-featured .cstore-section__heading > button {
+    align-self: end;
+    white-space: nowrap;
+  }
+
+  .cstore-hero {
+    border-radius: 14px;
+  }
+
+  .cstore-hero__copy {
+    padding: 1.35rem;
+  }
+
+  .cstore-hero__copy h1 {
+    font-size: clamp(2rem, 10.5vw, 2.55rem);
+  }
+
+  .cstore-hero__copy button {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+
+  .cstore-grid,
+  .cstore-grid--featured,
+  .cstore-grid--wide {
+    gap: 0.75rem;
+  }
+
+  .cstore-product__open {
+    aspect-ratio: 16 / 9;
+  }
+
+  .cstore-product__info {
+    min-height: 104px;
+    padding: 0.75rem;
+  }
+
+  .cstore-dialog__details h2 {
+    padding-right: 2.6rem;
+    font-size: clamp(1.55rem, 7vw, 2rem);
+  }
+
+  .cstore-dialog__purchase {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(
+      276px,
+      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
+      calc((100dvh - 8.5rem) * 0.6847)
+    );
+  }
+}
+
+@media (width <= 380px) {
+  .cstore-nav {
+    padding: 0.4rem;
+  }
+
+  .cstore-nav nav button {
+    padding-inline: 0.6rem;
+  }
+
+  .cstore-hero__copy {
+    padding: 1.1rem;
+  }
+
+  .cstore-section__heading h2 {
+    font-size: 1.35rem;
+  }
+
+  .cstore-section__heading > button {
+    min-height: 34px;
+    padding-inline: 0.6rem;
+  }
+
+  .cstore-dialog__details,
+  .cstore-dialog__live {
+    padding-inline: 0.85rem;
+  }
+
+  .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(
+      248px,
+      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
+      calc((100dvh - 8rem) * 0.6847)
+    );
+  }
+}
+
+@media (orientation: landscape) and (height <= 520px) and (width <= 950px) {
+  .cstore-dialog__details,
+  .cstore-dialog__live {
+    padding-block: 0.85rem;
+  }
+
+  .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(
+      220px,
+      calc(100% - (var(--cstore-user-card-effect-side-space, 0px) * 2)),
+      calc((100dvh - 5rem) * 0.6847)
+    );
+  }
+}
