@@ -9,6 +9,7 @@ on:
       - feature/cosmetics-live-preview-studio
       - feature/cosmetics-rarity-limited-seasonal
       - integration/cosmetics-store-release-candidate
+      - feature/store-activity-center
 
 permissions:
   contents: read
