@@ -23,7 +23,7 @@ export default class CosmeticsStoreProductCard extends Component {
   }
 
   get giftDisabled() {
-    return !this.args.product?.giftable;
+    return this.args.product?.sale_state !== "active";
   }
 
   get primaryActionLabel() {
