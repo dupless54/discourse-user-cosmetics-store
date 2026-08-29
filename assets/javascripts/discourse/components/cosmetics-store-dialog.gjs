@@ -5,6 +5,10 @@ import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
+import {
+  availabilityBadge,
+  availabilityDetail,
+} from "../lib/cosmetics-store-availability";
 import CosmeticsStoreUserCardPreview from "./cosmetics-store-user-card-preview";
 
 export default class CosmeticsStoreDialog extends Component {
@@ -15,13 +19,28 @@ export default class CosmeticsStoreDialog extends Component {
     return Number(this.args.balance || 0) >= Number(this.args.product?.price || 0);
   }
 
+  get availabilityBadge() {
+    return availabilityBadge(this.args.product);
+  }
+
+  get availabilityDetail() {
+    return availabilityDetail(this.args.product);
+  }
+
   get purchaseDisabled() {
     return this.args.busy || !this.canAfford || !this.args.product?.purchasable;
+  }
+
+  get giftDisabled() {
+    return this.args.giftBusy || !this.args.product?.giftable;
   }
 
   get purchaseLabel() {
     if (this.args.busy) {
       return "İşleniyor…";
+    }
+    if (this.args.product?.sale_state === "upcoming") {
+      return "Henüz satışta değil";
     }
     if (!this.canAfford) {
       return "Yetersiz Orbs";
@@ -31,6 +50,9 @@ export default class CosmeticsStoreDialog extends Component {
 
   @action
   toggleGift() {
+    if (this.giftDisabled) {
+      return;
+    }
     this.giftMode = !this.giftMode;
   }
 
@@ -43,7 +65,7 @@ export default class CosmeticsStoreDialog extends Component {
   submitGift(event) {
     event.preventDefault();
     const username = this.recipientUsername.trim().replace(/^@/, "");
-    if (!username || this.args.giftBusy) {
+    if (!username || this.giftDisabled) {
       return;
     }
     this.args.onGift(this.args.product, username);
@@ -57,8 +79,15 @@ export default class CosmeticsStoreDialog extends Component {
 
         <aside class="cstore-dialog__details">
           <p class="cstore-eyebrow">{{if (eq @product.product_type "bundle") "KOZMETİK PAKETİ" "ÖZEL KOZMETİK"}}</p>
+          <div class="cstore-dialog__badges">
+            {{#if @product.rarity_label}}<span class="cstore-rarity-badge">{{@product.rarity_label}}</span>{{/if}}
+            {{#if this.availabilityBadge}}<span class="cstore-product__availability-badge">{{this.availabilityBadge}}</span>{{/if}}
+          </div>
           <h2 id="cstore-dialog-title">{{@product.name}}</h2>
           <p>{{@product.description}}</p>
+          {{#if this.availabilityDetail}}
+            <p class="cstore-dialog__availability">{{dIcon "clock"}} {{this.availabilityDetail}}</p>
+          {{/if}}
 
           <div class="cstore-dialog__items">
             {{#each @product.items as |item|}}
@@ -79,20 +108,22 @@ export default class CosmeticsStoreDialog extends Component {
               <button class="cstore-buy" type="button" disabled={{this.purchaseDisabled}} {{on "click" (fn @onPurchase @product)}}>
                 {{dIcon "cart-shopping"}} {{this.purchaseLabel}}
               </button>
+            {{else if (eq @product.sale_state "upcoming")}}
+              <span class="cstore-owned-label">{{dIcon "clock"}} Yakında satışta</span>
             {{else}}
               <a class="cstore-buy" href="/login?return_path=%2Fstore">{{dIcon "right-to-bracket"}} Satın almak için giriş yap</a>
             {{/if}}
 
             {{#if @viewer.logged_in}}
-              <button class="cstore-gift-toggle" type="button" disabled={{@giftBusy}} {{on "click" this.toggleGift}}>{{dIcon "gift"}} Hediye et</button>
+              <button class="cstore-gift-toggle" type="button" disabled={{this.giftDisabled}} {{on "click" this.toggleGift}}>{{dIcon "gift"}} Hediye et</button>
             {{/if}}
           </div>
 
           {{#if this.giftMode}}
             <form class="cstore-gift-form" {{on "submit" this.submitGift}}>
               <label for="cstore-gift-recipient">Hediye edilecek kullanıcı</label>
-              <div><span>@</span><input id="cstore-gift-recipient" required autocomplete="off" maxlength="60" value={{this.recipientUsername}} {{on "input" this.updateRecipient}} placeholder="kullanıcı adı" /><button type="submit" disabled={{@giftBusy}}>{{dIcon "paper-plane"}} {{if @giftBusy "Gönderiliyor…" "Hediyeyi gönder"}}</button></div>
-              <small>Fiyat ve alıcının sahiplik durumu sunucuda yeniden doğrulanır. Alıcı paketteki öğelerden birine sahipse işlem yapılmaz.</small>
+              <div><span>@</span><input id="cstore-gift-recipient" required autocomplete="off" maxlength="60" value={{this.recipientUsername}} {{on "input" this.updateRecipient}} placeholder="kullanıcı adı" /><button type="submit" disabled={{this.giftDisabled}}>{{dIcon "paper-plane"}} {{if @giftBusy "Gönderiliyor…" "Hediyeyi gönder"}}</button></div>
+              <small>Fiyat, satış zamanı ve alıcının sahiplik durumu sunucuda yeniden doğrulanır. Alıcı paketteki öğelerden birine sahipse işlem yapılmaz.</small>
             </form>
           {{/if}}
         </aside>

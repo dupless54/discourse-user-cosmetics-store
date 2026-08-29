@@ -1,7 +1,10 @@
 import Component from "@glimmer/component";
 import { htmlSafe } from "@ember/template";
 import { eq } from "discourse/truth-helpers";
+import { prefersReducedMotion } from "../lib/cosmetics-store-motion";
 import CosmeticsStoreProfileEffectLayers from "./cosmetics-store-profile-effect-layers";
+
+const MOTION_HEAVY_KINDS = new Set(["card_decoration", "profile_effect"]);
 
 export default class CosmeticsStorePreview extends Component {
   get previewUser() {
@@ -21,9 +24,12 @@ export default class CosmeticsStorePreview extends Component {
   }
 
   get previewItems() {
+    const reduceMotion = prefersReducedMotion();
+
     return (this.args.product?.items || []).slice(0, 4).map((item) => ({
       ...item,
       hasEffectLayers: Array.isArray(item.layers) && item.layers.length > 0,
+      showMotionAsset: !reduceMotion || !MOTION_HEAVY_KINDS.has(item.kind),
       visualStyle: htmlSafe(
         `--cstore-from:${item.gradient_from || "#5865f2"};` +
           `--cstore-to:${item.gradient_to || "#eb459e"};` +
@@ -62,7 +68,9 @@ export default class CosmeticsStorePreview extends Component {
               </span>
             {{else if (eq item.kind "card_decoration")}}
               <span class="cstore-preview__card">
-                {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                {{#if item.showMotionAsset}}
+                  {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                {{/if}}
                 <i></i><b>Kullanıcı kartı</b>
               </span>
             {{else}}
@@ -73,7 +81,9 @@ export default class CosmeticsStorePreview extends Component {
                 />
                 <span class="cstore-preview__effect-card"><i></i></span>
                 {{#unless item.hasEffectLayers}}
-                  {{#if item.image_url}}<img class="cstore-preview__effect-legacy" src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                  {{#if item.showMotionAsset}}
+                    {{#if item.image_url}}<img class="cstore-preview__effect-legacy" src={{item.image_url}} alt="" loading="lazy" />{{/if}}
+                  {{/if}}
                 {{/unless}}
                 <CosmeticsStoreProfileEffectLayers
                   @effect={{item}}

@@ -2,6 +2,8 @@
 
 module ::DiscourseCosmeticsStore
   class CosmeticsAccess
+    class SelectionActionsUnavailable < StandardError; end
+
     class << self
       def owned_item_ids(user:, items:)
         items = Array(items)
@@ -36,6 +38,24 @@ module ::DiscourseCosmeticsStore
         end
 
         DiscourseUserCosmetics::UserItem.find_or_create_by!(user_id: user.id, item_id: item.id)
+      end
+
+      def selection_actions_supported?
+        DiscourseCosmeticsStore.base_integration_ready? &&
+          DiscourseUserCosmetics::Integration.respond_to?(:equip!) &&
+          DiscourseUserCosmetics::Integration.respond_to?(:unequip!)
+      end
+
+      def equip!(user:, item:)
+        raise SelectionActionsUnavailable unless selection_actions_supported?
+
+        DiscourseUserCosmetics::Integration.equip!(user: user, item: item)
+      end
+
+      def unequip!(user:, kind:)
+        raise SelectionActionsUnavailable unless selection_actions_supported?
+
+        DiscourseUserCosmetics::Integration.unequip!(user: user, kind: kind)
       end
 
       private

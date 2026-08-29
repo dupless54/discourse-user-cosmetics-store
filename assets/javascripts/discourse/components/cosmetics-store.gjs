@@ -8,6 +8,7 @@ import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
 import dCloseOnClickOutside from "discourse/ui-kit/modifiers/d-close-on-click-outside";
+import { availabilityMatches } from "../lib/cosmetics-store-availability";
 import CosmeticsStoreDialog from "./cosmetics-store-dialog";
 import CosmeticsStorePreview from "./cosmetics-store-preview";
 import CosmeticsStoreProductCard from "./cosmetics-store-product-card";
@@ -51,6 +52,7 @@ export default class CosmeticsStore extends Component {
   @tracked search = "";
   @tracked selectedKind = "";
   @tracked selectedRarity = "";
+  @tracked selectedAvailability = "";
   @tracked selectedTag = "";
   @tracked productType = "";
   @tracked sortBy = "popular";
@@ -83,15 +85,24 @@ export default class CosmeticsStore extends Component {
   }
 
   get filters() {
-    return this.args.model?.filters ?? { kinds: [], rarities: [], tags: [] };
+    return this.args.model?.filters ?? {
+      kinds: [],
+      rarities: [],
+      availability: [],
+      tags: [],
+    };
   }
 
   get sectionIds() {
     return this.args.model?.sections ?? {};
   }
 
+  get activeProducts() {
+    return this.products.filter((product) => product.sale_state === "active");
+  }
+
   get heroProduct() {
-    return this.editorPicks[0] || this.featuredProducts[0] || this.products[0];
+    return this.editorPicks[0] || this.featuredProducts[0] || this.activeProducts[0];
   }
 
   get editorPicks() {
@@ -109,7 +120,7 @@ export default class CosmeticsStore extends Component {
   get bundleProducts() {
     return this.uniqueProducts([
       ...this.productsFor(this.sectionIds.bundles),
-      ...this.products.filter((product) => product.product_type === "bundle"),
+      ...this.activeProducts.filter((product) => product.product_type === "bundle"),
     ]).slice(0, 12);
   }
 
@@ -152,8 +163,15 @@ export default class CosmeticsStore extends Component {
 
   get featuredCards() {
     const heroId = this.heroProduct?.id;
-    const picks = [...this.editorPicks, ...this.featuredProducts, ...this.profileEffectProducts, ...this.popularProducts];
-    return this.uniqueProducts(picks).filter((product) => product.id !== heroId).slice(0, 8);
+    const picks = [
+      ...this.editorPicks,
+      ...this.featuredProducts,
+      ...this.profileEffectProducts,
+      ...this.popularProducts,
+    ];
+    return this.uniqueProducts(picks)
+      .filter((product) => product.id !== heroId)
+      .slice(0, 8);
   }
 
   get browseProducts() {
@@ -181,6 +199,12 @@ export default class CosmeticsStore extends Component {
       if (this.selectedRarity && product.rarity_label !== this.selectedRarity) {
         return false;
       }
+      if (
+        this.selectedAvailability &&
+        !availabilityMatches(product, this.selectedAvailability)
+      ) {
+        return false;
+      }
       if (this.selectedTag && !(product.tags || []).includes(this.selectedTag)) {
         return false;
       }
@@ -206,7 +230,10 @@ export default class CosmeticsStore extends Component {
     } else if (this.sortBy === "name") {
       rows.sort((a, b) => a.name.localeCompare(b.name, "tr"));
     } else {
-      rows.sort((a, b) => b.popularity_score - a.popularity_score || a.sort_order - b.sort_order);
+      rows.sort(
+        (a, b) =>
+          b.popularity_score - a.popularity_score || a.sort_order - b.sort_order
+      );
     }
     return rows;
   }
@@ -286,6 +313,10 @@ export default class CosmeticsStore extends Component {
       window.location.assign("/login?return_path=%2Fstore%2Fbrowse");
       return;
     }
+    if (!product.giftable) {
+      this.openProduct(product);
+      return;
+    }
     this.selectedProduct = product;
     this.giftProductId = product.id;
     this.notice = null;
@@ -299,7 +330,7 @@ export default class CosmeticsStore extends Component {
 
   @action
   async gift(product, username) {
-    if (this.busyGiftProductId) {
+    if (this.busyGiftProductId || !product.giftable) {
       return;
     }
     this.busyGiftProductId = product.id;
@@ -325,7 +356,7 @@ export default class CosmeticsStore extends Component {
 
   @action
   async purchase(product) {
-    if (this.busyProductId) {
+    if (this.busyProductId || !product.purchasable) {
       return;
     }
     this.busyProductId = product.id;
@@ -354,6 +385,9 @@ export default class CosmeticsStore extends Component {
   async toggleFavorite(product) {
     if (!this.viewer.logged_in) {
       window.location.assign("/login?return_path=%2Fstore");
+      return;
+    }
+    if (!product.favorite && !product.favoriteable) {
       return;
     }
     try {
@@ -403,7 +437,9 @@ export default class CosmeticsStore extends Component {
   @action
   updateKind(event) {
     const kind = event.target.value;
-    const category = Object.keys(KIND_FOR_ROUTE).find((key) => KIND_FOR_ROUTE[key] === kind);
+    const category = Object.keys(KIND_FOR_ROUTE).find(
+      (key) => KIND_FOR_ROUTE[key] === kind
+    );
     this.selectedKind = category ? "" : kind;
     this.navigateTo("browse", category);
   }
@@ -411,6 +447,11 @@ export default class CosmeticsStore extends Component {
   @action
   updateRarity(event) {
     this.selectedRarity = event.target.value;
+  }
+
+  @action
+  updateAvailability(event) {
+    this.selectedAvailability = event.target.value;
   }
 
   @action
@@ -446,6 +487,7 @@ export default class CosmeticsStore extends Component {
     this.search = "";
     this.selectedKind = "";
     this.selectedRarity = "";
+    this.selectedAvailability = "";
     this.selectedTag = "";
     this.productType = "";
     this.sortBy = "popular";
@@ -563,6 +605,7 @@ export default class CosmeticsStore extends Component {
             <label>Ürün türü<select value={{this.effectiveProductType}} {{on "change" this.updateProductType}}><option value="">Tümü</option><option value="item">Tekli kozmetik</option><option value="bundle">Paket</option></select></label>
             <label>Kozmetik türü<select value={{this.effectiveSelectedKind}} {{on "change" this.updateKind}}><option value="">Tümü</option>{{#each this.filters.kinds as |kind|}}<option value={{kind.value}}>{{kind.label}} ({{kind.count}})</option>{{/each}}</select></label>
             <label>Nadirlik<select value={{this.selectedRarity}} {{on "change" this.updateRarity}}><option value="">Tümü</option>{{#each this.filters.rarities as |rarity|}}<option value={{rarity.value}}>{{rarity.label}} ({{rarity.count}})</option>{{/each}}</select></label>
+            <label>Satış durumu<select value={{this.selectedAvailability}} {{on "change" this.updateAvailability}}><option value="">Tümü</option>{{#each this.filters.availability as |availability|}}<option value={{availability.value}}>{{availability.label}} ({{availability.count}})</option>{{/each}}</select></label>
             <label>Etiket<select value={{this.selectedTag}} {{on "change" this.updateTag}}><option value="">Tümü</option>{{#each this.filters.tags as |tag|}}<option value={{tag.value}}>#{{tag.label}} ({{tag.count}})</option>{{/each}}</select></label>
             <label class="cstore-check"><input type="checkbox" checked={{this.onlyAffordable}} {{on "change" this.toggleAffordable}} /><span>Sadece bakiyeme uygun</span></label>
             <label class="cstore-check"><input type="checkbox" checked={{this.onlyOwned}} {{on "change" this.toggleOwned}} /><span>Sadece koleksiyonum</span></label>

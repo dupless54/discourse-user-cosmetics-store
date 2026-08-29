@@ -13,9 +13,14 @@ register_asset "stylesheets/discourse-cosmetics-store.scss"
 register_asset "stylesheets/discourse-cosmetics-store-native.scss"
 register_asset "stylesheets/discourse-cosmetics-store-polish.scss"
 register_asset "stylesheets/discourse-cosmetics-store-loadouts.scss"
+register_asset "stylesheets/discourse-cosmetics-store-preview.scss"
+register_asset "stylesheets/discourse-cosmetics-store-availability.scss"
+register_asset "stylesheets/discourse-cosmetics-store-accessibility.scss"
+register_asset "stylesheets/discourse-cosmetics-store-wardrobe.scss"
+register_asset "stylesheets/discourse-cosmetics-store-activity.scss"
 register_asset "stylesheets/discourse-cosmetics-store-mobile.scss"
 
-%w[cart-shopping check eye gift heart image paper-plane right-to-bracket xmark].each do |icon|
+%w[cart-shopping check clock eye gift heart image palette paper-plane right-to-bracket xmark].each do |icon|
   register_svg_icon icon
 end
 
@@ -23,6 +28,8 @@ module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
   VERSION = "1.3.1"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
+  GIFT_NOTIFICATION_NAME = :cosmetics_store_gift
+  GIFT_NOTIFICATION_TYPE = 12_001
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb
     app/models/discourse_user_cosmetics/item_group.rb
@@ -40,6 +47,22 @@ module ::DiscourseCosmeticsStore
     app/models/discourse_user_cosmetics/loadout.rb
     lib/discourse_user_cosmetics/loadout_service.rb
   ].freeze
+
+  def self.install_notification_type!
+    existing_id = Notification.types[GIFT_NOTIFICATION_NAME]
+    existing_name = Notification.types[GIFT_NOTIFICATION_TYPE]
+
+    if (existing_id && existing_id != GIFT_NOTIFICATION_TYPE) ||
+         (existing_name && existing_name != GIFT_NOTIFICATION_NAME)
+      Rails.logger.error(
+        "[#{PLUGIN_NAME}] notification type collision for #{GIFT_NOTIFICATION_NAME}=#{GIFT_NOTIFICATION_TYPE}",
+      )
+      return false
+    end
+
+    Notification.types[GIFT_NOTIFICATION_NAME] = GIFT_NOTIFICATION_TYPE
+    true
+  end
 
   def self.base_plugin_ready?
     defined?(::DiscourseUserCosmetics::Item) &&
@@ -67,12 +90,6 @@ module ::DiscourseCosmeticsStore
     File.expand_path("../#{BASE_PLUGIN_NAME}", __dir__)
   end
 
-  # Plugin initializers are not a dependency graph. During `db:migrate`, a
-  # companion plugin can be initialized before the base plugin's own
-  # `after_initialize` callback has required its models. Load only the public
-  # model/presenter files we integrate with so rebuilds do not depend on plugin
-  # callback order. The newer Integration contract is optional here so a Store
-  # update remains compatible with an older base plugin during rolling deploys.
   def self.load_base_plugin!
     return false unless defined?(::DiscourseUserCosmetics)
 
@@ -179,6 +196,7 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/entitlement_provider"
   require_relative "lib/discourse_cosmetics_store/wallet_service"
   require_relative "lib/discourse_cosmetics_store/purchase_service"
+  require_relative "lib/discourse_cosmetics_store/gift_notification"
   require_relative "lib/discourse_cosmetics_store/gift_service"
   require_relative "lib/discourse_cosmetics_store/mission_progress"
   require_relative "lib/discourse_cosmetics_store/mission_claim_service"
@@ -188,13 +206,30 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/payment_fulfillment_service"
   require_relative "lib/discourse_cosmetics_store/payment_refund_service"
   require_relative "lib/discourse_cosmetics_store/payment_event_service"
+  require_relative "lib/discourse_cosmetics_store/admin_audit"
+  require_relative "lib/discourse_cosmetics_store/admin_audit_hooks"
   require_relative "lib/discourse_cosmetics_store/seeder"
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
   require_relative "app/controllers/discourse_cosmetics_store/inventory_controller"
   require_relative "app/controllers/discourse_cosmetics_store/loadouts_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/preview_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/activity_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/history_controller"
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
+
+  if DiscourseCosmeticsStore::AdminController.ancestors.exclude?(
+       DiscourseCosmeticsStore::AdminAuditHooks
+     )
+    DiscourseCosmeticsStore::AdminController.prepend(DiscourseCosmeticsStore::AdminAuditHooks)
+  end
+
+  unless DiscourseCosmeticsStore.install_notification_type!
+    Rails.logger.error(
+      "[#{DiscourseCosmeticsStore::PLUGIN_NAME}] gift notifications are disabled because the notification type could not be registered.",
+    )
+  end
 
   unless DiscourseCosmeticsStore.install_cosmetics_integration!
     Rails.logger.error(
@@ -203,8 +238,6 @@ after_initialize do
     )
   end
 
-  # Try once more after Rails finishes preparing application classes. Both the
-  # public provider registration and the legacy prepend fallback are idempotent.
   Rails.application.reloader.to_prepare do
     DiscourseCosmeticsStore.install_cosmetics_integration!
   end
@@ -224,6 +257,9 @@ after_initialize do
     get "/store/favorites" => "list#latest"
     get "/store/inventory" => "list#latest"
     get "/store/loadouts" => "list#latest"
+    get "/store/preview" => "list#latest"
+    get "/store/activity" => "list#latest"
+    get "/store/history" => "list#latest"
     get "/store/collections" => "list#latest"
     get "/store/collections/:collection_slug" => "list#latest",
         constraints: { collection_slug: /[a-z0-9][a-z0-9\-]*/ }
@@ -231,6 +267,10 @@ after_initialize do
     defaults format: :json do
       get "/cosmetics-store" => "discourse_cosmetics_store/store#index"
       get "/cosmetics-store/inventory" => "discourse_cosmetics_store/inventory#index"
+      put "/cosmetics-store/inventory/:id/equip" => "discourse_cosmetics_store/inventory#equip",
+          constraints: { id: /\d+/ }
+      delete "/cosmetics-store/inventory/:kind/equip" => "discourse_cosmetics_store/inventory#unequip",
+             constraints: { kind: /avatar_frame|nameplate|card_decoration|profile_effect/ }
       get "/cosmetics-store/loadouts" => "discourse_cosmetics_store/loadouts#index"
       post "/cosmetics-store/loadouts" => "discourse_cosmetics_store/loadouts#create"
       put "/cosmetics-store/loadouts/:id" => "discourse_cosmetics_store/loadouts#update",
@@ -239,6 +279,10 @@ after_initialize do
              constraints: { id: /\d+/ }
       post "/cosmetics-store/loadouts/:id/apply" => "discourse_cosmetics_store/loadouts#apply",
            constraints: { id: /\d+/ }
+      get "/cosmetics-store/preview" => "discourse_cosmetics_store/preview#index"
+      post "/cosmetics-store/preview/apply" => "discourse_cosmetics_store/preview#apply"
+      get "/cosmetics-store/activity" => "discourse_cosmetics_store/activity#index"
+      get "/cosmetics-store/history" => "discourse_cosmetics_store/history#index"
       post "/cosmetics-store/products/:id/purchase" => "discourse_cosmetics_store/store#purchase",
            constraints: { id: /\d+/ }
       post "/cosmetics-store/products/:id/gift" => "discourse_cosmetics_store/store#gift",

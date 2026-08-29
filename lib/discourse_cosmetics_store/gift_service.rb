@@ -64,6 +64,7 @@ module ::DiscourseCosmeticsStore
       end
 
       Catalog.bump!
+      GiftNotification.deliver(gift: gift, sender: sender, recipient: recipient, product: product)
       self
     rescue ActiveRecord::RecordNotUnique
       raise AlreadyOwned
