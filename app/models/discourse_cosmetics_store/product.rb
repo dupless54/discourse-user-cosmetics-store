@@ -58,10 +58,29 @@ module ::DiscourseCosmeticsStore
               .where("available_from IS NULL OR available_from <= ?", now)
               .where("available_until IS NULL OR available_until >= ?", now)
           end
+    scope :catalog_visible,
+          -> do
+            now = Time.zone.now
+            where(enabled: true).where("available_until IS NULL OR available_until >= ?", now)
+          end
+
+    def availability_type
+      return "seasonal" if available_from.present? && available_until.present?
+      return "limited" if available_until.present?
+
+      "standard"
+    end
+
+    def sale_state(at: Time.zone.now)
+      return "disabled" unless enabled?
+      return "upcoming" if available_from.present? && available_from > at
+      return "ended" if available_until.present? && available_until < at
+
+      "active"
+    end
 
     def available_now?
-      enabled? && (available_from.blank? || available_from <= Time.zone.now) &&
-        (available_until.blank? || available_until >= Time.zone.now)
+      sale_state == "active"
     end
 
     def bundle?

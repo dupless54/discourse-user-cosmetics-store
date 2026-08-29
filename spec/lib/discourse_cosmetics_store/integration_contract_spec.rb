@@ -10,6 +10,7 @@ RSpec.describe DiscourseCosmeticsStore::EntitlementProvider do
     enable_current_plugin
     SiteSetting.discourse_cosmetics_store_starting_balance = 500
     DiscourseCosmeticsStore.install_cosmetics_integration!
+    DiscourseCosmeticsStore.install_notification_type!
     DiscourseCosmeticsStore::Catalog.bump!
   end
 
@@ -56,7 +57,7 @@ RSpec.describe DiscourseCosmeticsStore::EntitlementProvider do
     expect(service.wallet.balance).to eq(375)
   end
 
-  it "grants gifted exclusive cosmetics through the base integration contract" do
+  it "grants gifted exclusive cosmetics and notifies the recipient" do
     item = create_item("Gift frame")
     product = create_product(item: item, exclusive: true, price: 100)
 
@@ -70,6 +71,37 @@ RSpec.describe DiscourseCosmeticsStore::EntitlementProvider do
     expect(service.gift.status).to eq("completed")
     expect(DiscourseUserCosmetics::Integration.owns?(user: recipient, item: item)).to eq(true)
     expect(service.wallet.balance).to eq(400)
+
+    notification =
+      Notification.find_by!(
+        user_id: recipient.id,
+        notification_type: DiscourseCosmeticsStore::GIFT_NOTIFICATION_TYPE,
+      )
+    expect(notification.data_hash).to include(
+      "display_username" => user.username,
+      "product_name" => product.name,
+    )
+  end
+
+  it "does not notify when the gift is rejected before any debit or grant" do
+    item = create_item("Already owned gift frame")
+    product = create_product(item: item, exclusive: true, price: 100)
+    DiscourseUserCosmetics::Integration.grant!(user: recipient, item: item)
+
+    expect do
+      DiscourseCosmeticsStore::GiftService.new(
+        sender: user,
+        product: product,
+        recipient_username: recipient.username,
+      ).call
+    end.to raise_error(DiscourseCosmeticsStore::GiftService::AlreadyOwned)
+
+    expect(
+      Notification.where(
+        user_id: recipient.id,
+        notification_type: DiscourseCosmeticsStore::GIFT_NOTIFICATION_TYPE,
+      ),
+    ).to be_empty
   end
 
   def create_item(name)

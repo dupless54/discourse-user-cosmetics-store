@@ -34,7 +34,9 @@ module ::DiscourseCosmeticsStore
 
     def self.bump!
       Discourse.cache.delete(LOCKED_ITEMS_CACHE_KEY)
-      DiscourseUserCosmetics::Presenter.bump_version!
+      return unless defined?(::DiscourseUserCosmetics::Presenter)
+
+      ::DiscourseUserCosmetics::Presenter.bump_version!
     end
   end
 end
