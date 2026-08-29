@@ -1,39 +1,96 @@
+<p align="center">
+  <a href="https://buymeacoffee.com/erespawn">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" width="217" height="60">
+  </a>
+</p>
+
 # Discourse User Cosmetics Store
 
-`discourse-user-cosmetics` için Discord mağazasına benzeyen, forum içi **Orbs** para birimiyle çalışan tamamlayıcı Discourse eklentisidir.
+A native Discourse storefront and Orb economy for [`discourse-user-cosmetics`](https://github.com/dupless54/discourse-user-cosmetics).
 
-Bu eklenti kozmetik verilerini kopyalamaz. Ürün ve paketleri mevcut kozmetik kayıtlarına bağlar; satın alma tamamlandığında sahipliği doğrudan `discourse-user-cosmetics` eklentisinin `UserItem` tablosuna verir. Kullanıcı ürünü mevcut **My Cosmetics** arayüzünden seçip takabilir.
+The Store does not duplicate cosmetic ownership. Products and bundles reference the base cosmetics catalog, and successful purchases or gifts grant ownership through the User Cosmetics integration contract.
 
-## Özellikler
+## Current Store Experience
 
-- `/store` adresinde responsive mağaza vitrini
-- Öne çıkanlar, editör seçimleri, en çok kullanılanlar, paketler ve yeni ürünler
-- Ürün adına, türüne, nadirliğine, etikete, fiyata ve sahipliğe göre filtreleme
-- Oturum açmış üyenin gerçek avatarını kullanan kozmetik önizleme kartları
-- Ürünü üyenin profil kapağı ve kimliğiyle gösteren 304 × 444 user-card önizlemesi
-- Kozmetik ayrıntı ve satın alma penceresi
-- Favoriler
-- Orbs cüzdanı ve değiştirilemez işlem defteri
-- Sunucuda doğrulanan tek seferlik görev ödülleri
-- Tekli kozmetik veya çok öğeli paket satışları
-- Paketleri katalog limitinden bağımsız vitrinleyen güvenli paket bölümü
-- Ürün kartında satın alma ve kullanıcıya hediye etme işlemleri
-- Aynı temadaki ürünleri ayrı URL altında toplayan koleksiyon sayfaları
-- URL tabanlı mağaza bölümleri ve Discord tarzı **Göz At** açılır menüsü
-- Profil efektleri ve çok öğeli paketler için ayrı vitrin bölümleri ve katmanlı önizleme
-- Satın alınan ürünlerin mevcut kozmetik seçicisine otomatik açılması
-- Stripe, PayPal, PayTR, iyzico, Shopier ve Shipy ile isteğe bağlı gerçek para karşılığı Orb yükleme
-- Shopier tam/kısmi iadelerinde idempotent Orb geri alımı ve harcanmış bakiye için iade borcu
-- Ürün, görev, Orb paketi, ödeme geçmişi ve kullanıcı cüzdanı için yönetim ekranı
-- Eşzamanlı satın alma, çift tıklama ve çift görev talebine karşı satır kilidi + idempotency
+- Responsive `/store` storefront with featured products, editor selections, bundles, collections, rarity metadata, and limited/seasonal presentation.
+- Browse and filtering by product metadata, type, rarity, tags, price, and ownership state.
+- **Inventory** for owned and unlocked cosmetics.
+- **Loadouts** for saved cosmetic sets.
+- **Preview Studio** for trying complete cosmetic combinations before applying them.
+- **Collections** for grouping themed products under dedicated URLs.
+- **Favorites** and quick-access product controls.
+- **Quick Equip** for eligible cosmetics.
+- **Activity Center** combining purchase, gift, and Orb history in one user-facing timeline.
+- Gift notifications routed back to the Activity Center.
+- Responsive product dialogs and live cosmetic previews.
+- Accessibility and reduced-motion support.
+- Administrator health and audit tooling.
 
-## Gereksinim
+## Store Routes
 
-Önce `discourse-user-cosmetics` kurulmuş ve etkin olmalıdır. Mağaza eklentisi bu bağımlılığı açılışta kontrol eder. Discourse migrasyonlarında eklenti callback sırası garanti edilmediği için mağaza, ihtiyaç duyduğu ana eklenti modellerini güvenli ve idempotent biçimde yükler; bağımlılık gerçekten yoksa rebuild'i kilitlemek yerine sunucu günlüğüne açık bir hata yazar ve mağazayı kullanılamaz bırakır.
+- `/store` — storefront
+- `/store/browse` — browse and filters
+- `/store/collections` — collections
+- `/store/orbs` — Orb wallet/top-up experience
+- `/store/favorites` — favorites
+- `/store/inventory` — cosmetics inventory
+- `/store/loadouts` — saved cosmetic sets
+- `/store/preview` — Preview Studio
+- `/store/activity` — purchase, gift, and Orb activity
 
-## Kurulum
+The former duplicate `/store/history` user interface was removed. The compatibility route now redirects users to the single `/store/activity` history surface.
 
-Discourse `containers/app.yml` dosyanızdaki `hooks.after_code` bölümüne, ana kozmetik eklentisinin **altına** ekleyin:
+## Orb Economy
+
+- Server-authoritative Orb wallet and immutable ledger entries.
+- Idempotent purchases, gifts, mission rewards, payment fulfillment, and refund reconciliation.
+- Single cosmetics and multi-item bundles.
+- Server-validated one-time mission rewards based on Discourse activity/account state.
+- Row locking and idempotency protection against double-clicks and concurrent requests.
+- Refund debt handling when previously credited Orbs have already been spent.
+
+## Payment Providers
+
+Optional real-money Orb top-ups can be configured for:
+
+- Stripe
+- PayPal
+- PayTR
+- iyzico
+- Shopier, including modern webhook and legacy OSB flows
+- Shipy
+
+Payment credentials remain server-side. Provider callbacks/webhooks are treated as untrusted until the configured provider-specific signature, token, amount, currency, identity, and replay checks succeed.
+
+The plugin never trusts client-supplied payment state to credit Orbs or grant cosmetics.
+
+## Completed Roadmap Highlights
+
+The merged Store roadmap on `main` includes:
+
+- Inventory and Collections.
+- Cosmetic Loadout Manager.
+- Live Preview Studio.
+- Rarity and limited/seasonal storefront presentation.
+- Favorites and advanced filters.
+- Quick Equip.
+- Unified Activity/History experience.
+- Gift Notifications.
+- Accessibility and reduced-motion improvements.
+- Admin Health and Admin Audit tooling.
+- Versioned User Cosmetics integration-contract consumption.
+- Mobile/responsive and Browse-menu fixes.
+- Exact-head Cosmetics Integration Runtime Test as a main PR gate.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for the detailed merged roadmap record.
+
+## In Progress — Not Yet on `main`
+
+PR #47, **Storefront hierarchy and responsive layout polish**, is currently open. It focuses on the Preview Studio stacking issue, cleaner page hierarchy, long-text/grid overflow protection, safe-area handling, and stronger 800/600/520/390 px responsive behavior. Treat those visual changes as in progress until the PR is merged.
+
+## Installation
+
+Install the base cosmetics plugin first, then the Store:
 
 ```yaml
 hooks:
@@ -41,199 +98,27 @@ hooks:
     - exec:
         cd: $home/plugins
         cmd:
-          - git clone https://GITHUB-ADRESINIZ/discourse-user-cosmetics.git
-          - git clone https://GITHUB-ADRESINIZ/discourse-user-cosmetics-store.git
+          - git clone https://github.com/dupless54/discourse-user-cosmetics.git
+          - git clone https://github.com/dupless54/discourse-user-cosmetics-store.git
 ```
 
-Ardından standart launcher komutuyla yeniden kurun:
+Rebuild Discourse:
 
 ```bash
 cd /var/discourse
 ./launcher rebuild app
 ```
 
-ZIP kullanıyorsanız klasörü `/var/discourse/shared/standalone/plugins/discourse-user-cosmetics-store` olarak açıp yine rebuild yapabilirsiniz; kalıcı kurulum için Git deposu önerilir.
+After the rebuild, enable and configure the Store under the Discourse plugin settings. Keep real-money payments disabled until a provider has been configured and tested in its sandbox/test environment.
 
-## Kullanım
+## Architecture and Security
 
-- Mağaza: `/store`
-- Göz At: `/store/browse`
-- Paketler: `/store/browse/bundles`
-- Koleksiyonlar: `/store/collections`
-- Orbs: `/store/orbs`
-- Favoriler: `/store/favorites`
-- Yönetim: **Yönetici → Eklentiler → Cosmetics Store**
-- Genel ayarlar: **Yönetici → Eklentiler → Cosmetics Store → Ayarlar**
+Dependency direction is **Store → User Cosmetics**. Cosmetic ownership and entitlement remain authoritative in the base plugin; wallet, ledger, payment, refund, and Store transaction state remain authoritative in the Store.
 
-İlk kurulumda örnek görevler otomatik oluşturulur. Ürünler otomatik oluşturulmaz; yönetim ekranından mevcut kozmetik öğeleri seçerek ürün veya paket hazırlayın.
+Financial and provider code is security-sensitive. Preserve atomic balance changes, durable audit records, replay protection, bounded provider requests, and server-side authorization when extending the plugin.
 
-### Ürün erişimi
+For repository-specific development rules, start with [`AGENTS.md`](AGENTS.md).
 
-`Satın alma gerektirir (exclusive)` işaretli bir ürüne bağlı kozmetik, kullanıcı satın alana kadar normal kozmetik seçicisinde kilitli kalır. Şu istisnalar korunur:
+## Support
 
-- Varsayılan kozmetikler
-- Kozmetiğe doğrudan izin veren Discourse grupları
-- Ana eklentiden yönetici tarafından daha önce verilmiş sahiplikler
-
-Bir ürünü sadece vitrine koymak, fakat herkese açık bırakmak istiyorsanız `exclusive` seçeneğini kapatın. Herkese açık bir kozmetik zaten kullanılabilir sayıldığı için bu ürün satın alınabilir olarak gösterilmez.
-
-### Paketler
-
-- Tekli ürün tam olarak 1 kozmetik ister.
-- Paket en az 2 kozmetik ister.
-- Kullanıcı paketin parçalarından birine zaten sahipse aynı paket yeniden satın alınamaz veya hediye edilemez.
-- Paketler genel katalog limiti dolsa bile mağazanın paket vitrini ve **Göz At → Paketler** sayfasında tutulur.
-
-### Hediye ve koleksiyonlar
-
-Ürün kartındaki hediye düğmesiyle başka bir aktif forum üyesine tekli kozmetik veya paket gönderilebilir. Tarayıcı yalnız ürün kimliği ve alıcı kullanıcı adını gönderir; fiyat, bakiye, ürünün satış durumu ve alıcının sahipliği sunucuda kilitli bir veritabanı işlemi içinde yeniden okunur. Alıcı paketteki öğelerden birine sahipse, gönderici kendisine hediye göndermeye çalışırsa veya bakiye yetersizse işlem yapılmaz ve hiçbir Orbs düşülmez.
-
-Yönetimde ürünlere aynı **Koleksiyon adı** verildiğinde mağaza bunları `/store/collections/<koleksiyon-slug>` altında toplar. İsteğe bağlı koleksiyon kapak görseli, koleksiyon liste ve ayrıntı sayfalarında kullanılır.
-
-### Görevler
-
-Görev ilerlemesi istemciden kabul edilmez. Aşağıdaki Discourse verilerinden sunucuda hesaplanır:
-
-- Oluşturulan gönderi
-- Oluşturulan konu
-- Alınan beğeni
-- Ziyaret edilen gün
-- Güven seviyesi
-- Kazanılan rozet
-- Hesap yaşı
-
-Bir kullanıcı aynı görevin ödülünü yalnız bir kez alabilir. Her ödül ve satın alma benzersiz idempotency anahtarıyla işlem defterine yazılır.
-
-## Gerçek para ile Orb yükleme
-
-Bu özellik ilk kurulumda kapalıdır. Önce bir sağlayıcıyı test/sandbox ortamında yapılandırın, yönetimde **Ödemeler** sekmesinden bir Orb paketi oluşturun ve yalnız bundan sonra `discourse_cosmetics_store_payments_enabled` ayarını açın.
-
-Kart verisi Discourse'a gelmez. Kullanıcı sağlayıcının barındırdığı ödeme sayfasına yönlendirilir. Orb bakiyesi yalnız şu kontrollerden sonra yüklenir:
-
-- Sağlayıcı webhook/callback imzası doğrulandı.
-- Sağlayıcı işlem kimliği daha önce işlenmedi.
-- Satın alma anında kaydedilen tutar ve para birimi callback ile birebir eşleşti.
-- Cüzdan hareketi benzersiz `payment:<id>` anahtarıyla, veritabanı kilidi içinde yazıldı.
-- Sağlayıcı API istekleri yalnız sabit HTTPS alan adı izin listesine, TLS doğrulaması ve kısa zaman aşımıyla gönderildi.
-- API anahtarları istemci JSON'una veya ödeme kaydına yazılmadı.
-
-### Sağlayıcı ayarları
-
-| Sağlayıcı | Model | Bildirim adresi |
-| --- | --- | --- |
-| Stripe | Hosted Checkout | `/cosmetics-store/webhooks/stripe` |
-| PayPal | Orders v2 / hosted approval | `/cosmetics-store/webhooks/paypal` |
-| PayTR | iFrame API | `/cosmetics-store/callbacks/paytr` |
-| iyzico | Checkout Form | `/cosmetics-store/callbacks/iyzico` |
-| Shopier | Paket başına hosted ürün bağlantısı | Modern: `/cosmetics-store/webhooks/shopier`, OSB: `/cosmetics-store/callbacks/shopier-osb` |
-| Shipy | API v2 hosted ödeme | `/cosmetics-store/callbacks/shipy` |
-
-Bildirim adreslerinin tamamı herkese açık HTTPS URL olmalıdır. PayTR ve Shopier OSB callback'lerine oturum veya CSRF şartı koymayın; sağlayıcı aynı sonucu tekrar gönderebildiği için uç noktalar idempotent çalışır. Stripe `whsec_…`, PayPal webhook ID, PayTR merchant key/salt, iyzico secret key, Shopier webhook token veya OSB kullanıcı adı/şifresi ve Shipy API key yalnız eklenti ayarlarında sunucu tarafında tutulur.
-
-Shopier dinamik checkout oturumu yerine mağazanızda oluşturduğunuz ürün bağlantısını kullanır. Bu nedenle her Orb paketinde ilgili Shopier ürün kimliği ve `shopier.com` HTTPS bağlantısı birlikte girilmelidir. Shopier siparişindeki alıcı e-postası, Orb yüklemesini başlatan etkin Discourse hesabının doğrulanmış birincil e-postasıyla aynı olmalıdır; aksi hâlde teslimat güvenli biçimde reddedilir.
-
-Shopier'in eski Otomatik Sipariş Bildirimi (OSB) ekranını kullanmak için `discourse_cosmetics_store_shopier_osb_username` ve `discourse_cosmetics_store_shopier_osb_password` gizli ayarlarını doldurun. Shopier'deki Bildirim URL alanına `https://FORUM-ADRESINIZ/cosmetics-store/callbacks/shopier-osb` yazın. OSB adaptörü `hash_hmac('sha256', res + username, password)` özetini sabit zamanlı karşılaştırmayla doğrular, Base64 JSON içeriğini boyut sınırlamasıyla ayrıştırır ve test bildirimlerinde Orb yüklemeden tam olarak `success` döndürür. Canlı bildirimlerde `orderid`, ürün kimliği, doğrulanmış birincil e-posta, tutar ve para birimi eşleşmeden cüzdana yazılmaz. Aynı sipariş kimliğinin yeniden gönderilmesi ikinci kez Orb yüklemez.
-
-Modern Shopier webhook kullanılıyorsa OSB kimlik bilgileri yerine `discourse_cosmetics_store_shopier_webhook_token` ayarlanır ve `/cosmetics-store/webhooks/shopier` adresi kullanılır. Shopier uygulamasında aynı URL için `order.created`, `refund.requested` ve `refund.updated` olaylarına abonelik oluşturun. İki yöntem aynı anda yapılandırılabilir; tek bir yöntemin eksiksiz yapılandırılması Shopier sağlayıcısını hazır duruma getirir. Shipy sağlayıcı sözleşmeleri mağaza hesabına göre değişebildiğinden canlı moda geçmeden önce güncel API v2 callback alanlarını test hesabınızla doğrulayın.
-
-### Shopier iadeleri
-
-Eklenti Shopier'de para iadesi başlatmaz. Para iadesi önce Shopier panelinde yapılır; eklenti doğrulanmış sonucu cüzdanla mutabık hâle getirir:
-
-- Modern webhook yapılandırmasında `refund.requested` yalnız izleme kaydı açar. `refund.updated` durumu `succeeded` olduğunda tam veya kısmi tutara karşılık gelen Orb miktarı otomatik geri alınır.
-- Legacy OSB yalnız sipariş bildirimi gönderdiği için otomatik iade olayı yoktur. Yönetimde **Ödemeler → İade işle** ile, Shopier'de başarıyla tamamlanmış iadenin tutarı ve benzersiz iade referansı manuel kaydedilir.
-- Kısmi iadede geri alınacak Orb miktarı, ödemenin toplam tutarına orantılı ve kümülatif hesaplanır. Son tam iade, yuvarlama farkı bırakmadan satın alınan Orb miktarının tamamını geri alır.
-- Kullanıcı Orb'ları harcamışsa bakiye eksiye düşmez. Mevcut bakiye sıfıra kadar alınır, eksik bölüm **iade borcu** olur ve sonraki satın alma/görev kredileri önce bu borcu kapatır.
-- Sağlayıcı iade kimliği ve cüzdan idempotency anahtarı aynı bildirimin veya yönetici işleminin ikinci kez Orb düşmesini engeller.
-
-Ödeme sağlayıcı panelinde canlı moda geçmeden önce en az şu senaryoları test edin: başarılı ödeme, başarısız ödeme, kullanıcı dönüş sayfasını kapatma, callback tekrarı, yanlış tutar/para birimi, tam iade, kısmi iade ve zaman aşımı. Chargeback süreçlerini ayrıca işletme politikanıza bağlayın; eklenti yalnız Shopier'in doğruladığı iade sonucunu veya yöneticinin açıkça onayladığı mutabakatı işler.
-
-## Önemli ayarlar
-
-- Mağazayı etkinleştirme
-- Para birimi adı ve simgesi
-- Başlangıç bakiyesi
-- En yüksek cüzdan bakiyesi
-- Katalog ürün limiti
-- Görevler, favoriler ve hover önizlemesi
-- Hero ve editör seçimi başlıkları
-- Gerçek para ile Orb yükleme ana anahtarı
-- Sağlayıcı etkinleştirme, sandbox/test ve yalnız sunucuda saklanan API/webhook sırları
-
-## Güncelleme / kaldırma
-
-Güncellemeden önce veritabanı yedeği alın. Eklentiyi devre dışı bırakmak ürünleri ve cüzdanları silmez. Eklenti klasörünü kaldırmadan önce mağazayı kapatın ve rebuild yapın. Satın alma geçmişi bulunan ürünler bütünlük için silinemez; yönetim ekranından pasifleştirilir.
-
-## Sürüm
-
-`1.3.0`
-
-### 1.3.0
-
-- Modern Shopier `refund.requested` ve `refund.updated` webhook olayları için imza doğrulamalı, idempotent tam/kısmi iade mutabakatı eklendi.
-- Legacy OSB kullanan mağazalar için yönetim ödeme geçmişine, yalnız Shopier'de gerçekleşmiş iadeyi işleyen güvenlik onaylı manuel iade ekranı eklendi.
-- Harcanmış Orb'ların iadesinde negatif bakiye yerine iade borcu oluşturulması ve sonraki kredilerin önce bu borcu kapatması sağlandı.
-- Kullanıcı ve yönetici cüzdanlarında iade borcu; ödeme geçmişinde iade tutarı, geri alınan Orb ve iade referansları görünür hâle getirildi.
-
-### 1.2.2
-
-- `/store/orbs` bakiye kartına doğrudan **Orb Yükle** düğmesi eklendi.
-- Satış yapılandırılmamış olsa bile Orb yükleme alanının görünmesi ve yöneticiye gerekli yapılandırma adımlarını göstermesi sağlandı.
-- Orb paketi seçerken giriş yapan kullanıcıların `/store/orbs` sayfasına geri dönmesi sağlandı.
-
-### 1.2.1
-
-- Shopier'in legacy OSB `res`/`hash` protokolü için ayrı, imza doğrulamalı callback eklendi.
-- OSB test bildirimleri ödeme ana anahtarı kapalıyken de güvenli şekilde doğrulanıp `success` yanıtı verecek hale getirildi.
-- Canlı OSB teslimatı ürün, kullanıcı e-postası, tutar ve para birimi eşleşmesi ile mükerrer `orderid` korumasına bağlandı.
-- Modern Shopier webhook desteği korunurken yönetim ekranında OSB Bildirim URL'si de gösterildi.
-
-### 1.2.0
-
-- Paketlerin katalog limiti dolduğunda vitrinden kaybolması engellendi; paket ve koleksiyon ürünleri katalog yüküne açıkça dahil edildi.
-- **Göz At** açılır menüsü, aramadan otomatik geçiş ve her mağaza bölümüne doğrudan açılabilen URL rotaları eklendi.
-- Ürün kartlarına hover satın alma/hediye düğmeleri ve sunucu doğrulamalı kozmetik hediye sistemi eklendi.
-- Aynı kozmetiğe sahip alıcıya hediye gönderme, istemciden fiyat değiştirme, tekrarlı işlem ve eşzamanlı bakiye harcama girişimleri sunucuda engellendi.
-- Yönetilebilir koleksiyon adı, slug ve kapak görseli alanları ile koleksiyon liste/ayrıntı sayfaları eklendi.
-
-### 1.1.0
-
-- Profil efekti katman görselinin boş değerle ezilmesi giderildi; profil efektleri ve paketler vitrine ayrı bölümler olarak eklendi.
-- Katmanlı profil efekti önizlemesi ve ürün görseli için ilk geçerli kozmetik görseline güvenli geri dönüş eklendi.
-- Yönetilebilir Orb paketleri ile Stripe, PayPal, PayTR, iyzico, Shopier ve Shipy ödeme adaptörleri eklendi.
-- İmzalı webhook/callback doğrulama, değiştirilemez ödeme anlık görüntüsü, tutar/para birimi doğrulaması ve idempotent cüzdan teslimatı eklendi.
-- Sağlayıcı API hedefleri ve kullanıcı yönlendirmeleri HTTPS alan adı izin listeleriyle sınırlandı; kart verisinin forum sunucusundan geçmediği hosted checkout modeli kullanıldı.
-
-### 1.0.6
-
-- Avatar çerçeveleri mağaza kartlarında artık ürünü inceleyen üyenin gerçek forum avatarına uygulanıyor.
-- Ürün penceresine, üyenin avatarını ve varsa kart/profil kapak görselini kullanan responsive 304 × 444 user-card önizlemesi eklendi.
-- Paket önizlemesinde avatar çerçevesi, isim plakası, kart dekorasyonu ve profil efekti aynı kart üzerinde birlikte gösteriliyor.
-- Oturum açmamış ziyaretçiler için güvenli varsayılan avatar ve kapak görünümü korunuyor.
-
-### 1.0.5
-
-- Yönetim bileşeni Discourse admin asset namespace'ine uygun olarak `admin/assets/javascripts/admin/components/` dizinine taşındı.
-- `.gjs` şablonundaki `CosmeticsStoreAdminPage` importunun `undefined.default` hatası giderildi.
-
-### 1.0.4
-
-- Yönetim katalog şablonu deprecated `.hbs` yerine `.gjs` ve `RouteTemplate` yapısına geçirildi.
-- Katalog route dosyası Ember'ın yeni resolver normalizasyonuna uygun olarak `routes/admin-plugins/show/` klasör hiyerarşisine taşındı.
-- `discourse.hbs-extension` ve `discourse.deprecated-resolver-normalization` yönetici uyarıları kaldırıldı.
-
-### 1.0.3
-
-- Yönetim bağlantısı Discourse 2026'nın `adminPlugins.show` eklenti yapılandırma rotasına taşındı.
-- Eklenti sayfasına otomatik **Ayarlar** sekmesinin yanında **Mağaza yönetimi** sekmesi eklendi.
-- Ürün, görev ve cüzdan yönetim ekranı yeni admin asset dizinine taşındı; eski ve yapılandırılamayan bağlantı kaldırıldı.
-
-### 1.0.2
-
-- İlk migrasyonun zaman damgası `20260824000001` yerine `20260823000123` olarak değiştirildi. Böylece UTC tarihi hâlâ 23 Ağustos olan Discourse sunucularında "timestamped in the future" hatası oluşmaz.
-
-### 1.0.1
-
-- `db:migrate` sırasında ana kozmetik eklentisinin `after_initialize` sırasına bağlı olan sert başlangıç hatası kaldırıldı.
-- Ana eklentinin gerekli model ve sunum katmanı dosyaları açıkça, yalnızca eksik olduklarında yükleniyor.
-- Kozmetik erişim entegrasyonu tekrar çalıştırılabilir hâle getirildi; aynı modül ikinci kez eklenmiyor.
+If the Store is useful to your community, you can support continued development through the Buy Me a Coffee banner at the top of this README.
