@@ -1,5 +1,5 @@
-import CosmeticsStore from "../components/cosmetics-store";
+import CosmeticsStoreFavoritesPage from "../components/cosmetics-store-favorites-page";
 
 <template>
-  <CosmeticsStore @model={{@model}} />
+  <CosmeticsStoreFavoritesPage @model={{@model}} />
 </template>

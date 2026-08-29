@@ -32,6 +32,36 @@ export default {
           defaultPrefixValue = "check";
         };
       });
+
+      api.addCommunitySectionLink((baseSectionLink) => {
+        return class CosmeticsPreviewSectionLink extends baseSectionLink {
+          name = "cosmetics-preview";
+          route = "cosmetics-store-preview";
+          text = i18n("discourse_cosmetics_store.nav.preview");
+          title = i18n("discourse_cosmetics_store.preview.subtitle");
+          defaultPrefixValue = "palette";
+        };
+      });
+
+      api.addCommunitySectionLink((baseSectionLink) => {
+        return class CosmeticsActivitySectionLink extends baseSectionLink {
+          name = "cosmetics-activity";
+          route = "cosmetics-store-activity";
+          text = i18n("discourse_cosmetics_store.nav.activity");
+          title = i18n("discourse_cosmetics_store.activity.subtitle");
+          defaultPrefixValue = "clock";
+        };
+      });
+
+      api.addCommunitySectionLink((baseSectionLink) => {
+        return class CosmeticsHistorySectionLink extends baseSectionLink {
+          name = "cosmetics-history";
+          route = "cosmetics-store-history";
+          text = i18n("discourse_cosmetics_store.nav.history");
+          title = i18n("discourse_cosmetics_store.history.subtitle");
+          defaultPrefixValue = "cart-shopping";
+        };
+      });
     });
   },
 };

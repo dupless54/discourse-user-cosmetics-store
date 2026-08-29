@@ -1,0 +1,78 @@
+.cstore-product__availability-badge,
+.cstore-dialog__badges .cstore-product__availability-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--primary-low-mid);
+  border-radius: 999px;
+  background: var(--secondary);
+  color: var(--primary);
+  font-size: var(--font-down-2);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.cstore-product__open > .cstore-product__availability-badge {
+  position: absolute;
+  z-index: 4;
+  top: 0.75rem;
+  left: 0.75rem;
+  box-shadow: var(--shadow-dropdown);
+}
+
+.cstore-rarity-badge {
+  border-color: var(--primary-low-mid) !important;
+  background: var(--primary-very-low) !important;
+  color: var(--primary) !important;
+}
+
+.cstore-product__availability-detail,
+.cstore-dialog__availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary-medium);
+  font-size: var(--font-down-1);
+}
+
+.cstore-dialog__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.cstore-dialog__availability {
+  margin: 0.2rem 0 0.9rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--d-border-radius);
+  background: var(--primary-very-low);
+}
+
+.cstore-product.is-upcoming .cstore-product__open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 55%, rgb(0 0 0 / 0.2));
+}
+
+.cstore-product :is(.cstore-product__gift, .cstore-favorite):disabled,
+.cstore-dialog :is(.cstore-gift-toggle, .cstore-buy):disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 700px) {
+  .cstore-product__open > .cstore-product__availability-badge {
+    top: 0.55rem;
+    left: 0.55rem;
+    padding: 0.25rem 0.45rem;
+  }
+
+  .cstore-dialog__badges {
+    margin-top: 0.35rem;
+  }
+}

@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+RSpec.describe DiscourseCosmeticsStore::AdminController do
+  fab!(:admin)
+
+  before do
+    skip "base cosmetics plugin is not installed in this test job" unless DiscourseCosmeticsStore.base_plugin_ready?
+
+    enable_current_plugin
+    DiscourseCosmeticsStore.install_cosmetics_integration!
+    SiteSetting.discourse_cosmetics_store_enabled = true
+    SiteSetting.discourse_cosmetics_store_payments_enabled = false
+    sign_in(admin)
+  end
+
+  it "includes the read-only health summary in the existing admin catalog payload" do
+    item = DiscourseUserCosmetics::Item.create!(kind: "avatar_frame", name: "Health item")
+    product =
+      DiscourseCosmeticsStore::Product.create!(
+        name: "Health product",
+        product_type: "item",
+        price: 25,
+        exclusive: true,
+      )
+    DiscourseCosmeticsStore::ProductItem.create!(product: product, cosmetic_item: item, position: 0)
+
+    get "/admin/plugins/user-cosmetics-store/catalog.json"
+
+    expect(response.status).to eq(200)
+    health = response.parsed_body.fetch("health")
+    expect(health.fetch("status")).to eq("healthy")
+    expect(health.fetch("checks").map { |row| row.fetch("id") }).to include(
+      "base_plugin",
+      "integration",
+      "integration_contract",
+      "preview_contract",
+      "loadout_contract",
+      "empty_products",
+      "disabled_cosmetic_items",
+      "invalid_availability",
+      "payment_providers",
+    )
+
+    contract = health.fetch("checks").find { |row| row.fetch("id") == "integration_contract" }
+    expect(contract).to include(
+      "status" => "ok",
+      "value" => 1,
+      "mode" => "manifest",
+      "supported_versions" => [1],
+    )
+
+    serialized_health = health.to_json
+    %w[secret password api_key merchant_key].each do |sensitive_key|
+      expect(serialized_health).not_to include(sensitive_key)
+    end
+  end
+end

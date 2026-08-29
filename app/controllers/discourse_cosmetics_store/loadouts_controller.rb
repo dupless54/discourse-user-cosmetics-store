@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../../lib/discourse_cosmetics_store/base_contract"
+
 module ::DiscourseCosmeticsStore
   class LoadoutsController < ::ApplicationController
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
@@ -60,11 +62,7 @@ module ::DiscourseCosmeticsStore
     end
 
     def ensure_loadouts_supported
-      available =
-        DiscourseCosmeticsStore.load_base_plugin! &&
-          DiscourseCosmeticsStore.base_integration_ready? &&
-          integration.respond_to?(:loadouts_supported?) &&
-          integration.loadouts_supported?
+      available = BaseContract.core_ready? && BaseContract.capability?(:loadouts)
       raise Discourse::NotFound unless available
     end
 
