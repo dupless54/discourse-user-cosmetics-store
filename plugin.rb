@@ -12,6 +12,7 @@ enabled_site_setting :discourse_cosmetics_store_enabled
 register_asset "stylesheets/discourse-cosmetics-store.scss"
 register_asset "stylesheets/discourse-cosmetics-store-native.scss"
 register_asset "stylesheets/discourse-cosmetics-store-polish.scss"
+register_asset "stylesheets/discourse-cosmetics-store-mobile.scss"
 register_asset "stylesheets/discourse-cosmetics-store-loadouts.scss"
 register_asset "stylesheets/discourse-cosmetics-store-preview.scss"
 register_asset "stylesheets/discourse-cosmetics-store-availability.scss"
