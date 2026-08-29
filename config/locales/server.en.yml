@@ -55,6 +55,9 @@ en:
       invalid_amount: "Invalid wallet adjustment."
       product_has_purchases: "Products with purchase or gift history cannot be deleted; disable the product instead."
       payment_unavailable: "This payment method is currently unavailable."
+      loadout_limit: "You can save up to 10 cosmetic sets."
+      invalid_loadout_name: "Enter a valid cosmetic set name."
+      loadout_unavailable: "This cosmetic set cannot be applied because at least one saved cosmetic is no longer available."
     messages:
       purchased: "The product was added to your collection."
       gift_sent: "The gift was sent to @%{username}."
