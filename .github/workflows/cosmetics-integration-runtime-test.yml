@@ -1,21 +1,12 @@
 name: Cosmetics Integration Runtime Test
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
-      - refactor/use-cosmetics-integration-api-v2
-      - feature/cosmetics-inventory-collections
-      - feature/cosmetics-loadouts-ui
-      - feature/cosmetics-live-preview-studio
-      - feature/cosmetics-rarity-limited-seasonal
-      - integration/cosmetics-store-release-candidate
-      - feature/store-activity-center
-      - integration/store-admin-health-release-candidate
-      - feature/cosmetics-admin-health-check
-      - feature/cosmetics-admin-audit-log
-      - feature/cosmetics-integration-contract-consumer
-      - integration/cosmetics-store-final-release-candidate
-      - integration/merge-final-store-main
+      - main
 
 permissions:
   contents: read
@@ -50,9 +41,10 @@ jobs:
           path: discourse/plugins/discourse-user-cosmetics
           fetch-depth: 1
 
-      - name: Checkout Store branch
+      - name: Checkout exact Store revision
         uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           path: discourse/plugins/discourse-user-cosmetics-store
           fetch-depth: 1
 
