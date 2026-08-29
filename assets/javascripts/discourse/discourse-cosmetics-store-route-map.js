@@ -10,6 +10,7 @@ export default function cosmeticsStoreRoutes() {
   this.route("cosmetics-store-loadouts", { path: "/store/loadouts" });
   this.route("cosmetics-store-preview", { path: "/store/preview" });
   this.route("cosmetics-store-activity", { path: "/store/activity" });
+  this.route("cosmetics-store-history", { path: "/store/history" });
   this.route("cosmetics-store-collections", { path: "/store/collections" });
   this.route("cosmetics-store-collection", {
     path: "/store/collections/:collection_slug",
