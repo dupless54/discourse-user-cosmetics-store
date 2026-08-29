@@ -1,5 +1,3 @@
-import CosmeticsStoreBaseRoute from "./cosmetics-store-base";
+import CosmeticsStoreCollectionsRoute from "./cosmetics-store-collections";
 
-export default class CosmeticsStoreCollectionRoute extends CosmeticsStoreBaseRoute {
-  storeTab = "collections";
-}
+export default class CosmeticsStoreCollectionRoute extends CosmeticsStoreCollectionsRoute {}

@@ -174,6 +174,7 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/payment_event_service"
   require_relative "lib/discourse_cosmetics_store/seeder"
   require_relative "app/controllers/discourse_cosmetics_store/store_controller"
+  require_relative "app/controllers/discourse_cosmetics_store/inventory_controller"
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
@@ -204,12 +205,14 @@ after_initialize do
         constraints: { category: /avatar-frames|nameplates|card-decorations|profile-effects|bundles|items/ }
     get "/store/orbs" => "list#latest"
     get "/store/favorites" => "list#latest"
+    get "/store/inventory" => "list#latest"
     get "/store/collections" => "list#latest"
     get "/store/collections/:collection_slug" => "list#latest",
         constraints: { collection_slug: /[a-z0-9][a-z0-9\-]*/ }
 
     defaults format: :json do
       get "/cosmetics-store" => "discourse_cosmetics_store/store#index"
+      get "/cosmetics-store/inventory" => "discourse_cosmetics_store/inventory#index"
       post "/cosmetics-store/products/:id/purchase" => "discourse_cosmetics_store/store#purchase",
            constraints: { id: /\d+/ }
       post "/cosmetics-store/products/:id/gift" => "discourse_cosmetics_store/store#gift",
