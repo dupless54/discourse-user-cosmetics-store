@@ -11,6 +11,7 @@ on:
       - integration/cosmetics-store-release-candidate
       - feature/store-activity-center
       - integration/store-admin-health-release-candidate
+      - integration/store-admin-audit-release-candidate
 
 permissions:
   contents: read

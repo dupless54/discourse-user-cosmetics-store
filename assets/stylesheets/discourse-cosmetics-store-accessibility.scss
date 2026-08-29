@@ -3,7 +3,8 @@
 // legacy `outline: 0` rules in the storefront theme.
 
 .cstore-shell,
-.cstore-admin {
+.cstore-admin,
+.cstore-audit {
   :is(button, a[href], input, select, textarea, [tabindex]):focus-visible {
     outline: 2px solid var(--tertiary, #da0a46) !important;
     outline-offset: 2px;
@@ -28,7 +29,8 @@
   transform: none;
 }
 
-.cstore-health {
+.cstore-health,
+.cstore-audit {
   box-sizing: border-box;
   width: 100%;
   margin: 0 0 1.5em;
@@ -39,7 +41,8 @@
   color: var(--primary);
 }
 
-.cstore-health__heading {
+.cstore-health__heading,
+.cstore-audit__heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -157,19 +160,143 @@
   color: var(--primary-medium);
 }
 
-@media (max-width: 600px) {
-  .cstore-health__heading {
+.cstore-audit__heading > small {
+  flex: 0 0 auto;
+  color: var(--primary-medium);
+}
+
+.cstore-audit__filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 260px) auto;
+  gap: 0.75em;
+  align-items: end;
+  margin-top: 1em;
+  padding: 0.8em;
+  border-radius: var(--d-border-radius, 6px);
+  background: var(--primary-very-low);
+
+  label {
+    display: grid;
+    gap: 0.3em;
+    min-width: 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    font-weight: 600;
+  }
+
+  input,
+  select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.5em;
+  }
+}
+
+.cstore-audit__list {
+  display: grid;
+  gap: 0.65em;
+  margin-top: 0.85em;
+}
+
+.cstore-audit__entry {
+  padding: 0.8em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius, 6px);
+  background: var(--primary-very-low);
+
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75em;
+
+    > div {
+      min-width: 0;
+    }
+
+    strong,
+    span {
+      display: block;
+    }
+
+    span,
+    time {
+      color: var(--primary-medium);
+      font-size: var(--font-down-1);
+    }
+
+    time {
+      flex: 0 0 auto;
+    }
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.45em;
+    margin: 0.7em 0 0;
+
+    > div {
+      min-width: 0;
+      padding: 0.45em 0.55em;
+      border-radius: var(--d-border-radius, 4px);
+      background: var(--secondary);
+    }
+  }
+
+  dt {
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    font-weight: 600;
+  }
+
+  dd {
+    overflow-wrap: anywhere;
+    margin: 0.15em 0 0;
+  }
+}
+
+.cstore-audit__subject {
+  margin-top: 0.45em;
+  color: var(--primary-medium);
+  font-family: var(--d-font-family--monospace, monospace);
+  font-size: var(--font-down-1);
+}
+
+.cstore-audit__empty {
+  padding: 1.2em;
+  border: 1px dashed var(--primary-low-mid);
+  border-radius: var(--d-border-radius, 6px);
+  text-align: center;
+
+  strong,
+  span {
+    display: block;
+  }
+
+  span {
+    margin-top: 0.3em;
+    color: var(--primary-medium);
+  }
+}
+
+@media (max-width: 700px) {
+  .cstore-health__heading,
+  .cstore-audit__heading,
+  .cstore-audit__entry header {
     flex-direction: column;
   }
 
-  .cstore-health__grid {
+  .cstore-health__grid,
+  .cstore-audit__filters {
     grid-template-columns: 1fr;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .cstore-shell,
-  .cstore-admin {
+  .cstore-admin,
+  .cstore-audit {
     scroll-behavior: auto !important;
 
     *,
