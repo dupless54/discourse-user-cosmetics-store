@@ -138,8 +138,8 @@ export default class CosmeticsStoreAuditAdmin extends Component {
           İşlem
           <select value={{this.selectedAction}} {{on "change" this.updateAction}}>
             <option value="">Tüm işlemler</option>
-            {{#each this.actionOptions as |option|}}
-              <option value={{option.value}}>{{option.label}}</option>
+            {{#each this.actionOptions as |actionOption|}}
+              <option value={{actionOption.value}}>{{actionOption.label}}</option>
             {{/each}}
           </select>
         </label>
