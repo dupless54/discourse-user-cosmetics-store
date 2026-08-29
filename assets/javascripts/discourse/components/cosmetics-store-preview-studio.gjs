@@ -19,6 +19,12 @@ const SLOT_KINDS = [
   "profile_effect",
 ];
 const MOTION_HEAVY_KINDS = new Set(["card_decoration", "profile_effect"]);
+const DEFAULT_EFFECT_INNER_WIDTH = 1200;
+
+function nonNegativeNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : fallback;
+}
 
 export default class CosmeticsStorePreviewStudio extends Component {
   @tracked selections;
@@ -89,28 +95,68 @@ export default class CosmeticsStorePreviewStudio extends Component {
 
   get nameplateStyle() {
     const item = this.nameplate;
-    if (!item?.gradient_from || !item?.gradient_to) {
+    if (!item) {
+      return htmlSafe("");
+    }
+
+    let background = "";
+    if (item.image_url) {
+      background = `background-image:url("${item.image_url}")`;
+    } else if (item.gradient_from && item.gradient_to) {
+      background = `background-image:linear-gradient(90deg,${item.gradient_from},${item.gradient_to})`;
+    } else {
       return htmlSafe("");
     }
 
     const glow = item.glow_color
-      ? `;box-shadow:0 0 18px ${item.glow_color}`
+      ? `box-shadow:0 0 18px ${item.glow_color};`
       : "";
 
     return htmlSafe(
-      `background:linear-gradient(135deg,${item.gradient_from},${item.gradient_to})${glow}`
+      `${background};background-size:cover;background-position:center;` +
+        `background-repeat:no-repeat;${glow}`
+    );
+  }
+
+  get previewEffectCanvasStyle() {
+    const effect = this.profileEffect;
+    if (!effect || prefersReducedMotion()) {
+      return htmlSafe(
+        "--cstore-preview-effect-pad-top:0%;--cstore-preview-effect-pad-bottom:0%"
+      );
+    }
+
+    const innerWidth = Math.max(
+      nonNegativeNumber(
+        effect.effect_inner_width ?? effect.inner_width,
+        DEFAULT_EFFECT_INNER_WIDTH
+      ),
+      1
+    );
+    const overflowTop = nonNegativeNumber(
+      effect.effect_overflow_top ?? effect.overflow_top
+    );
+    const overflowBottom = nonNegativeNumber(
+      effect.effect_overflow_bottom ?? effect.overflow_bottom
+    );
+    const topPercent = ((overflowTop / innerWidth) * 100).toFixed(4);
+    const bottomPercent = ((overflowBottom / innerWidth) * 100).toFixed(4);
+
+    return htmlSafe(
+      `--cstore-preview-effect-pad-top:${topPercent}%;` +
+        `--cstore-preview-effect-pad-bottom:${bottomPercent}%`
     );
   }
 
   get showCardDecorationImage() {
     return Boolean(
-      this.cardDecoration?.image_url && !prefersReducedMotion(),
+      this.cardDecoration?.image_url && !prefersReducedMotion()
     );
   }
 
   get hasCardDecorationGradient() {
     return Boolean(
-      this.cardDecoration?.gradient_from && this.cardDecoration?.gradient_to,
+      this.cardDecoration?.gradient_from && this.cardDecoration?.gradient_to
     );
   }
 
@@ -276,82 +322,88 @@ export default class CosmeticsStorePreviewStudio extends Component {
             <span>{{i18n "discourse_cosmetics_store.preview.temporary_note"}}</span>
           </div>
 
-          <div class="cstore-preview-studio__effect-wrap">
-            {{#if this.profileEffect}}
-              <CosmeticsStoreProfileEffectLayers
-                @effect={{this.profileEffect}}
-                @stackOrder="back"
-              />
-            {{/if}}
-
-            <article class="cstore-preview-studio-card">
-              {{#if this.cardDecoration}}
-                {{#if this.showCardDecorationImage}}
-                  <img
-                    class="cstore-preview-studio-card__decoration"
-                    src={{this.cardDecoration.image_url}}
-                    alt=""
-                    aria-hidden="true"
-                  />
-                {{else if this.hasCardDecorationGradient}}
-                  <div
-                    class="cstore-preview-studio-card__decoration-gradient"
-                    style={{this.cardDecorationStyle}}
-                    aria-hidden="true"
-                  ></div>
-                {{/if}}
+          <div
+            class="cstore-preview-studio__effect-canvas"
+            style={{this.previewEffectCanvasStyle}}
+          >
+            <div class="cstore-preview-studio__effect-wrap">
+              {{#if this.profileEffect}}
+                <CosmeticsStoreProfileEffectLayers
+                  @effect={{this.profileEffect}}
+                  @stackOrder="back"
+                />
               {{/if}}
 
-              <div class="cstore-preview-studio-card__cover" aria-hidden="true"></div>
-              <div class="cstore-preview-studio-card__body">
-                <div class="cstore-preview-studio-avatar">
-                  {{#if this.avatarUrl}}
+              <article class="cstore-preview-studio-card">
+                {{#if this.cardDecoration}}
+                  {{#if this.showCardDecorationImage}}
                     <img
-                      class="cstore-preview-studio-avatar__photo"
-                      src={{this.avatarUrl}}
-                      alt={{@viewer.username}}
-                    />
-                  {{else}}
-                    <span class="cstore-preview-studio-avatar__fallback" aria-hidden="true">
-                      {{dIcon "image"}}
-                    </span>
-                  {{/if}}
-
-                  {{#if this.avatarFrame.image_url}}
-                    <img
-                      class="cstore-preview-studio-avatar__frame"
-                      src={{this.avatarFrame.image_url}}
+                      class="cstore-preview-studio-card__decoration"
+                      src={{this.cardDecoration.image_url}}
                       alt=""
                       aria-hidden="true"
                     />
+                  {{else if this.hasCardDecorationGradient}}
+                    <div
+                      class="cstore-preview-studio-card__decoration-gradient"
+                      style={{this.cardDecorationStyle}}
+                      aria-hidden="true"
+                    ></div>
                   {{/if}}
-                </div>
+                {{/if}}
 
-                <div class="cstore-preview-studio-card__identity">
-                  <strong>@{{@viewer.username}}</strong>
-                  {{#if this.nameplate}}
-                    <span
-                      class="cstore-preview-studio-nameplate"
-                      style={{this.nameplateStyle}}
-                    >
-                      {{this.nameplate.name}}
-                    </span>
-                  {{else}}
-                    <span class="cstore-preview-studio-card__plain-name">
-                      {{@viewer.username}}
-                    </span>
-                  {{/if}}
-                  <p>{{i18n "discourse_cosmetics_store.preview.sample_bio"}}</p>
-                </div>
-              </div>
-            </article>
+                <div class="cstore-preview-studio-card__cover" aria-hidden="true"></div>
+                <div class="cstore-preview-studio-card__body">
+                  <div class="cstore-preview-studio-avatar">
+                    {{#if this.avatarUrl}}
+                      <img
+                        class="cstore-preview-studio-avatar__photo"
+                        src={{this.avatarUrl}}
+                        alt={{@viewer.username}}
+                      />
+                    {{else}}
+                      <span class="cstore-preview-studio-avatar__fallback" aria-hidden="true">
+                        {{dIcon "image"}}
+                      </span>
+                    {{/if}}
 
-            {{#if this.profileEffect}}
-              <CosmeticsStoreProfileEffectLayers
-                @effect={{this.profileEffect}}
-                @stackOrder="front"
-              />
-            {{/if}}
+                    {{#if this.avatarFrame.image_url}}
+                      <img
+                        class="cstore-preview-studio-avatar__frame"
+                        src={{this.avatarFrame.image_url}}
+                        alt=""
+                        aria-hidden="true"
+                      />
+                    {{/if}}
+                  </div>
+
+                  <div class="cstore-preview-studio-card__identity">
+                    <strong>@{{@viewer.username}}</strong>
+                    {{#if this.nameplate}}
+                      <span
+                        class="cstore-preview-studio-nameplate"
+                        style={{this.nameplateStyle}}
+                        title={{this.nameplate.name}}
+                      >
+                        {{@viewer.username}}
+                      </span>
+                    {{else}}
+                      <span class="cstore-preview-studio-card__plain-name">
+                        {{@viewer.username}}
+                      </span>
+                    {{/if}}
+                    <p>{{i18n "discourse_cosmetics_store.preview.sample_bio"}}</p>
+                  </div>
+                </div>
+              </article>
+
+              {{#if this.profileEffect}}
+                <CosmeticsStoreProfileEffectLayers
+                  @effect={{this.profileEffect}}
+                  @stackOrder="front"
+                />
+              {{/if}}
+            </div>
           </div>
 
           <div class="cstore-preview-studio__actions">

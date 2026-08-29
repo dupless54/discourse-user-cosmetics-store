@@ -52,10 +52,13 @@
   &__stage-panel {
     position: sticky;
     top: calc(var(--header-offset, 0px) + 1rem);
+    overflow: hidden;
     padding: 1rem;
   }
 
   &__stage-heading {
+    position: relative;
+    z-index: 2;
     margin-bottom: 1rem;
 
     h2 {
@@ -73,6 +76,16 @@
       text-align: end;
       font-size: var(--font-down-1);
     }
+  }
+
+  &__effect-canvas {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 19rem);
+    max-width: 100%;
+    margin-inline: auto;
+    padding-block: var(--cstore-preview-effect-pad-top, 0%)
+      var(--cstore-preview-effect-pad-bottom, 0%);
   }
 
   &__effect-wrap {
@@ -149,6 +162,8 @@
   }
 
   &__actions {
+    position: relative;
+    z-index: 2;
     margin-top: 1rem;
 
     .btn {
@@ -156,6 +171,13 @@
       justify-content: center;
     }
   }
+}
+
+// The canvas reserves the effect's declared vertical overflow. Keep the actual
+// 304:444 card at canvas width even though the final responsive stylesheet is
+// loaded after this feature stylesheet.
+.cstore-preview-studio__effect-canvas > .cstore-preview-studio__effect-wrap {
+  width: 100%;
 }
 
 .cstore-preview-slot {
@@ -355,12 +377,18 @@
 .cstore-preview-studio-nameplate {
   width: fit-content;
   max-width: 100%;
+  min-height: 2.15rem;
   padding: 0.3rem 0.65rem;
   border-radius: 0.55rem;
   color: white;
   font-size: var(--font-up-1);
   font-weight: 800;
+  line-height: 1.35;
   overflow-wrap: anywhere;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 95%),
+    0 0 4px rgb(0 0 0 / 90%),
+    0 0 8px rgb(0 0 0 / 80%);
 }
 
 @media (max-width: 850px) {
@@ -396,7 +424,7 @@
       text-align: start;
     }
 
-    &__effect-wrap {
+    &__effect-canvas {
       width: min(100%, 18rem);
     }
   }
