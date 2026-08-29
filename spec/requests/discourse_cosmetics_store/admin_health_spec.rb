@@ -32,12 +32,21 @@ RSpec.describe DiscourseCosmeticsStore::AdminController do
     expect(health.fetch("checks").map { |row| row.fetch("id") }).to include(
       "base_plugin",
       "integration",
+      "integration_contract",
       "preview_contract",
       "loadout_contract",
       "empty_products",
       "disabled_cosmetic_items",
       "invalid_availability",
       "payment_providers",
+    )
+
+    contract = health.fetch("checks").find { |row| row.fetch("id") == "integration_contract" }
+    expect(contract).to include(
+      "status" => "ok",
+      "value" => 1,
+      "mode" => "manifest",
+      "supported_versions" => [1],
     )
 
     serialized_health = health.to_json
