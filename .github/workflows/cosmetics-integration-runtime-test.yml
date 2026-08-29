@@ -17,6 +17,7 @@ on:
       - feature/cosmetics-integration-contract-consumer
       - integration/cosmetics-store-final-release-candidate
       - integration/merge-final-store-main
+      - integration/merge-final-store-main-v2
 
 permissions:
   contents: read
