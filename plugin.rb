@@ -27,6 +27,8 @@ module ::DiscourseCosmeticsStore
   PLUGIN_NAME = "discourse-user-cosmetics-store"
   VERSION = "1.3.1"
   BASE_PLUGIN_NAME = "discourse-user-cosmetics"
+  GIFT_NOTIFICATION_NAME = :cosmetics_store_gift
+  GIFT_NOTIFICATION_TYPE = 12_001
   BASE_PLUGIN_RUBY_FILES = %w[
     app/models/discourse_user_cosmetics/item.rb
     app/models/discourse_user_cosmetics/item_group.rb
@@ -44,6 +46,22 @@ module ::DiscourseCosmeticsStore
     app/models/discourse_user_cosmetics/loadout.rb
     lib/discourse_user_cosmetics/loadout_service.rb
   ].freeze
+
+  def self.install_notification_type!
+    existing_id = Notification.types[GIFT_NOTIFICATION_NAME]
+    existing_name = Notification.types[GIFT_NOTIFICATION_TYPE]
+
+    if (existing_id && existing_id != GIFT_NOTIFICATION_TYPE) ||
+         (existing_name && existing_name != GIFT_NOTIFICATION_NAME)
+      Rails.logger.error(
+        "[#{PLUGIN_NAME}] notification type collision for #{GIFT_NOTIFICATION_NAME}=#{GIFT_NOTIFICATION_TYPE}",
+      )
+      return false
+    end
+
+    Notification.types[GIFT_NOTIFICATION_NAME] = GIFT_NOTIFICATION_TYPE
+    true
+  end
 
   def self.base_plugin_ready?
     defined?(::DiscourseUserCosmetics::Item) &&
@@ -183,6 +201,7 @@ after_initialize do
   require_relative "lib/discourse_cosmetics_store/entitlement_provider"
   require_relative "lib/discourse_cosmetics_store/wallet_service"
   require_relative "lib/discourse_cosmetics_store/purchase_service"
+  require_relative "lib/discourse_cosmetics_store/gift_notification"
   require_relative "lib/discourse_cosmetics_store/gift_service"
   require_relative "lib/discourse_cosmetics_store/mission_progress"
   require_relative "lib/discourse_cosmetics_store/mission_claim_service"
@@ -203,6 +222,12 @@ after_initialize do
   require_relative "app/controllers/discourse_cosmetics_store/admin_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
+
+  unless DiscourseCosmeticsStore.install_notification_type!
+    Rails.logger.error(
+      "[#{DiscourseCosmeticsStore::PLUGIN_NAME}] gift notifications are disabled because the notification type could not be registered.",
+    )
+  end
 
   if DiscourseCosmeticsStore::AdminController.ancestors.exclude?(
        DiscourseCosmeticsStore::AdminAuditHooks
