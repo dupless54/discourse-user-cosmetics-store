@@ -12,7 +12,7 @@ class NotificationItemBase {
 }
 
 module("Unit | Initializer | cosmetics-store-gift-notifications", function () {
-  test("renders a Store gift as a native link to private history", function (assert) {
+  test("renders a Store gift as a native link to private activity", function (assert) {
     const Renderer = giftNotificationRenderer(NotificationItemBase);
     const renderer = new Renderer({
       notification: {
@@ -23,7 +23,7 @@ module("Unit | Initializer | cosmetics-store-gift-notifications", function () {
       },
     });
 
-    assert.strictEqual(renderer.linkHref, "/store/history");
+    assert.strictEqual(renderer.linkHref, "/store/activity");
     assert.strictEqual(renderer.icon, "gift");
     assert.strictEqual(renderer.label, "sender");
     assert.true(renderer.linkTitle.length > 0);
