@@ -4,6 +4,7 @@ const LABELS = {
   store_enabled: "Mağaza durumu",
   base_plugin: "User Cosmetics bağımlılığı",
   integration: "Resmî Integration API",
+  integration_contract: "Integration sözleşme sürümü",
   preview_contract: "Önizleme sözleşmesi",
   loadout_contract: "Kozmetik seti sözleşmesi",
   empty_products: "İçeriği boş etkin ürünler",
@@ -16,6 +17,7 @@ const DESCRIPTIONS = {
   store_enabled: "Mağaza site ayarının kullanılabilir durumda olduğunu doğrular.",
   base_plugin: "Store'un kozmetik sahipliği için bağlı olduğu Base plugin modellerini doğrular.",
   integration: "Sahiplik ve entitlement işlemlerinin public Integration API üzerinden kullanılabilir olduğunu doğrular.",
+  integration_contract: "Versioned capability manifestini doğrular; eski Base sürümleri legacy fallback ile çalışmaya devam eder.",
   preview_contract: "Canlı Önizleme için atomik seçim sözleşmesini doğrular.",
   loadout_contract: "Kozmetik setlerini kaydetme ve atomik uygulama sözleşmesini doğrular.",
   empty_products: "Yayında olup hiçbir kozmetik öğesine bağlı olmayan ürünleri sayar.",
@@ -54,6 +56,20 @@ export default class CosmeticsStoreHealthAdmin extends Component {
       return check.payments_enabled
         ? `${check.value} / ${check.total} yapılandırılmış`
         : `Ödemeler kapalı · ${check.value} / ${check.total} yapılandırılmış`;
+    }
+
+    if (check.id === "integration_contract") {
+      if (check.mode === "manifest") {
+        return `v${check.value} manifest`;
+      }
+      if (check.mode === "legacy") {
+        return "Legacy fallback";
+      }
+      if (check.mode === "missing") {
+        return "Base bulunamadı";
+      }
+
+      return check.value ? `Desteklenmeyen v${check.value}` : "Geçersiz manifest";
     }
 
     if (
