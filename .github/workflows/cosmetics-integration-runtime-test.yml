@@ -41,11 +41,11 @@ jobs:
           path: discourse
           fetch-depth: 1
 
-      - name: Checkout exact User Cosmetics contract candidate
+      - name: Checkout exact User Cosmetics final release candidate
         uses: actions/checkout@v6
         with:
           repository: dupless54/discourse-user-cosmetics
-          ref: 8c7f0a0b5ee2c66e5f3f0c6e317f1d69ec3cef33
+          ref: 67f95a60539e73a7c58fddec3f84c459cbfe2a61
           path: discourse/plugins/discourse-user-cosmetics
           fetch-depth: 1
 
@@ -92,7 +92,7 @@ jobs:
           abort "store loadouts capability unavailable" unless DiscourseCosmeticsStore::BaseContract.capability?(:loadouts);
           abort "store provider installation failed" unless DiscourseCosmeticsStore.install_cosmetics_integration!;
           abort "gift notification type unavailable" unless DiscourseCosmeticsStore.install_notification_type!;
-          puts "cosmetics Integration contract v1 and Store notification bridge OK"'
+          puts "cosmetics final Integration contract v1 and Store notification bridge OK"'
 
       - name: Run Store specs directly
         working-directory: discourse
