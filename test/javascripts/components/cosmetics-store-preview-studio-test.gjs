@@ -35,8 +35,14 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
         id: 2,
         kind: "nameplate",
         name: "Night plate",
-        gradient_from: "#111111",
-        gradient_to: "#333333",
+        image_url: "/images/night-plate.png",
+      },
+      {
+        id: 6,
+        kind: "nameplate",
+        name: "Purple gradient",
+        gradient_from: "#5b21b6",
+        gradient_to: "#2563eb",
       },
       {
         id: 3,
@@ -83,12 +89,49 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
     assert
       .dom(".cstore-preview-studio-avatar__frame")
       .hasAttribute("src", "/images/gold-frame.png");
-    assert.dom(".cstore-preview-studio-nameplate").includesText("Night plate");
+    assert.dom(".cstore-preview-studio-nameplate").includesText("eviltrout");
+    assert.dom(".cstore-preview-studio-nameplate").doesNotIncludeText("Night plate");
+    assert
+      .dom(".cstore-preview-studio-nameplate")
+      .hasAttribute(
+        "style",
+        /background-image:\s*url\(["']?\/images\/night-plate\.png["']?\)/
+      );
+    assert
+      .dom(".cstore-preview-studio__effect-canvas")
+      .hasAttribute(
+        "style",
+        /--cstore-preview-effect-pad-top:\s*8\.3333%.*--cstore-preview-effect-pad-bottom:\s*8\.3333%/
+      );
     assert
       .dom(".cstore-preview-studio-card__decoration")
       .hasAttribute("src", "/images/card-glow.png");
     assert.dom(".cstore-profile-effect-layers--back img").exists({ count: 1 });
     assert.dom(".cstore-profile-effect-layers--front img").exists({ count: 1 });
+  });
+
+  test("updates nameplate artwork immediately inside the preview", async function (assert) {
+    await render(
+      <template>
+        <CosmeticsStorePreviewStudio
+          @items={{this.items}}
+          @selections={{this.selections}}
+          @viewer={{this.viewer}}
+        />
+      </template>
+    );
+
+    await click("[data-slot-kind='nameplate'] [data-item-id='6']");
+
+    assert.dom("[data-slot-kind='nameplate'] [data-item-id='6']").hasClass("is-selected");
+    assert.dom(".cstore-preview-studio-nameplate").includesText("eviltrout");
+    assert
+      .dom(".cstore-preview-studio-nameplate")
+      .hasAttribute(
+        "style",
+        /linear-gradient\(90deg,\s*#5b21b6,\s*#2563eb\)/
+      );
+    assert.dom("[data-testid='apply-preview']").isEnabled();
   });
 
   test("keeps changes temporary and reset restores the server selection", async function (assert) {
