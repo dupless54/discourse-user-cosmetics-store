@@ -35,6 +35,14 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
         id: 2,
         kind: "nameplate",
         name: "Night plate",
+        image_url: "/images/night-plate.png",
+        gradient_from: "#111111",
+        gradient_to: "#333333",
+      },
+      {
+        id: 6,
+        kind: "nameplate",
+        name: "Gradient plate",
         gradient_from: "#111111",
         gradient_to: "#333333",
       },
@@ -83,12 +91,72 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
     assert
       .dom(".cstore-preview-studio-avatar__frame")
       .hasAttribute("src", "/images/gold-frame.png");
-    assert.dom(".cstore-preview-studio-nameplate").includesText("Night plate");
+    assert
+      .dom(".cstore-preview-studio-nameplate__image")
+      .hasAttribute("src", "/images/night-plate.png");
+    assert.dom(".cstore-preview-studio-nameplate__label").hasText("eviltrout");
     assert
       .dom(".cstore-preview-studio-card__decoration")
       .hasAttribute("src", "/images/card-glow.png");
     assert.dom(".cstore-profile-effect-layers--back img").exists({ count: 1 });
     assert.dom(".cstore-profile-effect-layers--front img").exists({ count: 1 });
+  });
+
+  test("reserves the profile effect overflow inside the preview stage", async function (assert) {
+    await render(
+      <template>
+        <CosmeticsStorePreviewStudio
+          @items={{this.items}}
+          @selections={{this.selections}}
+          @viewer={{this.viewer}}
+        />
+      </template>
+    );
+
+    const stage = document.querySelector("[data-testid='preview-effect-stage']");
+    const cardWidth = Number.parseFloat(
+      stage.style.getPropertyValue("--cstore-preview-card-width"),
+    );
+    const cardTop = Number.parseFloat(
+      stage.style.getPropertyValue("--cstore-preview-card-top"),
+    );
+    const cardLeft = Number.parseFloat(
+      stage.style.getPropertyValue("--cstore-preview-card-left"),
+    );
+
+    assert.ok(cardWidth < 100, "horizontal overflow reserves stage width");
+    assert.ok(cardTop > 0, "top overflow reserves stage height");
+    assert.ok(cardLeft > 0, "horizontal overflow offsets the card inside the stage");
+    assert
+      .dom(".cstore-preview-studio__effect-stage .cstore-preview-studio-card")
+      .exists("the user card stays inside the reserved effect stage");
+  });
+
+  test("uses an image nameplate first and keeps the gradient fallback", async function (assert) {
+    await render(
+      <template>
+        <CosmeticsStorePreviewStudio
+          @items={{this.items}}
+          @selections={{this.selections}}
+          @viewer={{this.viewer}}
+        />
+      </template>
+    );
+
+    assert.dom(".cstore-preview-studio-nameplate__image").exists();
+    assert.dom(".cstore-preview-studio-nameplate__label").hasText("eviltrout");
+
+    await click("[data-slot-kind='nameplate'] [data-item-id='6']");
+
+    assert.dom(".cstore-preview-studio-nameplate__image").doesNotExist();
+    assert.dom(".cstore-preview-studio-nameplate__label").hasText("eviltrout");
+    assert.true(
+      document
+        .querySelector(".cstore-preview-studio-nameplate")
+        .getAttribute("style")
+        .includes("linear-gradient(90deg,#111111,#333333)"),
+      "gradient-only nameplates keep their visual fallback",
+    );
   });
 
   test("keeps changes temporary and reset restores the server selection", async function (assert) {
