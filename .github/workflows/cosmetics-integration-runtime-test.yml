@@ -10,6 +10,7 @@ on:
       - feature/cosmetics-rarity-limited-seasonal
       - feature/cosmetics-admin-health-check
       - feature/cosmetics-admin-audit-log
+      - feature/cosmetics-integration-contract-consumer
 
 permissions:
   contents: read
@@ -36,11 +37,11 @@ jobs:
           path: discourse
           fetch-depth: 1
 
-      - name: Checkout exact User Cosmetics preview candidate
+      - name: Checkout exact User Cosmetics contract candidate
         uses: actions/checkout@v6
         with:
           repository: dupless54/discourse-user-cosmetics
-          ref: 8ba41ad7550c4f2001a7a125a3b5370b342f9b97
+          ref: 8c7f0a0b5ee2c66e5f3f0c6e317f1d69ec3cef33
           path: discourse/plugins/discourse-user-cosmetics
           fetch-depth: 1
 
@@ -70,17 +71,23 @@ jobs:
         working-directory: discourse
         run: bin/rake db:migrate
 
-      - name: Verify public integration contract is active
+      - name: Verify versioned public integration contract is active
         working-directory: discourse
         run: >-
           bin/rails runner '
           abort "base Integration API unavailable" unless defined?(DiscourseUserCosmetics::Integration);
-          abort "base loadout API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:loadouts_supported?) && DiscourseUserCosmetics::Integration.loadouts_supported?;
-          abort "base preview read API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:current_selections_for);
-          abort "base preview apply API unavailable" unless DiscourseUserCosmetics::Integration.respond_to?(:apply_selections!);
-          abort "store integration unavailable" unless DiscourseCosmeticsStore.base_integration_ready?;
+          abort "base contract version mismatch" unless DiscourseUserCosmetics::Integration.contract_version == 1;
+          %i[ownership entitlements grants selections loadouts showcase].each do |capability|
+            abort "base capability unavailable: #{capability}" unless DiscourseUserCosmetics::Integration.supports?(capability);
+          end;
+          abort "store BaseContract adapter unavailable" unless defined?(DiscourseCosmeticsStore::BaseContract);
+          abort "store is not using manifest mode" unless DiscourseCosmeticsStore::BaseContract.mode == :manifest;
+          abort "store contract version mismatch" unless DiscourseCosmeticsStore::BaseContract.version == 1;
+          abort "store core Integration unavailable" unless DiscourseCosmeticsStore::BaseContract.core_ready?;
+          abort "store selections capability unavailable" unless DiscourseCosmeticsStore::BaseContract.capability?(:selections);
+          abort "store loadouts capability unavailable" unless DiscourseCosmeticsStore::BaseContract.capability?(:loadouts);
           abort "store provider installation failed" unless DiscourseCosmeticsStore.install_cosmetics_integration!;
-          puts "cosmetics preview integration contract OK"'
+          puts "cosmetics Integration contract v1 OK"'
 
       - name: Run Store specs directly
         working-directory: discourse
