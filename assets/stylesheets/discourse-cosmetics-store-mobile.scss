@@ -1,20 +1,702 @@
-// Mobile-first storefront corrections.
-// Loaded after base/native/polish so these rules only resolve narrow-screen
-// layout conflicts without changing desktop behavior.
+// Final responsive storefront hardening.
+// Loaded after the base/native/polish and feature-specific styles so this layer
+// establishes one overflow-safe visual hierarchy across desktop and mobile.
+
+.cstore-shell {
+  --cstore-page-radius: 18px;
+  --cstore-card-radius: 14px;
+  --cstore-control-radius: 10px;
+  --cstore-page-gap: clamp(0.85rem, 1.8vw, 1.25rem);
+  --cstore-page-surface: color-mix(in srgb, var(--secondary) 96%, var(--primary));
+  --cstore-page-surface-soft: color-mix(in srgb, var(--primary) 4%, var(--secondary));
+  --cstore-page-surface-raised: color-mix(in srgb, var(--primary) 7%, var(--secondary));
+
+  min-width: 0;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  strong,
+  small,
+  label,
+  a,
+  button,
+  input,
+  select {
+    min-width: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  strong,
+  span {
+    overflow-wrap: anywhere;
+  }
+
+  input,
+  select,
+  textarea,
+  .btn {
+    max-width: 100%;
+  }
+}
+
+.cstore-featured,
+.cstore-orbs,
+.cstore-favorites-page,
+.cstore-collections-page,
+.cstore-browse,
+.cstore-loadouts,
+.cstore-preview-studio,
+.cstore-activity,
+.cstore-results,
+.cstore-filters {
+  min-width: 0;
+}
+
+// Page-level headings use a raised surface and clear copy/action hierarchy.
+.cstore-section__heading:has(h1),
+.cstore-loadouts__hero,
+.cstore-preview-studio__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem 1.25rem;
+  margin-bottom: var(--cstore-page-gap);
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--content-border-color));
+  border-radius: var(--cstore-page-radius);
+  background:
+    radial-gradient(
+      circle at 92% 8%,
+      color-mix(in srgb, var(--tertiary) 10%, transparent),
+      transparent 18rem
+    ),
+    linear-gradient(145deg, var(--secondary), var(--cstore-page-surface-soft));
+  box-shadow: var(--cstore-shadow-sm, 0 4px 14px rgb(0 0 0 / 8%));
+}
+
+.cstore-section__heading:has(h1) {
+  padding-bottom: clamp(1rem, 2.4vw, 1.5rem);
+  border-bottom: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--content-border-color));
+}
+
+.cstore-section__heading:has(h1) > div,
+.cstore-loadouts__hero > div,
+.cstore-preview-studio__hero > div {
+  min-width: 0;
+}
+
+.cstore-section__heading:has(h1) > div:first-child,
+.cstore-loadouts__hero > div:first-child,
+.cstore-preview-studio__hero > div:first-child {
+  max-width: 56rem;
+}
+
+.cstore-section__heading:has(h1) h1,
+.cstore-loadouts__hero h1,
+.cstore-preview-studio__hero h1 {
+  margin: 0.18rem 0 0;
+  color: var(--primary);
+  font-size: clamp(1.9rem, 3.4vw, 2.65rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.cstore-section__heading:has(h1) > div:first-child > span,
+.cstore-loadouts__hero p:not(.cstore-eyebrow),
+.cstore-preview-studio__hero p:not(.cstore-eyebrow) {
+  display: block;
+  max-width: 48rem;
+  margin-top: 0.55rem;
+  color: var(--primary-medium);
+  line-height: 1.55;
+}
+
+.cstore-section__heading:has(h1) > div:last-child,
+.cstore-loadouts__hero-actions,
+.cstore-preview-studio__hero-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.cstore-section__heading:has(h1) > div:last-child .btn,
+.cstore-loadouts__hero-actions .btn,
+.cstore-preview-studio__hero-actions .btn {
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--cstore-control-radius);
+}
+
+// Summary metrics keep equal visual weight without fixed widths.
+.cstore-wallet-stats,
+.cstore-activity__wallet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  gap: 0.75rem;
+  min-width: 0;
+  margin-bottom: var(--cstore-page-gap);
+}
+
+.cstore-wallet-stats > span,
+.cstore-activity__wallet > div {
+  display: grid;
+  min-width: 0;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: var(--cstore-card-radius);
+  background: linear-gradient(145deg, var(--secondary), var(--cstore-page-surface-soft));
+  box-shadow: 0 3px 12px rgb(0 0 0 / 6%);
+}
+
+.cstore-wallet-stats strong,
+.cstore-activity__wallet strong {
+  overflow: hidden;
+  color: var(--primary);
+  font-size: clamp(1.2rem, 2.4vw, 1.55rem);
+  line-height: 1.15;
+  text-overflow: ellipsis;
+}
+
+.cstore-wallet-stats small,
+.cstore-activity__wallet span {
+  color: var(--primary-medium);
+  line-height: 1.35;
+}
+
+// Filter/result bars remain usable when labels, translations or buttons grow.
+.cstore-results__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem 1rem;
+  min-width: 0;
+  margin-bottom: var(--cstore-page-gap);
+  padding: 0.8rem;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: var(--cstore-card-radius);
+  background: var(--cstore-page-surface-soft);
+}
+
+.cstore-results__bar > div {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cstore-results__bar label {
+  display: grid;
+  min-width: min(100%, 13rem);
+  gap: 0.3rem;
+  color: var(--primary-medium);
+  font-size: var(--font-down-1);
+}
+
+.cstore-results__bar select {
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  border-radius: var(--cstore-control-radius);
+  background: var(--secondary);
+}
+
+// Product and collection grids use intrinsic minimums instead of desktop-only widths.
+.cstore-grid,
+.cstore-grid--featured,
+.cstore-grid--wide,
+.cstore-collections-grid,
+.cstore-loadouts__grid {
+  min-width: 0;
+  gap: 1rem;
+}
+
+.cstore-grid,
+.cstore-grid--featured {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.cstore-grid--wide,
+.cstore-collections-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+.cstore-product,
+.cstore-collections-grid > button,
+.cstore-loadout-card,
+.cstore-mission,
+.cstore-ledger,
+.cstore-empty,
+.cstore-activity__event {
+  min-width: 0;
+  border-radius: var(--cstore-card-radius);
+}
+
+.cstore-product,
+.cstore-loadout-card,
+.cstore-collections-grid > button,
+.cstore-activity__event {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 7%);
+}
+
+.cstore-product__open {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cstore-product__open img {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cstore-product__info,
+.cstore-product__meta,
+.cstore-product__actions,
+.cstore-inventory-card__actions {
+  min-width: 0;
+}
+
+.cstore-product__info p,
+.cstore-product__info strong,
+.cstore-product__info small,
+.cstore-product__price {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+// Browse/filter layout mirrors Discourse settings pages and collapses cleanly.
+.cstore-browse {
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+  gap: clamp(1rem, 2.4vw, 1.75rem);
+}
+
+.cstore-filters {
+  position: sticky;
+  top: calc(var(--header-offset, 0px) + 1rem);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: var(--cstore-card-radius);
+}
+
+.cstore-filters input:not([type="checkbox"]),
+.cstore-filters select {
+  max-width: 100%;
+}
+
+// Loadouts use the same surface language and never allow long names to widen cards.
+.cstore-loadouts {
+  gap: var(--cstore-page-gap);
+}
+
+.cstore-loadouts__hero {
+  margin-bottom: 0;
+}
+
+.cstore-loadouts__create {
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.8fr);
+  gap: 1rem 1.5rem;
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.3rem);
+  border-radius: var(--cstore-page-radius);
+  background: var(--secondary);
+}
+
+.cstore-loadouts__create form,
+.cstore-loadout-card__header,
+.cstore-loadout-card__actions {
+  min-width: 0;
+}
+
+.cstore-loadouts__create input,
+.cstore-loadout-card__header input {
+  min-height: 42px;
+  border-radius: var(--cstore-control-radius);
+}
+
+.cstore-loadouts__grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+}
+
+.cstore-loadout-card {
+  overflow: hidden;
+  border-radius: var(--cstore-page-radius);
+}
+
+.cstore-loadout-card__header h2,
+.cstore-loadout-slot strong,
+.cstore-loadout-slot em {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cstore-loadout-slot {
+  min-width: 0;
+  border-radius: 12px;
+}
+
+.cstore-loadout-card__actions .btn {
+  min-width: 0;
+}
+
+// Activity timeline keeps amount and copy readable without pushing the viewport.
+.cstore-activity {
+  gap: var(--cstore-page-gap);
+}
+
+.cstore-activity__heading {
+  margin-bottom: 0;
+}
+
+.cstore-activity__stats,
+.cstore-activity__filters {
+  min-width: 0;
+}
+
+.cstore-activity__event {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  overflow: hidden;
+  padding: 0.95rem 1rem;
+}
+
+.cstore-activity__event-body,
+.cstore-activity__event-title,
+.cstore-activity__product,
+.cstore-activity__product > span {
+  min-width: 0;
+}
+
+.cstore-activity__amount {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Preview Studio: establish explicit back/decor/content/front layers.
+.cstore-preview-studio {
+  gap: var(--cstore-page-gap);
+  padding-block: 0 3rem;
+}
+
+.cstore-preview-studio__hero {
+  margin-bottom: 0;
+}
+
+.cstore-preview-studio__layout {
+  grid-template-columns: minmax(0, 1.25fr) minmax(19rem, 24rem);
+  gap: clamp(1rem, 2.3vw, 1.5rem);
+  min-width: 0;
+}
+
+.cstore-preview-studio__controls,
+.cstore-preview-studio__stage-panel {
+  min-width: 0;
+  border-radius: var(--cstore-page-radius);
+  box-shadow: 0 5px 20px rgb(0 0 0 / 7%);
+}
+
+.cstore-preview-studio__controls {
+  align-content: start;
+  gap: 0.85rem;
+  padding: clamp(0.8rem, 1.8vw, 1.15rem);
+  background: var(--cstore-page-surface-soft);
+}
+
+.cstore-preview-slot {
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: var(--cstore-card-radius);
+  background: var(--secondary);
+}
+
+.cstore-preview-slot legend {
+  width: auto;
+  max-width: 100%;
+  margin: 0 0 0.7rem;
+  padding: 0 0.25rem;
+  color: var(--primary);
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+
+.cstore-preview-slot__options {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.cstore-preview-choice {
+  min-width: 0;
+  min-height: 62px;
+  padding: 0.6rem;
+  border-radius: 11px;
+  background: var(--cstore-page-surface-soft);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.cstore-preview-choice:hover,
+.cstore-preview-choice:focus-visible {
+  border-color: var(--cstore-accent-border, var(--tertiary-low));
+  background: var(--cstore-page-surface-raised);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 7%);
+  transform: translateY(-1px);
+  outline: 0;
+}
+
+.cstore-preview-choice.is-selected {
+  border-color: var(--tertiary);
+  background: color-mix(in srgb, var(--tertiary) 12%, var(--secondary));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tertiary) 13%, transparent);
+}
+
+.cstore-preview-choice > span:last-child,
+.cstore-preview-choice strong,
+.cstore-preview-choice small {
+  max-width: 100%;
+}
+
+.cstore-preview-studio__stage-panel {
+  overflow: hidden;
+  padding: clamp(0.9rem, 2vw, 1.2rem);
+  border-color: color-mix(in srgb, var(--tertiary) 24%, var(--content-border-color));
+  background:
+    radial-gradient(
+      circle at 50% 12%,
+      color-mix(in srgb, var(--tertiary) 12%, transparent),
+      transparent 15rem
+    ),
+    linear-gradient(180deg, var(--cstore-page-surface-soft), var(--secondary));
+}
+
+.cstore-preview-studio__stage-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 11rem);
+  align-items: start;
+  gap: 0.75rem;
+  min-width: 0;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--content-border-color, var(--primary-low));
+}
+
+.cstore-preview-studio__stage-heading h2 {
+  font-size: clamp(1.2rem, 2.3vw, 1.5rem);
+  line-height: 1.15;
+}
+
+.cstore-preview-studio__stage-heading span {
+  max-width: none;
+  line-height: 1.4;
+}
+
+.cstore-preview-studio__effect-wrap {
+  width: min(100%, 19rem);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.cstore-preview-studio__effect-wrap > .cstore-profile-effect-layers--back {
+  z-index: 0;
+}
+
+.cstore-preview-studio__effect-wrap > .cstore-profile-effect-layers--front {
+  z-index: 4;
+}
+
+.cstore-preview-studio-card {
+  // Keep the card itself out of a stacking context so its body can sit above
+  // front cosmetic effects while decorations remain behind the copy.
+  z-index: auto;
+  min-width: 0;
+  border-radius: 18px;
+  background: var(--secondary);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 18%);
+}
+
+.cstore-preview-studio-card__decoration,
+.cstore-preview-studio-card__decoration-gradient {
+  z-index: 1;
+}
+
+.cstore-preview-studio-card__decoration-gradient {
+  opacity: 0.14;
+}
+
+.cstore-preview-studio-card__cover {
+  position: relative;
+  z-index: 0;
+  height: clamp(6.5rem, 10vw, 7.5rem);
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      color-mix(in srgb, var(--tertiary) 38%, transparent),
+      transparent 52%
+    ),
+    linear-gradient(135deg, var(--primary-very-low), var(--tertiary-very-low));
+}
+
+.cstore-preview-studio-card__body {
+  position: relative;
+  z-index: 5;
+  min-width: 0;
+  padding: 0 1rem 1rem;
+}
+
+.cstore-preview-studio-avatar {
+  z-index: 6;
+}
+
+.cstore-preview-studio-card__identity {
+  position: relative;
+  z-index: 6;
+  min-width: 0;
+  margin-top: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 8%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--secondary) 91%, transparent);
+  box-shadow: 0 7px 20px rgb(0 0 0 / 8%);
+  backdrop-filter: blur(8px);
+}
+
+.cstore-preview-studio-card__identity > strong,
+.cstore-preview-studio-card__identity > span,
+.cstore-preview-studio-card__identity p,
+.cstore-preview-studio-nameplate {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.cstore-preview-studio-nameplate {
+  width: fit-content;
+  line-height: 1.25;
+}
+
+.cstore-preview-studio__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.cstore-preview-studio__actions .btn {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  justify-content: center;
+  border-radius: var(--cstore-control-radius);
+}
+
+@media (width <= 1000px) {
+  .cstore-preview-studio__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 21rem);
+  }
+}
 
 @media (width <= 800px) {
   .cosmetics-store-route #main-outlet {
     min-width: 0;
     overflow-x: clip;
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    padding-left: max(0.5rem, env(safe-area-inset-left));
   }
 
   .cstore-shell {
     min-width: 0;
   }
 
+  .cstore-section__heading:has(h1),
+  .cstore-loadouts__hero,
+  .cstore-preview-studio__hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .cstore-section__heading:has(h1) > div:last-child,
+  .cstore-loadouts__hero-actions,
+  .cstore-preview-studio__hero-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .cstore-section__heading:has(h1) > div:last-child .btn,
+  .cstore-loadouts__hero-actions .btn,
+  .cstore-preview-studio__hero-actions .btn {
+    flex: 1 1 10rem;
+  }
+
+  .cstore-results__bar {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .cstore-results__bar label {
+    width: 100%;
+  }
+
+  .cstore-browse {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-filters {
+    position: static;
+  }
+
+  .cstore-loadouts__create {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-loadouts__limit {
+    grid-column: 1;
+  }
+
+  .cstore-preview-studio__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-studio__stage-panel {
+    position: static;
+    order: -1;
+    width: 100%;
+  }
+
+  .cstore-preview-studio__effect-wrap {
+    width: min(100%, 18.5rem);
+  }
+
   // Keep the mobile store chrome compact: brand + balance on the first row,
-  // section tabs on the second row. The search field stays hidden by the
-  // existing native mobile rules.
+  // section tabs on the second row. The search field stays hidden.
   .cstore-nav {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -114,8 +796,6 @@
     display: none;
   }
 
-  // Product previews follow the available card width instead of a
-  // desktop-derived fixed height.
   .cstore-product__open {
     height: auto;
     min-height: 0;
@@ -207,9 +887,6 @@
     text-align: center;
   }
 
-  // Fit the complete user-card preview, including effect overflow, to both the
-  // available width and viewport height. This keeps landscape phones and small
-  // Android webviews from producing clipped previews.
   .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(
       304px,
@@ -230,6 +907,110 @@
   }
 }
 
+@media (width <= 600px) {
+  .cstore-section__heading:has(h1),
+  .cstore-loadouts__hero,
+  .cstore-preview-studio__hero {
+    padding: 1rem;
+    border-radius: 15px;
+  }
+
+  .cstore-section__heading:has(h1) h1,
+  .cstore-loadouts__hero h1,
+  .cstore-preview-studio__hero h1 {
+    font-size: clamp(1.75rem, 8vw, 2.2rem);
+  }
+
+  .cstore-wallet-stats,
+  .cstore-activity__wallet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .cstore-wallet-stats > span,
+  .cstore-activity__wallet > div {
+    padding: 0.75rem;
+  }
+
+  .cstore-results__bar {
+    padding: 0.7rem;
+  }
+
+  .cstore-results__bar > div .btn {
+    flex: 1 1 9rem;
+    justify-content: center;
+  }
+
+  .cstore-loadouts__create {
+    padding: 1rem;
+  }
+
+  .cstore-loadouts__create form {
+    flex-direction: column;
+  }
+
+  .cstore-loadouts__create form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cstore-loadout-card__slots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-loadout-card__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-loadout-card__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cstore-activity__heading > div:last-child {
+    width: 100%;
+  }
+
+  .cstore-activity__heading > div:last-child .btn {
+    flex: 1 1 9rem;
+    justify-content: center;
+  }
+
+  .cstore-activity__event {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    padding: 0.8rem;
+  }
+
+  .cstore-activity__amount {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .cstore-preview-studio__stage-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-studio__stage-heading span {
+    text-align: start;
+  }
+
+  .cstore-preview-slot__options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-choice {
+    align-items: center;
+    flex-direction: row;
+    min-height: 58px;
+  }
+
+  .cstore-preview-studio__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (width <= 520px) {
   .cstore-nav {
     border-radius: 12px;
@@ -241,20 +1022,28 @@
   }
 
   .cstore-section {
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
   }
 
-  // Keep the section title and its action on one compact row when possible.
-  .cstore-featured .cstore-section__heading {
+  .cstore-section__heading:has(h1) > div:last-child,
+  .cstore-loadouts__hero-actions,
+  .cstore-preview-studio__hero-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 0.65rem;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .cstore-featured .cstore-section__heading > button {
-    align-self: end;
-    white-space: nowrap;
+  .cstore-section__heading:has(h1) > div:last-child .btn,
+  .cstore-loadouts__hero-actions .btn,
+  .cstore-preview-studio__hero-actions .btn {
+    width: 100%;
+  }
+
+  .cstore-grid,
+  .cstore-grid--featured,
+  .cstore-grid--wide,
+  .cstore-collections-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
   }
 
   .cstore-hero {
@@ -275,12 +1064,6 @@
     justify-content: center;
   }
 
-  .cstore-grid,
-  .cstore-grid--featured,
-  .cstore-grid--wide {
-    gap: 0.75rem;
-  }
-
   .cstore-product__open {
     aspect-ratio: 16 / 9;
   }
@@ -292,6 +1075,27 @@
   .cstore-product__info {
     min-height: 104px;
     padding: 0.75rem;
+  }
+
+  .cstore-preview-studio {
+    padding-block-end: 2rem;
+  }
+
+  .cstore-preview-studio__controls,
+  .cstore-preview-studio__stage-panel {
+    border-radius: 15px;
+  }
+
+  .cstore-preview-studio__effect-wrap {
+    width: min(100%, 17.25rem);
+  }
+
+  .cstore-preview-studio-card__body {
+    padding-inline: 0.8rem;
+  }
+
+  .cstore-preview-studio-card__identity {
+    padding: 0.7rem;
   }
 
   .cstore-dialog__details h2 {
@@ -312,6 +1116,18 @@
       ),
       44dvh
     );
+  }
+}
+
+@media (width <= 390px) {
+  .cstore-wallet-stats,
+  .cstore-activity__wallet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-activity__filters .btn {
+    flex: 1 1 calc(50% - 0.25rem);
+    justify-content: center;
   }
 }
 
