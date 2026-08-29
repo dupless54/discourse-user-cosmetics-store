@@ -6,6 +6,7 @@ on:
       - refactor/use-cosmetics-integration-api-v2
       - feature/cosmetics-inventory-collections
       - feature/cosmetics-loadouts-ui
+      - integration/merge-loadouts-mobile-main
 
 permissions:
   contents: read
@@ -32,11 +33,11 @@ jobs:
           path: discourse
           fetch-depth: 1
 
-      - name: Checkout exact User Cosmetics loadout candidate
+      - name: Checkout exact final User Cosmetics main
         uses: actions/checkout@v6
         with:
           repository: dupless54/discourse-user-cosmetics
-          ref: 7e15ca7176e81194c714f50390152b4892f7669c
+          ref: 8c41e4cf072282e5e554a21e815fd1d1567c5a28
           path: discourse/plugins/discourse-user-cosmetics
           fetch-depth: 1
 
