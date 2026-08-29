@@ -30,12 +30,26 @@ module ::DiscourseCosmeticsStore
     app/models/discourse_user_cosmetics/effect_layer.rb
     lib/discourse_user_cosmetics/presenter.rb
   ].freeze
+  BASE_PLUGIN_INTEGRATION_RUBY_FILES = %w[
+    lib/discourse_user_cosmetics/entitlement_resolver.rb
+    lib/discourse_user_cosmetics/selection_service.rb
+    lib/discourse_user_cosmetics/integration.rb
+  ].freeze
 
   def self.base_plugin_ready?
     defined?(::DiscourseUserCosmetics::Item) &&
+      defined?(::DiscourseUserCosmetics::ItemGroup) &&
       defined?(::DiscourseUserCosmetics::UserItem) &&
       defined?(::DiscourseUserCosmetics::UserSelection) &&
       defined?(::DiscourseUserCosmetics::Presenter)
+  end
+
+  def self.base_integration_ready?
+    defined?(::DiscourseUserCosmetics::Integration) &&
+      ::DiscourseUserCosmetics::Integration.respond_to?(:register_entitlement_provider) &&
+      ::DiscourseUserCosmetics::Integration.respond_to?(:owned_item_ids) &&
+      ::DiscourseUserCosmetics::Integration.respond_to?(:entitled_item_ids) &&
+      ::DiscourseUserCosmetics::Integration.respond_to?(:grant!)
   end
 
   def self.base_plugin_root
@@ -52,21 +66,24 @@ module ::DiscourseCosmeticsStore
   # companion plugin can be initialized before the base plugin's own
   # `after_initialize` callback has required its models. Load only the public
   # model/presenter files we integrate with so rebuilds do not depend on plugin
-  # callback order.
+  # callback order. The newer Integration contract is optional here so a Store
+  # update remains compatible with an older base plugin during rolling deploys.
   def self.load_base_plugin!
-    return true if base_plugin_ready?
     return false unless defined?(::DiscourseUserCosmetics)
 
     root = base_plugin_root
     return false unless File.directory?(root)
 
-    BASE_PLUGIN_RUBY_FILES.each do |relative_path|
-      absolute_path = File.join(root, relative_path)
-      return false unless File.file?(absolute_path)
+    unless base_plugin_ready?
+      BASE_PLUGIN_RUBY_FILES.each do |relative_path|
+        absolute_path = File.join(root, relative_path)
+        return false unless File.file?(absolute_path)
 
-      require absolute_path
+        require absolute_path
+      end
     end
 
+    load_base_integration_if_available!(root)
     base_plugin_ready?
   rescue StandardError, LoadError => error
     Rails.logger.error(
@@ -76,12 +93,38 @@ module ::DiscourseCosmeticsStore
     false
   end
 
+  def self.load_base_integration_if_available!(root = base_plugin_root)
+    return true if base_integration_ready?
+
+    BASE_PLUGIN_INTEGRATION_RUBY_FILES.each do |relative_path|
+      absolute_path = File.join(root, relative_path)
+      return false unless File.file?(absolute_path)
+
+      require absolute_path
+    end
+
+    base_integration_ready?
+  end
+
   def self.install_item_access_extension!
     return false unless load_base_plugin!
     return true if ::DiscourseUserCosmetics::Item < ItemAccessExtension
 
     ::DiscourseUserCosmetics::Item.prepend(ItemAccessExtension)
     true
+  end
+
+  def self.install_cosmetics_integration!
+    return false unless load_base_plugin!
+
+    if base_integration_ready?
+      ::DiscourseUserCosmetics::Integration.register_entitlement_provider(PLUGIN_NAME) do |**kwargs|
+        EntitlementProvider.call(**kwargs)
+      end
+      true
+    else
+      install_item_access_extension!
+    end
   end
 end
 
@@ -117,6 +160,7 @@ after_initialize do
   require_relative "app/models/discourse_cosmetics_store/payment_event"
   require_relative "lib/discourse_cosmetics_store/catalog"
   require_relative "lib/discourse_cosmetics_store/item_access_extension"
+  require_relative "lib/discourse_cosmetics_store/entitlement_provider"
   require_relative "lib/discourse_cosmetics_store/wallet_service"
   require_relative "lib/discourse_cosmetics_store/purchase_service"
   require_relative "lib/discourse_cosmetics_store/gift_service"
@@ -134,18 +178,17 @@ after_initialize do
   require_relative "app/controllers/discourse_cosmetics_store/payments_controller"
   require_relative "app/controllers/discourse_cosmetics_store/payment_callbacks_controller"
 
-  unless DiscourseCosmeticsStore.install_item_access_extension!
+  unless DiscourseCosmeticsStore.install_cosmetics_integration!
     Rails.logger.error(
       "[#{DiscourseCosmeticsStore::PLUGIN_NAME}] #{DiscourseCosmeticsStore::BASE_PLUGIN_NAME} " \
         "is missing or could not be loaded. The store will stay unavailable until the dependency is fixed.",
     )
   end
 
-  # Try once more after Rails finishes preparing application classes. This is
-  # idempotent and covers installations where plugin callbacks are evaluated in
-  # a non-alphabetical order.
+  # Try once more after Rails finishes preparing application classes. Both the
+  # public provider registration and the legacy prepend fallback are idempotent.
   Rails.application.reloader.to_prepare do
-    DiscourseCosmeticsStore.install_item_access_extension!
+    DiscourseCosmeticsStore.install_cosmetics_integration!
   end
 
   add_admin_route(
