@@ -35,6 +35,12 @@ RSpec.describe DiscourseCosmeticsStore::HealthCheck do
     expect(result[:status]).to eq("healthy")
     expect(check(result, "base_plugin")[:status]).to eq("ok")
     expect(check(result, "integration")[:status]).to eq("ok")
+    expect(check(result, "integration_contract")).to include(
+      status: "ok",
+      value: 1,
+      mode: "manifest",
+      supported_versions: [1],
+    )
     expect(check(result, "preview_contract")[:status]).to eq("ok")
     expect(check(result, "loadout_contract")[:status]).to eq("ok")
     expect(check(result, "empty_products")[:value]).to eq(0)

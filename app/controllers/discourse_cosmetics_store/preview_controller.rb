@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../../lib/discourse_cosmetics_store/base_contract"
+
 module ::DiscourseCosmeticsStore
   class PreviewController < ::ApplicationController
     requires_plugin DiscourseCosmeticsStore::PLUGIN_NAME
@@ -57,11 +59,7 @@ module ::DiscourseCosmeticsStore
     end
 
     def ensure_preview_supported
-      available =
-        DiscourseCosmeticsStore.load_base_plugin! &&
-          DiscourseCosmeticsStore.base_integration_ready? &&
-          integration.respond_to?(:current_selections_for) &&
-          integration.respond_to?(:apply_selections!)
+      available = BaseContract.core_ready? && BaseContract.capability?(:selections)
       raise Discourse::NotFound unless available
     end
 

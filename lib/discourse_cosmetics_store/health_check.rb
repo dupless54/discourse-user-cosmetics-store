@@ -1,17 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "base_contract"
+
 module ::DiscourseCosmeticsStore
   class HealthCheck
-    REQUIRED_PREVIEW_METHODS = %i[current_selections_for apply_selections!].freeze
-    REQUIRED_LOADOUT_METHODS = %i[
-      loadouts_supported?
-      loadouts_for
-      create_loadout!
-      rename_loadout!
-      delete_loadout!
-      apply_loadout!
-    ].freeze
-
     def self.call
       new.call
     end
@@ -21,6 +13,7 @@ module ::DiscourseCosmeticsStore
         store_enabled_check,
         base_plugin_check,
         integration_check,
+        integration_contract_check,
         preview_contract_check,
         loadout_contract_check,
         catalog_empty_products_check,
@@ -44,25 +37,46 @@ module ::DiscourseCosmeticsStore
     end
 
     def base_plugin_check
-      ready = DiscourseCosmeticsStore.load_base_plugin! && DiscourseCosmeticsStore.base_plugin_ready?
+      ready = base_ready?
       check("base_plugin", ready ? "ok" : "critical", ready ? 1 : 0)
     end
 
     def integration_check
-      ready = base_ready? && DiscourseCosmeticsStore.base_integration_ready?
+      ready = integration_ready?
       check("integration", ready ? "ok" : "critical", ready ? 1 : 0)
     end
 
+    def integration_contract_check
+      return check("integration_contract", "critical", 0, mode: "missing") unless base_ready?
+
+      diagnostics = BaseContract.diagnostics
+      mode = diagnostics[:mode]
+      status =
+        case mode
+        when :manifest
+          "ok"
+        when :legacy
+          "warning"
+        else
+          "critical"
+        end
+
+      check(
+        "integration_contract",
+        status,
+        diagnostics[:version] || 0,
+        mode: mode.to_s,
+        supported_versions: diagnostics[:supported_versions],
+      )
+    end
+
     def preview_contract_check
-      ready = integration_ready? && REQUIRED_PREVIEW_METHODS.all? { |method| integration.respond_to?(method) }
+      ready = integration_ready? && BaseContract.capability?(:selections)
       check("preview_contract", ready ? "ok" : "warning", ready ? 1 : 0)
     end
 
     def loadout_contract_check
-      ready =
-        integration_ready? &&
-          REQUIRED_LOADOUT_METHODS.all? { |method| integration.respond_to?(method) } &&
-          integration.loadouts_supported?
+      ready = integration_ready? && BaseContract.capability?(:loadouts)
       check("loadout_contract", ready ? "ok" : "warning", ready ? 1 : 0)
     rescue StandardError
       check("loadout_contract", "warning", 0)
@@ -118,15 +132,12 @@ module ::DiscourseCosmeticsStore
     end
 
     def base_ready?
-      @base_ready ||= DiscourseCosmeticsStore.base_plugin_ready?
+      @base_ready ||=
+        DiscourseCosmeticsStore.load_base_plugin! && DiscourseCosmeticsStore.base_plugin_ready?
     end
 
     def integration_ready?
-      @integration_ready ||= base_ready? && DiscourseCosmeticsStore.base_integration_ready?
-    end
-
-    def integration
-      ::DiscourseUserCosmetics::Integration
+      @integration_ready ||= base_ready? && BaseContract.core_ready?
     end
 
     def overall_status(checks)
