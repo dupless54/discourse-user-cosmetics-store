@@ -12,12 +12,32 @@ export default {
       return;
     }
 
-    withPluginApi("1.1.0", (api) => {
+    withPluginApi((api) => {
       api.addAdminPluginConfigurationNav(PLUGIN_ID, [
         {
-          label: "discourse_cosmetics_store.admin.catalog",
+          label: "discourse_cosmetics_store.admin.overview",
           route: "adminPlugins.show.cosmetics-store-catalog",
-          description: "discourse_cosmetics_store.admin.catalog_description",
+          description: "discourse_cosmetics_store.admin.overview_description",
+        },
+        {
+          label: "discourse_cosmetics_store.admin.products",
+          route: "adminPlugins.show.cosmetics-store-products",
+          description: "discourse_cosmetics_store.admin.products_description",
+        },
+        {
+          label: "discourse_cosmetics_store.admin.missions",
+          route: "adminPlugins.show.cosmetics-store-missions",
+          description: "discourse_cosmetics_store.admin.missions_description",
+        },
+        {
+          label: "discourse_cosmetics_store.admin.payments",
+          route: "adminPlugins.show.cosmetics-store-payments",
+          description: "discourse_cosmetics_store.admin.payments_description",
+        },
+        {
+          label: "discourse_cosmetics_store.admin.wallets",
+          route: "adminPlugins.show.cosmetics-store-wallets",
+          description: "discourse_cosmetics_store.admin.wallets_description",
         },
       ]);
       api.registerPluginHeaderActionComponent(
