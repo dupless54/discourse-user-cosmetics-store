@@ -78,6 +78,7 @@ export default class CosmeticsStoreDialog extends Component {
       @subtitle={{@product.description}}
       @closeModal={{@onClose}}
       @bodyClass="cstore-dialog__body"
+      @inline={{@inline}}
       class="cstore-dialog --max"
     >
       <:body>
