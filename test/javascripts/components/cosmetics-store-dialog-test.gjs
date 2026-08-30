@@ -65,7 +65,11 @@ module("Component | cosmetics store dialog", function (hooks) {
     assert.dom(".d-modal__title-text").hasText("Ölülerin Efendisi (Mavi)");
     assert.dom(".cstore-dialog__backdrop").doesNotExist();
     assert.dom(".cstore-dialog__close").doesNotExist();
-    assert.dom(".cstore-dialog__purchase").exists();
+    assert.dom(".cstore-dialog__purchase").includesText("Price");
+    assert.dom(".cstore-gift-toggle").hasText("Gift");
+    assert
+      .dom(".cstore-dialog__live .cstore-eyebrow")
+      .hasText("HOW IT LOOKS ON YOUR PROFILE");
 
     await click(".cstore-buy");
 
@@ -94,6 +98,7 @@ module("Component | cosmetics store dialog", function (hooks) {
 
     assert.dom(".cstore-gift-formkit").exists();
     assert.dom(".cstore-gift-formkit input").exists();
+    assert.dom(".cstore-gift-formkit").includesText("Gift recipient");
 
     await fillIn(".cstore-gift-formkit input", "  @gift-user  ");
     await click(".cstore-gift-formkit .btn-primary");
