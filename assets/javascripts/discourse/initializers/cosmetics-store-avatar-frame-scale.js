@@ -12,7 +12,7 @@ export function cosmeticsStoreAvatarFrameScale(overhangPercent) {
   return 1 + (safeOverhang * 2) / 100;
 }
 
-export default apiInitializer("1.8.0", (api) => {
+export default apiInitializer((api) => {
   const siteSettings = api.container.lookup("service:site-settings");
   const scale = cosmeticsStoreAvatarFrameScale(
     siteSettings?.discourse_user_cosmetics_frame_overhang_percent
