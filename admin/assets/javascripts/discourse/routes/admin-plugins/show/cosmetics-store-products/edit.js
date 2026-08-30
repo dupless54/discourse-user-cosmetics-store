@@ -7,10 +7,14 @@ export default class CosmeticsStoreProductsEditRoute extends DiscourseRoute {
   model(params) {
     const catalog = this.modelFor(PARENT_ROUTE);
     const id = Number.parseInt(params.id, 10);
-    return {
-      catalog,
-      product: catalog.products.find((product) => product.id === id),
-    };
+    const product = catalog.products.find((item) => item.id === id);
+
+    if (!product) {
+      this.replaceWith(PARENT_ROUTE);
+      return;
+    }
+
+    return { catalog, product };
   }
 
   titleToken() {
