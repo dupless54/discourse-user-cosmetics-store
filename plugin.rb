@@ -19,6 +19,7 @@ register_asset "stylesheets/discourse-cosmetics-store-accessibility.scss"
 register_asset "stylesheets/discourse-cosmetics-store-wardrobe.scss"
 register_asset "stylesheets/discourse-cosmetics-store-activity.scss"
 register_asset "stylesheets/discourse-cosmetics-store-mobile.scss"
+register_asset "stylesheets/discourse-cosmetics-store-responsive-native.scss"
 register_asset "stylesheets/discourse-cosmetics-store-navigation.scss"
 register_asset "stylesheets/discourse-cosmetics-store-dialog-responsive.scss"
 
