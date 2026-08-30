@@ -1,4 +1,5 @@
 import RouteTemplate from "ember-route-template";
+import DButton from "discourse/ui-kit/d-button";
 import DPageSubheader from "discourse/ui-kit/d-page-subheader";
 import { i18n } from "discourse-i18n";
 import CosmeticsStoreAuditAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-audit-admin";
@@ -13,14 +14,14 @@ export default RouteTemplate(
       >
         <:actions as |actions|>
           <actions.Wrapped>
-            <a
-              class="btn btn-default d-page-action-button"
-              href="/store"
+            <DButton
+              class="btn-default d-page-action-button"
+              @href="/store"
+              @icon="up-right-from-square"
+              @label="discourse_cosmetics_store.admin.open_store"
               target="_blank"
               rel="noopener noreferrer"
-            >
-              {{i18n "discourse_cosmetics_store.admin.open_store"}}
-            </a>
+            />
           </actions.Wrapped>
         </:actions>
       </DPageSubheader>

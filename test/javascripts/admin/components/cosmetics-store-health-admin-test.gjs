@@ -2,11 +2,12 @@ import { render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import CosmeticsStoreHealthAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-health-admin";
+import { i18n } from "discourse-i18n";
 
 module("Component | CosmeticsStoreHealthAdmin", function (hooks) {
   setupRenderingTest(hooks);
 
-  test("renders overall state and individual diagnostic values", async function (assert) {
+  test("renders localized native diagnostics and server-derived values", async function (assert) {
     this.health = {
       status: "warning",
       checked_at: "2026-08-29T00:00:00Z",
@@ -35,11 +36,45 @@ module("Component | CosmeticsStoreHealthAdmin", function (hooks) {
     );
 
     assert.dom(".cstore-health").hasClass("cstore-health--warning");
-    assert.dom(".cstore-health__overall").hasText("Kontrol gerekli");
-    assert.dom(".cstore-health").includesText("Resmî Integration API");
-    assert.dom(".cstore-health").includesText("Integration sözleşme sürümü");
-    assert.dom(".cstore-health").includesText("v1 manifest");
-    assert.dom(".cstore-health").includesText("İçeriği boş etkin ürünler");
-    assert.dom(".cstore-health").includesText("1 / 6 yapılandırılmış");
+    assert
+      .dom(".cstore-health__overall")
+      .hasText(i18n("discourse_cosmetics_store.admin.health.overall.warning"));
+    assert.dom("table.d-table.cstore-health__table").exists();
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 4 });
+    assert.dom(".d-table__mobile-label").exists();
+    assert
+      .dom(".cstore-health")
+      .includesText(
+        i18n("discourse_cosmetics_store.admin.health.checks.integration.label")
+      );
+    assert
+      .dom(".cstore-health")
+      .includesText(
+        i18n(
+          "discourse_cosmetics_store.admin.health.checks.integration_contract.label"
+        )
+      );
+    assert
+      .dom(".cstore-health")
+      .includesText(
+        i18n("discourse_cosmetics_store.admin.health.values.manifest", {
+          version: 1,
+        })
+      );
+    assert
+      .dom(".cstore-health")
+      .includesText(
+        i18n(
+          "discourse_cosmetics_store.admin.health.checks.empty_products.label"
+        )
+      );
+    assert
+      .dom(".cstore-health")
+      .includesText(
+        i18n("discourse_cosmetics_store.admin.health.values.providers_ready", {
+          count: 1,
+          total: 6,
+        })
+      );
   });
 });
