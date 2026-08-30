@@ -65,12 +65,10 @@
 }
 
 .cstore-shell .cstore-user-card-preview__avatar-frame {
-  top: 6px;
-  left: 6px;
   width: 80px;
   height: 80px;
   max-width: none;
-  inset: auto;
+  inset: 6px auto auto 6px;
   object-fit: contain;
   transform: scale(var(--cstore-avatar-frame-scale, 1.28));
   transform-origin: center;
@@ -233,9 +231,7 @@
   .cstore-shell .cstore-nav nav button {
     max-width: 100%;
   }
-}
 
-@media (max-width: 520px) {
   .cstore-inventory-card__actions {
     padding: 0.65rem 0.75rem 0.75rem;
   }
