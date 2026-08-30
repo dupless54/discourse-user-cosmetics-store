@@ -1,0 +1,15 @@
+tr_TR:
+  js:
+    discourse_cosmetics_store:
+      admin:
+        overview: "Genel bakış"
+        overview_description: "Mağaza entegrasyonunun durumunu ve son yönetici etkinliklerini inceleyin."
+        products: "Ürünler"
+        products_description: "Mağazada gösterilen kozmetik ürünleri ve paketleri yönetin."
+        missions: "Görevler"
+        missions_description: "Discourse kullanıcı etkinliğiyle doğrulanan Orb görevlerini yönetin."
+        payments: "Ödemeler"
+        payments_description: "Orb paketlerini, sağlayıcı durumunu, ödemeleri ve iade mutabakatını yönetin."
+        wallets: "Cüzdanlar"
+        wallets_description: "Kullanıcı cüzdanlarını inceleyin ve denetlenebilir manuel bakiye işlemleri yapın."
+        open_store: "Mağazayı aç"
