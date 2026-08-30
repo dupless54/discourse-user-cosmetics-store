@@ -53,7 +53,6 @@
   .cstore-gift-form {
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
   }
 
   .cstore-gift-form > div {
@@ -75,6 +74,11 @@
     width: 100%;
     min-height: 42px;
     margin: 0;
+  }
+
+  .cstore-gift-form > small {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .cstore-dialog__live .cstore-user-card-preview-host,
@@ -168,14 +172,6 @@
     max-height: none;
     border-radius: 14px;
     scroll-padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-
-  .cstore-dialog .cstore-dialog__close {
-    position: sticky;
-    z-index: 30;
-    top: 0.55rem;
-    float: right;
-    margin: 0.55rem 0.55rem -2.9rem 0;
   }
 
   .cstore-dialog .cstore-dialog__details,
