@@ -13,7 +13,10 @@ export default {
       this.route("new");
       this.route("edit", { path: "/:id/edit" });
     });
-    this.route("cosmetics-store-payments", { path: "payments" });
+    this.route("cosmetics-store-payments", { path: "payments" }, function () {
+      this.route("new", { path: "/packages/new" });
+      this.route("edit", { path: "/packages/:id/edit" });
+    });
     this.route("cosmetics-store-wallets", { path: "wallets" });
   },
 };

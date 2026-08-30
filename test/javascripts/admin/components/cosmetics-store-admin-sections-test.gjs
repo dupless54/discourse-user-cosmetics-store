@@ -2,6 +2,7 @@ import { render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import CosmeticsStoreMissionsAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-missions-admin";
+import CosmeticsStorePaymentsAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-payments-admin";
 import CosmeticsStoreProductsAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-products-admin";
 import CosmeticsStoreWalletsAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-wallets-admin";
 
@@ -105,5 +106,63 @@ module("Component | Store admin sections", function (hooks) {
     assert.dom('input[name="username"]').exists();
     assert.dom(".cstore-wallet-search").doesNotExist();
     assert.dom(".cstore-wallet-card").doesNotExist();
+  });
+
+  test("payments use native empty states instead of inline editors", async function (assert) {
+    await render(
+      <template><CosmeticsStorePaymentsAdmin @model={{this.model}} /></template>
+    );
+
+    assert.dom(".cstore-admin-payments").exists();
+    assert.dom(".admin-config-area-empty-list").exists({ count: 2 });
+    assert.dom("table.d-table").doesNotExist();
+    assert.dom(".cstore-admin-form").doesNotExist();
+    assert.dom("form.cstore-refund-form").doesNotExist();
+  });
+
+  test("payments and Orb packages render in native responsive tables", async function (assert) {
+    this.model.orb_packages = [
+      {
+        id: 4,
+        name: "Starter Orbs",
+        orb_amount: 100,
+        price: "49.90",
+        currency: "TRY",
+        providers: ["shopier"],
+        enabled: true,
+        payment_count: 2,
+      },
+    ];
+    this.model.payments = [
+      {
+        token: "payment-1",
+        username: "alice",
+        package_name: "Starter Orbs",
+        provider: "shopier",
+        amount: "49.90",
+        currency: "TRY",
+        refunded_amount_minor: 0,
+        refunded_amount: "0.00",
+        orb_amount: 100,
+        refunded_orb_amount: 0,
+        status: "completed",
+        failure_message: null,
+        refunds: [],
+        refundable: true,
+      },
+    ];
+
+    await render(
+      <template><CosmeticsStorePaymentsAdmin @model={{this.model}} /></template>
+    );
+
+    assert.dom("table.d-table.cstore-admin-orb-packages-table").exists();
+    assert.dom("table.d-table.cstore-admin-payments-table").exists();
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 2 });
+    assert.dom(".d-table__mobile-label").exists();
+    assert
+      .dom(".cstore-admin-payments-table .d-table__cell-actions")
+      .doesNotExist();
+    assert.dom(".cstore-admin-payments-table .btn-default").exists();
   });
 });
