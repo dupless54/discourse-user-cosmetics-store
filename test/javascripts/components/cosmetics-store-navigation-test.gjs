@@ -46,12 +46,18 @@ module("Component | cosmetics store navigation", function (hooks) {
     await render(<template><CosmeticsStore @model={{this.storeModel}} /></template>);
 
     assert.dom(".cstore-nav").exists();
+    assert.dom(".cstore-nav__brand").includesText("Cosmetics Store");
+    assert.dom(".cstore-nav nav").hasAttribute("aria-label", "Store sections");
+    assert.dom(".cstore-nav__tools input").hasAttribute("placeholder", "Search the store");
     assert.dom(".cstore-balance").includesText("3744");
+    assert.dom(".cstore-nav__browse-menu > button").includesText("Browse");
     assert.dom(".cstore-nav__browse-menu").doesNotHaveClass("is-open");
 
     await click(".cstore-nav__browse-menu > button");
 
     assert.dom(".cstore-nav__browse-menu").hasClass("is-open");
+    assert.dom(".cstore-nav__dropdown").includesText("Avatar frames");
+    assert.dom(".cstore-nav__dropdown").includesText("Collections");
 
     await click(".cstore-nav__browse-menu > button");
 
