@@ -12,6 +12,7 @@ module("Component | CosmeticsStoreAdminSupportBanner", function (hooks) {
       currentRouteName = "adminPlugins.show.settings";
     }
 
+    this.owner.unregister("service:router");
     this.owner.register("service:router", RouterStub);
 
     await render(
@@ -27,7 +28,9 @@ module("Component | CosmeticsStoreAdminSupportBanner", function (hooks) {
         "src",
         "https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
       );
-    assert.dom(".cstore-admin-support-banner img").hasAttribute("alt", "Buy Me a Coffee");
+    assert
+      .dom(".cstore-admin-support-banner img")
+      .hasAttribute("alt", "Buy Me a Coffee");
   });
 
   test("does not show the banner on the custom catalog tab", async function (assert) {
@@ -35,6 +38,7 @@ module("Component | CosmeticsStoreAdminSupportBanner", function (hooks) {
       currentRouteName = "adminPlugins.show.cosmetics-store-catalog";
     }
 
+    this.owner.unregister("service:router");
     this.owner.register("service:router", RouterStub);
 
     await render(
