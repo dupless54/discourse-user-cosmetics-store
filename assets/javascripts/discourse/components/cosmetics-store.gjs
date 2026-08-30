@@ -59,6 +59,7 @@ export default class CosmeticsStore extends Component {
   @tracked onlyAffordable = false;
   @tracked onlyOwned = false;
   @tracked browseMenuOpen = false;
+  @tracked filtersOpen = false;
 
   get settings() {
     return this.args.model?.settings ?? {};
@@ -238,6 +239,19 @@ export default class CosmeticsStore extends Component {
     return rows;
   }
 
+  get activeFilterCount() {
+    return [
+      this.search.trim(),
+      this.effectiveSelectedKind,
+      this.selectedRarity,
+      this.selectedAvailability,
+      this.selectedTag,
+      this.effectiveProductType,
+      this.onlyAffordable,
+      this.onlyOwned,
+    ].filter(Boolean).length;
+  }
+
   productsFor(ids = []) {
     const wanted = new Map(this.products.map((product) => [product.id, product]));
     return (ids || []).map((id) => wanted.get(id)).filter(Boolean);
@@ -272,6 +286,7 @@ export default class CosmeticsStore extends Component {
   navigateTo(tab, value) {
     this.notice = null;
     this.browseMenuOpen = false;
+    this.filtersOpen = false;
     const routeValue = typeof value === "string" ? value.trim() : "";
     const routes = {
       featured: "cosmetics-store",
@@ -298,6 +313,11 @@ export default class CosmeticsStore extends Component {
   @action
   closeBrowseMenu() {
     this.browseMenuOpen = false;
+  }
+
+  @action
+  toggleFilters() {
+    this.filtersOpen = !this.filtersOpen;
   }
 
   @action
@@ -493,6 +513,7 @@ export default class CosmeticsStore extends Component {
     this.sortBy = "popular";
     this.onlyAffordable = false;
     this.onlyOwned = false;
+    this.filtersOpen = false;
     if (this.args.model?.route_filter) {
       this.navigateTo("browse");
     }
@@ -599,17 +620,33 @@ export default class CosmeticsStore extends Component {
         </main>
       {{else if (eq this.activeTab "browse")}}
         <main class="cstore-browse">
-          <aside class="cstore-filters">
-            <div><p class="cstore-eyebrow">KATALOG</p><h2>Detaylı filtreler</h2></div>
-            <label>Arama<input value={{this.search}} {{on "input" this.updateSearch}} placeholder="Ürün, etiket veya tür" /></label>
-            <label>Ürün türü<select value={{this.effectiveProductType}} {{on "change" this.updateProductType}}><option value="">Tümü</option><option value="item">Tekli kozmetik</option><option value="bundle">Paket</option></select></label>
-            <label>Kozmetik türü<select value={{this.effectiveSelectedKind}} {{on "change" this.updateKind}}><option value="">Tümü</option>{{#each this.filters.kinds as |kind|}}<option value={{kind.value}}>{{kind.label}} ({{kind.count}})</option>{{/each}}</select></label>
-            <label>Nadirlik<select value={{this.selectedRarity}} {{on "change" this.updateRarity}}><option value="">Tümü</option>{{#each this.filters.rarities as |rarity|}}<option value={{rarity.value}}>{{rarity.label}} ({{rarity.count}})</option>{{/each}}</select></label>
-            <label>Satış durumu<select value={{this.selectedAvailability}} {{on "change" this.updateAvailability}}><option value="">Tümü</option>{{#each this.filters.availability as |availability|}}<option value={{availability.value}}>{{availability.label}} ({{availability.count}})</option>{{/each}}</select></label>
-            <label>Etiket<select value={{this.selectedTag}} {{on "change" this.updateTag}}><option value="">Tümü</option>{{#each this.filters.tags as |tag|}}<option value={{tag.value}}>#{{tag.label}} ({{tag.count}})</option>{{/each}}</select></label>
-            <label class="cstore-check"><input type="checkbox" checked={{this.onlyAffordable}} {{on "change" this.toggleAffordable}} /><span>Sadece bakiyeme uygun</span></label>
-            <label class="cstore-check"><input type="checkbox" checked={{this.onlyOwned}} {{on "change" this.toggleOwned}} /><span>Sadece koleksiyonum</span></label>
-            <button class="cstore-filter-reset" type="button" {{on "click" this.resetFilters}}>Filtreleri temizle</button>
+          <aside class="cstore-filters {{if this.filtersOpen 'is-open'}}">
+            <button
+              class="cstore-filter-toggle"
+              type="button"
+              data-testid="browse-filter-toggle"
+              aria-expanded={{this.filtersOpen}}
+              aria-controls="cstore-browse-filter-body"
+              {{on "click" this.toggleFilters}}
+            >
+              <span>
+                <strong>Filtreler</strong>
+                {{#if this.activeFilterCount}}<small>{{this.activeFilterCount}} etkin</small>{{/if}}
+              </span>
+              <span class="cstore-filter-toggle__chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div id="cstore-browse-filter-body" class="cstore-filters__body">
+              <div><p class="cstore-eyebrow">KATALOG</p><h2>Detaylı filtreler</h2></div>
+              <label>Arama<input value={{this.search}} {{on "input" this.updateSearch}} placeholder="Ürün, etiket veya tür" /></label>
+              <label>Ürün türü<select value={{this.effectiveProductType}} {{on "change" this.updateProductType}}><option value="">Tümü</option><option value="item">Tekli kozmetik</option><option value="bundle">Paket</option></select></label>
+              <label>Kozmetik türü<select value={{this.effectiveSelectedKind}} {{on "change" this.updateKind}}><option value="">Tümü</option>{{#each this.filters.kinds as |kind|}}<option value={{kind.value}}>{{kind.label}} ({{kind.count}})</option>{{/each}}</select></label>
+              <label>Nadirlik<select value={{this.selectedRarity}} {{on "change" this.updateRarity}}><option value="">Tümü</option>{{#each this.filters.rarities as |rarity|}}<option value={{rarity.value}}>{{rarity.label}} ({{rarity.count}})</option>{{/each}}</select></label>
+              <label>Satış durumu<select value={{this.selectedAvailability}} {{on "change" this.updateAvailability}}><option value="">Tümü</option>{{#each this.filters.availability as |availability|}}<option value={{availability.value}}>{{availability.label}} ({{availability.count}})</option>{{/each}}</select></label>
+              <label>Etiket<select value={{this.selectedTag}} {{on "change" this.updateTag}}><option value="">Tümü</option>{{#each this.filters.tags as |tag|}}<option value={{tag.value}}>#{{tag.label}} ({{tag.count}})</option>{{/each}}</select></label>
+              <label class="cstore-check"><input type="checkbox" checked={{this.onlyAffordable}} {{on "change" this.toggleAffordable}} /><span>Sadece bakiyeme uygun</span></label>
+              <label class="cstore-check"><input type="checkbox" checked={{this.onlyOwned}} {{on "change" this.toggleOwned}} /><span>Sadece koleksiyonum</span></label>
+              <button class="cstore-filter-reset" type="button" {{on "click" this.resetFilters}}>Filtreleri temizle</button>
+            </div>
           </aside>
           <section class="cstore-results">
             <div class="cstore-results__bar"><div><p class="cstore-eyebrow">GÖZ AT</p><h1>Tüm kozmetikler</h1><span>{{this.browseProducts.length}} sonuç</span></div><label>Sırala<select value={{this.sortBy}} {{on "change" this.updateSort}}><option value="popular">En popüler</option><option value="newest">En yeni</option><option value="price-low">Fiyat: düşükten yükseğe</option><option value="price-high">Fiyat: yüksekten düşüğe</option><option value="name">Ada göre</option></select></label></div>
