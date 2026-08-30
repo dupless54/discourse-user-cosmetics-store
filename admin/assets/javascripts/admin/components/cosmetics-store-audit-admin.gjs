@@ -124,7 +124,6 @@ export default class CosmeticsStoreAuditAdmin extends Component {
         @noResultsMessage={{i18n
           "discourse_cosmetics_store.admin.audit.empty"
         }}
-        as |filters|
       >
         <:content as |rows|>
           {{#if rows.length}}
