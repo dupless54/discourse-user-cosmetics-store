@@ -1,0 +1,22 @@
+en:
+  js:
+    discourse_cosmetics_store:
+      dialog:
+        bundle_eyebrow: "COSMETIC BUNDLE"
+        cosmetic_eyebrow: "FEATURED COSMETIC"
+        price: "Price"
+        balance: "Your balance"
+        owned: "In your collection"
+        processing: "Processing…"
+        upcoming: "Not on sale yet"
+        insufficient_orbs: "Not enough Orbs"
+        purchase: "Buy with Orbs"
+        upcoming_short: "Coming soon"
+        login_to_purchase: "Sign in to purchase"
+        gift: "Gift"
+        gift_recipient_title: "Gift recipient"
+        gift_help: "Price, availability, and recipient ownership are revalidated on the server. The gift is blocked if the recipient already owns an item from the bundle."
+        gift_placeholder: "@username"
+        sending: "Sending…"
+        send_gift: "Send gift"
+        preview_eyebrow: "HOW IT LOOKS ON YOUR PROFILE"

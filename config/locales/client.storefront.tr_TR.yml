@@ -1,0 +1,22 @@
+tr_TR:
+  js:
+    discourse_cosmetics_store:
+      dialog:
+        bundle_eyebrow: "KOZMETİK PAKETİ"
+        cosmetic_eyebrow: "ÖZEL KOZMETİK"
+        price: "Fiyat"
+        balance: "Bakiyen"
+        owned: "Koleksiyonunda"
+        processing: "İşleniyor…"
+        upcoming: "Henüz satışta değil"
+        insufficient_orbs: "Yetersiz Orbs"
+        purchase: "Orbs ile satın al"
+        upcoming_short: "Yakında satışta"
+        login_to_purchase: "Satın almak için giriş yap"
+        gift: "Hediye et"
+        gift_recipient_title: "Hediye edilecek kullanıcı"
+        gift_help: "Fiyat, satış zamanı ve alıcının sahiplik durumu sunucuda yeniden doğrulanır. Alıcı paketteki öğelerden birine sahipse işlem yapılmaz."
+        gift_placeholder: "@kullanıcı-adı"
+        sending: "Gönderiliyor…"
+        send_gift: "Hediyeyi gönder"
+        preview_eyebrow: "PROFİLİNDE BÖYLE GÖRÜNÜR"
