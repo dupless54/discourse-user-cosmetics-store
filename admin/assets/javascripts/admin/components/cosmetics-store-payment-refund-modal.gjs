@@ -83,6 +83,7 @@ export default class CosmeticsStorePaymentRefundModal extends Component {
       @subtitle={{this.subtitle}}
       @dismissable={{if this.busy false true}}
       @submitOnEnter={{false}}
+      @inline={{@inline}}
     >
       <:body>
         <div class="cstore-refund-form__warning">
@@ -165,7 +166,6 @@ export default class CosmeticsStorePaymentRefundModal extends Component {
           class="btn-danger"
           @action={{this.submitForm}}
           @disabled={{this.busy}}
-          @icon="rotate"
           @label="discourse_cosmetics_store.admin.refund.submit"
         />
         {{#unless this.busy}}
