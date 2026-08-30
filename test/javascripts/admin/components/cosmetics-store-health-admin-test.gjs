@@ -36,6 +36,9 @@ module("Component | CosmeticsStoreHealthAdmin", function (hooks) {
 
     assert.dom(".cstore-health").hasClass("cstore-health--warning");
     assert.dom(".cstore-health__overall").hasText("Kontrol gerekli");
+    assert.dom("table.d-table.cstore-health__table").exists();
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 4 });
+    assert.dom(".d-table__mobile-label").exists();
     assert.dom(".cstore-health").includesText("Resmî Integration API");
     assert.dom(".cstore-health").includesText("Integration sözleşme sürümü");
     assert.dom(".cstore-health").includesText("v1 manifest");
