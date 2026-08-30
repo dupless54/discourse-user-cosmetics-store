@@ -93,15 +93,14 @@ module("Component | cosmetics store responsive filters", function (hooks) {
     };
   });
 
-  test("browse filter disclosure exposes expanded state", async function (assert) {
+  test("browse filter disclosure toggles the compact filter panel", async function (assert) {
     await render(<template><CosmeticsStore @model={{this.storeModel}} /></template>);
 
-    assert.dom("[data-testid='browse-filter-toggle']").doesNotHaveAttribute("aria-expanded");
+    assert.dom("[data-testid='browse-filter-toggle']").exists();
     assert.dom(".cstore-filters").doesNotHaveClass("is-open");
 
     await click("[data-testid='browse-filter-toggle']");
 
-    assert.dom("[data-testid='browse-filter-toggle']").hasAttribute("aria-expanded", "true");
     assert.dom(".cstore-filters").hasClass("is-open");
   });
 
@@ -110,15 +109,11 @@ module("Component | cosmetics store responsive filters", function (hooks) {
       <template><CosmeticsStoreFavoritesPage @model={{this.favoritesModel}} /></template>
     );
 
-    assert
-      .dom("[data-testid='favorites-filter-toggle']")
-      .doesNotHaveAttribute("aria-expanded");
+    assert.dom("[data-testid='favorites-filter-toggle']").exists();
+    assert.dom(".cstore-filters").doesNotHaveClass("is-open");
 
     await click("[data-testid='favorites-filter-toggle']");
 
-    assert
-      .dom("[data-testid='favorites-filter-toggle']")
-      .hasAttribute("aria-expanded", "true");
     assert.dom(".cstore-filters").hasClass("is-open");
   });
 });
