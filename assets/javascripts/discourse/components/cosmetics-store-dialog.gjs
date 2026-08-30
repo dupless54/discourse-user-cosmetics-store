@@ -1,17 +1,20 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { action } from "@ember/object";
 import { fn } from "@ember/helper";
+import { action } from "@ember/object";
 import Form from "discourse/components/form";
 import { eq } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
+import { i18n } from "discourse-i18n";
 import {
   availabilityBadge,
   availabilityDetail,
 } from "../lib/cosmetics-store-availability";
 import CosmeticsStoreUserCardPreview from "./cosmetics-store-user-card-preview";
+
+const I18N_PREFIX = "discourse_cosmetics_store.dialog";
 
 export default class CosmeticsStoreDialog extends Component {
   @tracked giftMode = this.args.startGift ?? false;
@@ -38,17 +41,71 @@ export default class CosmeticsStoreDialog extends Component {
     return this.args.giftBusy || !this.args.product?.giftable;
   }
 
+  get productEyebrow() {
+    return i18n(
+      `${I18N_PREFIX}.${
+        this.args.product?.product_type === "bundle"
+          ? "bundle_eyebrow"
+          : "cosmetic_eyebrow"
+      }`
+    );
+  }
+
+  get priceLabel() {
+    return i18n(`${I18N_PREFIX}.price`);
+  }
+
+  get balanceLabel() {
+    return i18n(`${I18N_PREFIX}.balance`);
+  }
+
+  get ownedLabel() {
+    return i18n(`${I18N_PREFIX}.owned`);
+  }
+
+  get upcomingLabel() {
+    return i18n(`${I18N_PREFIX}.upcoming_short`);
+  }
+
+  get loginToPurchaseLabel() {
+    return i18n(`${I18N_PREFIX}.login_to_purchase`);
+  }
+
+  get giftLabel() {
+    return i18n(`${I18N_PREFIX}.gift`);
+  }
+
+  get giftRecipientTitle() {
+    return i18n(`${I18N_PREFIX}.gift_recipient_title`);
+  }
+
+  get giftHelpText() {
+    return i18n(`${I18N_PREFIX}.gift_help`);
+  }
+
+  get giftPlaceholder() {
+    return i18n(`${I18N_PREFIX}.gift_placeholder`);
+  }
+
+  get giftSubmitLabel() {
+    return i18n(`${I18N_PREFIX}.${this.args.giftBusy ? "sending" : "send_gift"}`);
+  }
+
+  get previewEyebrow() {
+    return i18n(`${I18N_PREFIX}.preview_eyebrow`);
+  }
+
   get purchaseLabel() {
     if (this.args.busy) {
-      return "İşleniyor…";
+      return i18n(`${I18N_PREFIX}.processing`);
     }
     if (this.args.product?.sale_state === "upcoming") {
-      return "Henüz satışta değil";
+      return i18n(`${I18N_PREFIX}.upcoming`);
     }
     if (!this.canAfford) {
-      return "Yetersiz Orbs";
+      return i18n(`${I18N_PREFIX}.insufficient_orbs`);
     }
-    return "Orbs ile satın al";
+    return i18n(`${I18N_PREFIX}.purchase`);
   }
 
   @action
@@ -84,13 +141,7 @@ export default class CosmeticsStoreDialog extends Component {
       <:body>
         <div class="cstore-dialog__window">
           <aside class="cstore-dialog__details">
-            <p class="cstore-eyebrow">
-              {{if
-                (eq @product.product_type "bundle")
-                "KOZMETİK PAKETİ"
-                "ÖZEL KOZMETİK"
-              }}
-            </p>
+            <p class="cstore-eyebrow">{{this.productEyebrow}}</p>
 
             <div class="cstore-dialog__badges">
               {{#if @product.rarity_label}}
@@ -128,18 +179,18 @@ export default class CosmeticsStoreDialog extends Component {
 
             <div class="cstore-dialog__purchase">
               <div>
-                <small>Fiyat</small>
+                <small>{{this.priceLabel}}</small>
                 <strong>{{@settings.currency_symbol}} {{@product.price}}</strong>
               </div>
               <div>
-                <small>Bakiyen</small>
+                <small>{{this.balanceLabel}}</small>
                 <strong>{{@settings.currency_symbol}} {{@balance}}</strong>
               </div>
 
               {{#if @product.owned}}
                 <span class="cstore-owned-label">
                   {{dIcon "check"}}
-                  Koleksiyonunda
+                  {{this.ownedLabel}}
                 </span>
               {{else if @viewer.logged_in}}
                 <DButton
@@ -152,12 +203,12 @@ export default class CosmeticsStoreDialog extends Component {
               {{else if (eq @product.sale_state "upcoming")}}
                 <span class="cstore-owned-label">
                   {{dIcon "clock"}}
-                  Yakında satışta
+                  {{this.upcomingLabel}}
                 </span>
               {{else}}
                 <a class="cstore-buy btn btn-primary" href="/login?return_path=%2Fstore">
                   {{dIcon "right-to-bracket"}}
-                  Satın almak için giriş yap
+                  {{this.loginToPurchaseLabel}}
                 </a>
               {{/if}}
 
@@ -166,7 +217,7 @@ export default class CosmeticsStoreDialog extends Component {
                   @action={{this.toggleGift}}
                   @disabled={{this.giftDisabled}}
                   @icon="gift"
-                  @translatedLabel="Hediye et"
+                  @translatedLabel={{this.giftLabel}}
                   class="cstore-gift-toggle"
                 />
               {{/if}}
@@ -182,24 +233,24 @@ export default class CosmeticsStoreDialog extends Component {
                 >
                   <form.Field
                     @name="recipient"
-                    @title="Hediye edilecek kullanıcı"
+                    @title={{this.giftRecipientTitle}}
                     @type="input"
                     @validation="required:trim"
                     @disabled={{this.giftDisabled}}
-                    @helpText="Fiyat, satış zamanı ve alıcının sahiplik durumu sunucuda yeniden doğrulanır. Alıcı paketteki öğelerden birine sahipse işlem yapılmaz."
+                    @helpText={{this.giftHelpText}}
                     as |field|
                   >
                     <field.Control
                       autocomplete="off"
                       maxlength="60"
-                      placeholder="@kullanıcı-adı"
+                      placeholder={{this.giftPlaceholder}}
                     />
                   </form.Field>
 
                   <form.Actions>
                     <form.Submit
                       @disabled={{this.giftDisabled}}
-                      @translatedLabel={{if @giftBusy "Gönderiliyor…" "Hediyeyi gönder"}}
+                      @translatedLabel={{this.giftSubmitLabel}}
                       class="btn-primary"
                     />
                   </form.Actions>
@@ -209,7 +260,7 @@ export default class CosmeticsStoreDialog extends Component {
           </aside>
 
           <main class="cstore-dialog__live">
-            <p class="cstore-eyebrow">PROFİLİNDE BÖYLE GÖRÜNÜR</p>
+            <p class="cstore-eyebrow">{{this.previewEyebrow}}</p>
             <CosmeticsStoreUserCardPreview
               @product={{@product}}
               @user={{@viewer.preview_user}}
