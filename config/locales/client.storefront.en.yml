@@ -31,5 +31,7 @@ en:
         editor_pick: "EDITOR'S PICK"
         bundle: "Bundle"
         cosmetic: "Cosmetic"
-        item_count: "%{count} items"
+        item_count:
+          one: "%{count} item"
+          other: "%{count} items"
         owned: "In your collection"
