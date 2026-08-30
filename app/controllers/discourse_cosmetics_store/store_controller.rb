@@ -213,7 +213,10 @@ module ::DiscourseCosmeticsStore
     rescue MissionClaimService::AlreadyClaimed
       render_error(I18n.t("discourse_cosmetics_store.errors.mission_claimed"), :unprocessable_entity)
     rescue WalletService::BalanceLimitExceeded
-      render_error("Cüzdanın en yüksek bakiye sınırına ulaştı.", :unprocessable_entity)
+      render_error(
+        I18n.t("discourse_cosmetics_store.errors.balance_limit_exceeded"),
+        :unprocessable_entity,
+      )
     end
 
     private
@@ -346,12 +349,7 @@ module ::DiscourseCosmeticsStore
     end
 
     def kind_label(kind)
-      {
-        "avatar_frame" => "Avatar çerçevesi",
-        "nameplate" => "İsim plakası",
-        "card_decoration" => "Kart dekorasyonu",
-        "profile_effect" => "Profil efekti",
-      }.fetch(kind, kind)
+      I18n.t("discourse_cosmetics_store.cosmetic_kinds.#{kind}", default: kind)
     end
 
     def serialize_missions
@@ -452,8 +450,8 @@ module ::DiscourseCosmeticsStore
 
     def serialize_preview_user
       return {
-               name: "Topluluk üyesi",
-               username: "kullanici",
+               name: I18n.t("discourse_cosmetics_store.preview_user.name"),
+               username: I18n.t("discourse_cosmetics_store.preview_user.username"),
                avatar_url: nil,
                card_background_url: nil,
                profile_background_url: nil,
@@ -492,11 +490,16 @@ module ::DiscourseCosmeticsStore
             .tally
             .map { |label, count| { value: label, label: label, count: count } },
         availability:
-          [
-            { value: "limited", label: "Sınırlı süre", count: availability_counts["limited"] },
-            { value: "seasonal", label: "Sezonluk", count: availability_counts["seasonal"] },
-            { value: "upcoming", label: "Yakında", count: availability_counts["upcoming"] },
-          ].select { |row| row[:count].positive? },
+          %w[limited seasonal upcoming].filter_map do |value|
+            count = availability_counts[value]
+            next unless count.positive?
+
+            {
+              value: value,
+              label: I18n.t("discourse_cosmetics_store.availability_labels.#{value}"),
+              count: count,
+            }
+          end,
         tags:
           products
             .flat_map { |product| product[:tags] }

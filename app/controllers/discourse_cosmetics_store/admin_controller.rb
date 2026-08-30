@@ -180,10 +180,9 @@ module ::DiscourseCosmeticsStore
         product.product_type == "bundle" ? cosmetic_item_ids.length >= expected_count : cosmetic_item_ids.length == expected_count
 
       unless valid_count
+        error_key = product.product_type == "bundle" ? "bundle_min_items" : "item_exactly_one"
         return render_error(
-          product.product_type == "bundle" ?
-            "Bir paket en az iki kozmetik içermelidir." :
-            "Tekli ürün tam olarak bir kozmetik içermelidir.",
+          I18n.t("discourse_cosmetics_store.errors.#{error_key}"),
           :unprocessable_entity,
         )
       end
@@ -191,7 +190,7 @@ module ::DiscourseCosmeticsStore
       valid_ids = DiscourseUserCosmetics::Item.enabled.where(id: cosmetic_item_ids).pluck(:id)
       unless valid_ids.length == cosmetic_item_ids.length
         return render_error(
-          "Seçilen kozmetiklerden biri bulunamadı veya etkin değil.",
+          I18n.t("discourse_cosmetics_store.errors.cosmetic_item_unavailable"),
           :unprocessable_entity,
         )
       end
@@ -455,15 +454,7 @@ module ::DiscourseCosmeticsStore
     end
 
     def metric_label(metric)
-      {
-        "posts_created" => "Oluşturulan gönderi",
-        "topics_created" => "Oluşturulan konu",
-        "likes_received" => "Alınan beğeni",
-        "days_visited" => "Ziyaret edilen gün",
-        "trust_level" => "Güven seviyesi",
-        "badges_earned" => "Kazanılan rozet",
-        "account_age_days" => "Hesap yaşı (gün)",
-      }.fetch(metric, metric)
+      I18n.t("discourse_cosmetics_store.mission_metrics.#{metric}", default: metric)
     end
 
     def decimal_to_minor(value)
@@ -478,7 +469,8 @@ module ::DiscourseCosmeticsStore
 
       amount
     rescue ArgumentError, TypeError
-      raise PaymentRefundService::Invalid, "Geçerli bir iade tutarı girin"
+      raise PaymentRefundService::Invalid,
+            I18n.t("discourse_cosmetics_store.errors.invalid_refund_amount")
     end
 
     def find_user!(username)
