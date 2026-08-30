@@ -127,7 +127,7 @@ export default class CosmeticsStoreAuditAdmin extends Component {
       >
         <:content as |rows|>
           {{#if rows.length}}
-            <div class="cstore-admin-table-wrap cstore-audit__list">
+            <div class="cstore-admin-table-wrap">
               <table class="d-table cstore-admin-table cstore-audit__table">
                 <thead class="d-table__header">
                   <tr class="d-table__row">
@@ -140,7 +140,7 @@ export default class CosmeticsStoreAuditAdmin extends Component {
                 </thead>
                 <tbody class="d-table__body">
                   {{#each rows as |row|}}
-                    <tr class="d-table__row cstore-audit__entry">
+                    <tr class="d-table__row">
                       <td class="d-table__cell --overview">
                         <strong>{{row.actionLabel}}</strong>
                       </td>
@@ -161,14 +161,14 @@ export default class CosmeticsStoreAuditAdmin extends Component {
                           {{i18n "discourse_cosmetics_store.admin.audit.columns.details"}}
                         </div>
                         {{#if row.detailRows.length}}
-                          <dl class="cstore-audit__details">
+                          <div class="cstore-audit-table__details">
                             {{#each row.detailRows as |detail|}}
                               <div>
-                                <dt>{{detail.label}}</dt>
-                                <dd>{{detail.value}}</dd>
+                                <strong>{{detail.label}}:</strong>
+                                {{detail.value}}
                               </div>
                             {{/each}}
-                          </dl>
+                          </div>
                         {{else}}
                           —
                         {{/if}}
