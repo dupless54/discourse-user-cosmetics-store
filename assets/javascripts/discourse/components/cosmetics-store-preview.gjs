@@ -1,10 +1,12 @@
 import Component from "@glimmer/component";
 import { htmlSafe } from "@ember/template";
 import { eq } from "discourse/truth-helpers";
+import { i18n } from "discourse-i18n";
 import { prefersReducedMotion } from "../lib/cosmetics-store-motion";
 import CosmeticsStoreProfileEffectLayers from "./cosmetics-store-profile-effect-layers";
 
 const MOTION_HEAVY_KINDS = new Set(["card_decoration", "profile_effect"]);
+const I18N_PREFIX = "discourse_cosmetics_store.preview";
 
 export default class CosmeticsStorePreview extends Component {
   get previewUser() {
@@ -15,7 +17,7 @@ export default class CosmeticsStorePreview extends Component {
     return (
       this.previewUser.name ||
       this.previewUser.username ||
-      "Topluluk üyesi"
+      i18n(`${I18N_PREFIX}.fallback_user`)
     );
   }
 
@@ -40,6 +42,16 @@ export default class CosmeticsStorePreview extends Component {
 
   get isBundle() {
     return this.args.product?.product_type === "bundle";
+  }
+
+  get userCardLabel() {
+    return i18n(`${I18N_PREFIX}.user_card`);
+  }
+
+  get itemCountLabel() {
+    return i18n(`${I18N_PREFIX}.item_count`, {
+      count: this.args.product?.item_count ?? 0,
+    });
   }
 
   <template>
@@ -71,7 +83,7 @@ export default class CosmeticsStorePreview extends Component {
                 {{#if item.showMotionAsset}}
                   {{#if item.image_url}}<img src={{item.image_url}} alt="" loading="lazy" />{{/if}}
                 {{/if}}
-                <i></i><b>Kullanıcı kartı</b>
+                <i></i><b>{{this.userCardLabel}}</b>
               </span>
             {{else}}
               <span class="cstore-preview__effect">
@@ -95,7 +107,7 @@ export default class CosmeticsStorePreview extends Component {
           </div>
         {{/each}}
       </div>
-      {{#if this.isBundle}}<span class="cstore-preview__count">{{@product.item_count}} parça</span>{{/if}}
+      {{#if this.isBundle}}<span class="cstore-preview__count">{{this.itemCountLabel}}</span>{{/if}}
     </div>
   </template>
 }
