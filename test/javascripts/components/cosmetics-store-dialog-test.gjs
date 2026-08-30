@@ -60,13 +60,23 @@ module("Component | cosmetics store dialog", function (hooks) {
       </template>
     );
 
-    assert.dom(".d-modal.cstore-dialog").exists();
-    assert.dom(".d-modal__title-text").hasText("Ölülerin Efendisi (Mavi)");
-    assert.dom(".cstore-dialog__backdrop").doesNotExist();
-    assert.dom(".cstore-dialog__close").doesNotExist();
-    assert.dom(".cstore-dialog__purchase").exists();
+    const modal = document.querySelector(".d-modal.cstore-dialog");
 
-    await click(".cstore-buy");
+    assert.ok(modal, "renders through the Discourse DModal portal");
+    assert
+      .dom(modal.querySelector(".d-modal__title-text"))
+      .hasText("Ölülerin Efendisi (Mavi)");
+    assert.notOk(
+      document.querySelector(".cstore-dialog__backdrop"),
+      "does not render the removed custom backdrop"
+    );
+    assert.notOk(
+      document.querySelector(".cstore-dialog__close"),
+      "does not render the removed custom close button"
+    );
+    assert.dom(modal.querySelector(".cstore-dialog__purchase")).exists();
+
+    await click(modal.querySelector(".cstore-buy"));
 
     assert.deepEqual(this.purchaseCalls, [42]);
   });
@@ -88,13 +98,19 @@ module("Component | cosmetics store dialog", function (hooks) {
       </template>
     );
 
-    await click(".cstore-gift-toggle");
+    const modal = document.querySelector(".d-modal.cstore-dialog");
 
-    assert.dom(".cstore-gift-formkit").exists();
-    assert.dom(".cstore-gift-formkit input").exists();
+    assert.ok(modal, "renders through the Discourse DModal portal");
+    await click(modal.querySelector(".cstore-gift-toggle"));
 
-    await fillIn(".cstore-gift-formkit input", "  @gift-user  ");
-    await click(".cstore-gift-formkit .btn-primary");
+    const giftForm = modal.querySelector(".cstore-gift-formkit");
+    const recipientInput = giftForm?.querySelector("input");
+
+    assert.dom(giftForm).exists();
+    assert.dom(recipientInput).exists();
+
+    await fillIn(recipientInput, "  @gift-user  ");
+    await click(giftForm.querySelector(".btn-primary"));
 
     assert.deepEqual(this.giftCalls, [[42, "gift-user"]]);
   });
