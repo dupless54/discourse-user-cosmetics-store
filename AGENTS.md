@@ -13,6 +13,20 @@ Route by surface:
 - migrations/schema -> `db/AGENTS.md`
 For multi-session work use the minimal `docs/ai/work/<feature>/{state.md,progress.md,implementation-plan.md}` packet.
 
+## Current Discourse upstream baseline
+For any Discourse API, UI, routing, responsive, testing, serialization, autoloading, compatibility, or plugin-extension decision, apply `docs/ai/DISCOURSE_DEVELOPER_BASELINE.md` and read only the relevant section. Current Discourse core/current official developer docs outrank remembered syntax and old tutorial examples.
+
+Default architecture direction:
+- current Glimmer `.gjs`/`.gts` + injected services;
+- Discourse UI-kit (`DModal`, `DButton`, etc.) and FormKit before custom equivalents;
+- supported Plugin API / Transformers / Plugin Outlets before `modifyClass`; core template override is an exceptional last resort;
+- `lib/viewport` and `lib/container` for responsive work; touch/hover are capabilities and hover is never the only interaction path;
+- BEM-style scoped CSS, locale-backed UI copy, QUnit/system-spec coverage for meaningful UI behavior;
+- thin controllers + service objects, explicit serializers/presenters, and Rails/Zeitwerk autoloading conventions on the backend;
+- official exact-head Discourse CI and `d-compat` when old-release pinning is actually required.
+
+If an upstream API may have changed, verify current Discourse core or the current official guide before coding. Do not introduce a deprecated pattern just because an older plugin still uses it.
+
 ## Fast task path
 For non-trivial work, use `.agents/skills/task-packet/SKILL.md` before broad reads. Use `docs/ai/REPO_MAP.md` to locate code, `COMMANDS.md` only for validation, and `DECISIONS.md` only for architecture/payment/dependency choices. Skip the formal packet for trivial one-file edits.
 
