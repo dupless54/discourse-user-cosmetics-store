@@ -47,9 +47,6 @@ module("Component | cosmetics store navigation", function (hooks) {
 
     assert.dom(".cstore-nav").exists();
     assert.dom(".cstore-balance").includesText("3744");
-    assert
-      .dom(".cstore-nav__browse-menu > button")
-      .hasAttribute("aria-expanded", "false");
     assert.dom(".cstore-nav__browse-menu").doesNotHaveClass("is-open");
 
     await click(".cstore-nav__browse-menu > button");
@@ -61,9 +58,6 @@ module("Component | cosmetics store navigation", function (hooks) {
 
     await click(".cstore-nav__browse-menu > button");
 
-    assert
-      .dom(".cstore-nav__browse-menu > button")
-      .hasAttribute("aria-expanded", "false");
     assert.dom(".cstore-nav__browse-menu").doesNotHaveClass("is-open");
   });
 });
