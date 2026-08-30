@@ -21,7 +21,7 @@ module("Component | Store admin sections", function (hooks) {
     };
   });
 
-  test("products render without the legacy inner admin navigation", async function (assert) {
+  test("products use the native empty-list state without legacy inner navigation", async function (assert) {
     await render(
       <template><CosmeticsStoreProductsAdmin @model={{this.model}} /></template>
     );
@@ -29,7 +29,33 @@ module("Component | Store admin sections", function (hooks) {
     assert.dom(".cstore-admin-products").exists();
     assert.dom(".cstore-admin__header").doesNotExist();
     assert.dom(".cstore-admin__tabs").doesNotExist();
+    assert.dom(".admin-config-area-empty-list").exists();
+    assert.dom("table.d-table").doesNotExist();
+  });
+
+  test("products render in the native responsive table when catalogue rows exist", async function (assert) {
+    this.model.products = [
+      {
+        id: 1,
+        name: "Crimson Frame",
+        slug: "crimson-frame",
+        product_type: "item",
+        item_names: ["Crimson Frame"],
+        price: 250,
+        enabled: true,
+        editor_pick: false,
+        purchase_count: 3,
+      },
+    ];
+
+    await render(
+      <template><CosmeticsStoreProductsAdmin @model={{this.model}} /></template>
+    );
+
     assert.dom("table.d-table").exists();
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 1 });
+    assert.dom(".d-table__mobile-label").exists();
+    assert.dom(".cstore-admin-form").doesNotExist();
   });
 
   test("missions render as an independent admin section", async function (assert) {
