@@ -74,6 +74,13 @@
   transform-origin: center;
 }
 
+// Profile-effect layers intentionally overhang their card. The final generic
+// responsive image rule must not clamp those layer assets back to card width.
+.cstore-shell .cstore-profile-effect-layers__image {
+  max-width: none;
+  max-height: none;
+}
+
 // Auto-fill preserves empty grid tracks, so a section with one product keeps
 // normal card proportions instead of stretching its preview across the row.
 .cstore-shell .cstore-grid,
@@ -114,6 +121,216 @@
   overflow-wrap: anywhere;
 }
 
+// Favorites owns a second detailed-filter surface. Keep it structurally in
+// sync with the main Browse page instead of allowing the filter rail to grow
+// independently on smaller screens.
+.cstore-favorites-center .cstore-browse-layout {
+  display: grid;
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+  gap: clamp(1rem, 2.4vw, 1.75rem);
+  min-width: 0;
+}
+
+// Shared collapsible filter panel. The toggle is hidden on desktop; the body
+// remains identical to the existing desktop filter rail.
+.cstore-filter-toggle {
+  display: none;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: 10px;
+  background: var(--secondary);
+  color: var(--primary);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cstore-filter-toggle > span:first-child {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.cstore-filter-toggle small {
+  color: var(--primary-medium);
+  font-size: var(--font-down-2);
+  font-weight: 600;
+}
+
+.cstore-filter-toggle__chevron {
+  flex: 0 0 auto;
+  color: var(--primary-medium);
+  transition: transform 0.16s ease;
+}
+
+.cstore-filters.is-open .cstore-filter-toggle__chevron {
+  transform: rotate(180deg);
+}
+
+.cstore-filters__body {
+  min-width: 0;
+}
+
+.cstore-filters__body > label:not(.cstore-check) {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  color: var(--cstore-muted, var(--primary-medium));
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cstore-filters__body > label:not(.cstore-check) :is(input, select) {
+  width: 100%;
+  max-width: 100%;
+  min-height: 38px;
+}
+
+// Collection progress reuses the mission visual component but has no icon or
+// reward column. Detect that shape explicitly so it does not inherit the task
+// card's 48px first column.
+.cstore-shell .cstore-missions > .cstore-mission:not(:has(.cstore-mission__icon)):has(> div + div) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  // Discourse reserves top outlet spacing for ordinary pages. Store navigation
+  // is its own page chrome, so on tablet/phone it should sit directly below
+  // the site header instead of floating a large blank block below it.
+  .cosmetics-store-route #main-outlet {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .cstore-shell > .cstore-nav {
+    position: relative;
+    z-index: 40;
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: 100%;
+    margin-top: 0;
+    overflow: visible;
+  }
+
+  .cstore-shell > .cstore-nav__brand,
+  .cstore-shell > .cstore-nav .cstore-nav__brand {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .cstore-shell > .cstore-nav .cstore-nav__brand strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cstore-shell > .cstore-nav .cstore-nav__tools {
+    width: auto;
+    max-width: 100%;
+    justify-self: end;
+  }
+
+  .cstore-shell > .cstore-nav .cstore-balance {
+    width: auto;
+    max-width: 100%;
+  }
+
+  // Never put an absolutely positioned Browse menu inside a scrolling nav;
+  // browsers clip the dropdown even when overflow-y is declared visible.
+  .cstore-shell > .cstore-nav nav {
+    flex-wrap: wrap;
+    overflow: visible;
+    overscroll-behavior: auto;
+    scroll-snap-type: none;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .cstore-shell > .cstore-nav nav > button,
+  .cstore-shell > .cstore-nav .cstore-nav__browse-menu {
+    flex: 0 1 auto;
+  }
+
+  .cstore-shell > .cstore-nav .cstore-nav__dropdown {
+    width: min(260px, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .cstore-shell .cstore-browse,
+  .cstore-favorites-center .cstore-browse-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-shell .cstore-filters {
+    position: static;
+    width: 100%;
+    padding: 0.5rem;
+  }
+
+  .cstore-filter-toggle {
+    display: flex;
+  }
+
+  .cstore-shell .cstore-filters__body {
+    display: none;
+    padding: 0 0.45rem 0.45rem;
+  }
+
+  .cstore-shell .cstore-filters.is-open .cstore-filters__body {
+    display: block;
+  }
+
+  .cstore-shell .cstore-filters__body > div:first-child {
+    margin-top: 0.85rem;
+  }
+}
+
+@media (max-width: 960px) {
+  // Stack commerce and preview as explicit grid rows on tablets. Gift forms can
+  // grow freely without painting into the profile-preview row below them.
+  .cstore-shell .cstore-dialog__window {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .cstore-shell .cstore-dialog__details {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .cstore-shell .cstore-gift-form {
+    position: relative;
+    z-index: 3;
+    flex: 0 0 auto;
+    margin-bottom: 0.75rem;
+  }
+
+  .cstore-shell .cstore-dialog__live {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+    border-top: 1px solid var(--content-border-color, var(--primary-low));
+    isolation: isolate;
+  }
+}
+
 @media (max-width: 900px) {
   .cstore-shell .cstore-orbs__hero {
     align-items: stretch;
@@ -131,15 +348,6 @@
 }
 
 @media (max-width: 800px) {
-  // The dropdown cannot escape a horizontally scrolling nav: CSS computes
-  // overflow-y: visible to auto when overflow-x is auto. Wrapping keeps the
-  // touch menu visible while still fitting every Store tab in the viewport.
-  .cstore-shell .cstore-nav {
-    grid-template-columns: minmax(0, 1fr) auto;
-    max-width: 100%;
-    overflow: visible;
-  }
-
   .cstore-shell .cstore-nav__brand {
     max-width: 100%;
     overflow: hidden;
@@ -161,20 +369,40 @@
     width: auto;
     max-width: 100%;
   }
+}
 
-  .cstore-shell .cstore-nav nav {
+@media (max-width: 700px) {
+  .cstore-shell .cstore-section__heading {
     flex-wrap: wrap;
-    overflow: visible;
-    overscroll-behavior: auto;
-    scroll-snap-type: none;
-    -webkit-overflow-scrolling: auto;
   }
 
-  .cstore-shell .cstore-nav__dropdown {
-    width: min(260px, calc(100vw - 1.5rem));
-    max-width: calc(100vw - 1.5rem);
-    overflow-x: hidden;
-    overflow-y: auto;
+  .cstore-shell .cstore-cash-packages__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-shell .cstore-payment-billing {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-shell .cstore-payment-billing .is-wide {
+    grid-column: 1;
+  }
+
+  .cstore-shell .cstore-payment-providers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cstore-shell .cstore-payment-history article {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .cstore-shell .cstore-payment-history article > i {
+    grid-column: 2;
+  }
+
+  .cstore-shell .cstore-missions > .cstore-mission:not(:has(.cstore-mission__icon)):has(> div + div) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -230,6 +458,10 @@
 
   .cstore-shell .cstore-nav nav button {
     max-width: 100%;
+  }
+
+  .cstore-shell .cstore-payment-providers {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .cstore-inventory-card__actions {
