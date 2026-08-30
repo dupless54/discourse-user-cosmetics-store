@@ -1,0 +1,250 @@
+// Responsive hardening for the storefront product dialog.
+// Loaded after the general mobile layer so purchase, gifting and preview
+// sections keep a predictable flow on tablets and narrow phones.
+
+.cstore-dialog {
+  .cstore-dialog__window,
+  .cstore-dialog__details,
+  .cstore-dialog__live,
+  .cstore-dialog__purchase,
+  .cstore-gift-form,
+  .cstore-gift-form > div {
+    min-width: 0;
+  }
+
+  .cstore-dialog__purchase {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .cstore-dialog__purchase > div {
+    min-width: 0;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .cstore-dialog__purchase > div small,
+  .cstore-dialog__purchase > div strong {
+    display: block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .cstore-dialog__purchase > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .cstore-buy,
+  .cstore-owned-label,
+  .cstore-gift-toggle,
+  .cstore-gift-form button {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .cstore-gift-form {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .cstore-gift-form > div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(9.5rem, auto);
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .cstore-gift-form > div > span {
+    display: grid;
+    min-width: 2.5rem;
+    place-items: center;
+  }
+
+  .cstore-gift-form input,
+  .cstore-gift-form button {
+    width: 100%;
+    min-height: 42px;
+    margin: 0;
+  }
+
+  .cstore-gift-form > small {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .cstore-dialog__live .cstore-user-card-preview-host,
+  .cstore-dialog__tags {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+// Tablets and compact laptop windows use a single scrolling dialog flow.
+// This removes the competing inner scroll areas that could hide actions behind
+// the preview column when the viewport was short or narrow.
+@media (max-width: 960px) {
+  .cstore-dialog {
+    overflow: hidden;
+    padding:
+      max(0.55rem, env(safe-area-inset-top))
+      max(0.55rem, env(safe-area-inset-right))
+      max(0.55rem, env(safe-area-inset-bottom))
+      max(0.55rem, env(safe-area-inset-left));
+  }
+
+  .cstore-dialog .cstore-dialog__window {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: block;
+    width: min(100%, 46rem);
+    height: auto;
+    max-height: calc(100vh - 1.1rem);
+    max-height: calc(100dvh - 1.1rem);
+    margin: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transform: none;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cstore-dialog .cstore-dialog__details,
+  .cstore-dialog .cstore-dialog__live {
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .cstore-dialog .cstore-dialog__details {
+    padding-bottom: 1.25rem;
+  }
+
+  .cstore-dialog .cstore-dialog__live {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--content-border-color, var(--primary-low));
+    background: color-mix(in srgb, var(--primary) 3%, var(--secondary));
+  }
+
+  .cstore-dialog .cstore-dialog__live > .cstore-eyebrow {
+    width: 100%;
+    margin-bottom: 0.85rem;
+    text-align: center;
+  }
+
+  .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(304px, 100%);
+    flex: 0 0 auto;
+    margin-inline: auto;
+  }
+
+  .cstore-dialog .cstore-dialog__tags {
+    width: min(304px, 100%);
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .cstore-dialog {
+    padding:
+      max(0.35rem, env(safe-area-inset-top))
+      max(0.35rem, env(safe-area-inset-right))
+      max(0.35rem, env(safe-area-inset-bottom))
+      max(0.35rem, env(safe-area-inset-left));
+  }
+
+  .cstore-dialog .cstore-dialog__window {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 14px;
+    scroll-padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .cstore-dialog .cstore-dialog__details,
+  .cstore-dialog .cstore-dialog__live {
+    width: 100%;
+    padding-inline: clamp(0.9rem, 4.5vw, 1.25rem);
+  }
+
+  .cstore-dialog .cstore-dialog__details {
+    padding-top: 1.15rem;
+  }
+
+  .cstore-dialog .cstore-dialog__details h2 {
+    padding-right: 2.8rem;
+  }
+
+  .cstore-dialog .cstore-gift-form > div {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .cstore-dialog .cstore-gift-form > div button {
+    grid-column: 1 / -1;
+  }
+
+  .cstore-dialog .cstore-dialog__live {
+    padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 420px) {
+  .cstore-dialog .cstore-dialog__purchase {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-dialog .cstore-dialog__purchase > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
+    grid-column: 1;
+  }
+
+  .cstore-dialog .cstore-dialog__purchase > div {
+    padding: 0.7rem 0.75rem;
+  }
+
+  .cstore-dialog .cstore-buy,
+  .cstore-dialog .cstore-gift-toggle,
+  .cstore-dialog .cstore-owned-label,
+  .cstore-dialog .cstore-gift-form button {
+    min-height: 44px;
+  }
+
+  .cstore-dialog .cstore-gift-form {
+    padding: 0.8rem;
+  }
+
+  .cstore-dialog .cstore-gift-form > div {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(17.25rem, 100%);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 960px) {
+  .cstore-dialog .cstore-dialog__window {
+    width: min(100%, 50rem);
+  }
+
+  .cstore-dialog .cstore-dialog__details,
+  .cstore-dialog .cstore-dialog__live {
+    padding-block: 0.9rem;
+  }
+
+  .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
+    width: min(15rem, 46dvh, 100%);
+  }
+}

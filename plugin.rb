@@ -19,6 +19,7 @@ register_asset "stylesheets/discourse-cosmetics-store-accessibility.scss"
 register_asset "stylesheets/discourse-cosmetics-store-wardrobe.scss"
 register_asset "stylesheets/discourse-cosmetics-store-activity.scss"
 register_asset "stylesheets/discourse-cosmetics-store-mobile.scss"
+register_asset "stylesheets/discourse-cosmetics-store-dialog-responsive.scss"
 
 %w[cart-shopping check clock eye gift heart image palette paper-plane right-to-bracket xmark].each do |icon|
   register_svg_icon icon
