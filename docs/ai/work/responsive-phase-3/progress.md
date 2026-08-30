@@ -9,5 +9,5 @@
 - [x] Keep navigation and `DModal` responsive ownership in their dedicated Phase 2 / Phase 1 stylesheets.
 - [x] Register the native responsive stylesheet after the legacy mobile compatibility layer.
 - [x] Open stacked PR #57 (`REFACTOR: normalize storefront responsiveness with Discourse primitives`).
-- [ ] Require exact-head Discourse Plugin CI GREEN before considering merge.
+- [x] Exact head `260c133192ee28416d7633ad39127221b9e0d12b` passed Discourse Plugin CI run #170.
 - [ ] Do not merge without explicit user authorization.
