@@ -86,6 +86,7 @@ export default class CosmeticsStoreProductForm extends Component {
         .map((item) => ({
           ...item,
           selected: this.cosmeticItemIds.includes(item.id),
+          disabled: !item.enabled,
         })),
     }));
   }
@@ -318,7 +319,7 @@ export default class CosmeticsStoreProductForm extends Component {
                             type={{if (eq data.product_type "item") "radio" "checkbox"}}
                             name={{if (eq data.product_type "item") "cosmetic-item" "cosmetic-items"}}
                             checked={{item.selected}}
-                            disabled={{not item.enabled}}
+                            disabled={{item.disabled}}
                             {{on "change" (fn this.toggleCosmetic item data.product_type)}}
                           />
                           <span>
