@@ -9,7 +9,10 @@ export default {
       this.route("new");
       this.route("edit", { path: "/:id/edit" });
     });
-    this.route("cosmetics-store-missions", { path: "missions" });
+    this.route("cosmetics-store-missions", { path: "missions" }, function () {
+      this.route("new");
+      this.route("edit", { path: "/:id/edit" });
+    });
     this.route("cosmetics-store-payments", { path: "payments" });
     this.route("cosmetics-store-wallets", { path: "wallets" });
   },
