@@ -25,6 +25,7 @@ module("Component | cosmetics store product card", function (hooks) {
       items: [],
       tags: [],
     };
+    this.previewUser = { username: "member" };
 
     this.openCalls = [];
     this.giftCalls = [];
@@ -39,7 +40,7 @@ module("Component | cosmetics store product card", function (hooks) {
       <template>
         <CosmeticsStoreProductCard
           @product={{this.product}}
-          @previewUser={{hash username="member"}}
+          @previewUser={{this.previewUser}}
           @currencySymbol="◈"
           @favoritesEnabled={{true}}
           @hoverPreview={{false}}
