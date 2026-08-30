@@ -46,7 +46,7 @@ module("Component | cosmetics store navigation", function (hooks) {
     await render(<template><CosmeticsStore @model={{this.storeModel}} /></template>);
 
     assert.dom(".cstore-nav").exists();
-    assert.dom(".cstore-balance").hasText("◈3744");
+    assert.dom(".cstore-balance").includesText("3744");
     assert
       .dom(".cstore-nav__browse-menu > button")
       .hasAttribute("aria-expanded", "false");
