@@ -58,13 +58,41 @@ module("Component | Store admin sections", function (hooks) {
     assert.dom(".cstore-admin-form").doesNotExist();
   });
 
-  test("missions render as an independent admin section", async function (assert) {
+  test("missions use the native empty-list state without legacy inner navigation", async function (assert) {
     await render(
       <template><CosmeticsStoreMissionsAdmin @model={{this.model}} /></template>
     );
 
     assert.dom(".cstore-admin-missions-section").exists();
     assert.dom(".cstore-admin__tabs").doesNotExist();
+    assert.dom(".admin-config-area-empty-list").exists();
+    assert.dom("table.d-table").doesNotExist();
+  });
+
+  test("missions render in the native responsive table when rows exist", async function (assert) {
+    this.model.missions = [
+      {
+        id: 7,
+        key: "first-post",
+        name: "First post",
+        description: "Publish a post.",
+        metric: "posts_created",
+        target: 1,
+        reward: 25,
+        icon: "✦",
+        enabled: true,
+        claim_count: 4,
+      },
+    ];
+
+    await render(
+      <template><CosmeticsStoreMissionsAdmin @model={{this.model}} /></template>
+    );
+
+    assert.dom("table.d-table.cstore-admin-missions-table").exists();
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 1 });
+    assert.dom(".d-table__mobile-label").exists();
+    assert.dom(".cstore-admin-form--mission").doesNotExist();
   });
 
   test("wallets render as an independent admin section", async function (assert) {
