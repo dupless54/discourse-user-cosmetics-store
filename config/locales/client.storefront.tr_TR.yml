@@ -35,3 +35,9 @@ tr_TR:
           one: "%{count} parça"
           other: "%{count} parça"
         owned: "Koleksiyonunda"
+      preview:
+        fallback_user: "Topluluk üyesi"
+        user_card: "Kullanıcı kartı"
+        item_count:
+          one: "%{count} parça"
+          other: "%{count} parça"
