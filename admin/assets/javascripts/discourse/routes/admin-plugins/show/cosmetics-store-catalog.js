@@ -8,6 +8,6 @@ export default class CosmeticsStoreCatalogRoute extends DiscourseRoute {
   }
 
   titleToken() {
-    return i18n("discourse_cosmetics_store.admin.catalog");
+    return i18n("discourse_cosmetics_store.admin.overview");
   }
 }
