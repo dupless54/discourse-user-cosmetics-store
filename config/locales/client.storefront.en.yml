@@ -20,3 +20,18 @@ en:
         sending: "Sending…"
         send_gift: "Send gift"
         preview_eyebrow: "HOW IT LOOKS ON YOUR PROFILE"
+      product_card:
+        upcoming: "Coming soon"
+        purchase: "Buy"
+        open_details: "Open %{name} details"
+        live_preview: "Live preview"
+        remove_favorite: "Remove from favorites"
+        add_favorite: "Add to favorites"
+        gift_product: "Gift %{name}"
+        editor_pick: "EDITOR'S PICK"
+        bundle: "Bundle"
+        cosmetic: "Cosmetic"
+        item_count:
+          one: "%{count} item"
+          other: "%{count} items"
+        owned: "In your collection"
