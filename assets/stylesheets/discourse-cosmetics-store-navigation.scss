@@ -1,0 +1,181 @@
+@use "lib/container";
+@use "lib/viewport";
+
+// Keep storefront navigation in normal document flow as its own surface. This
+// prevents the navigation from visually merging with or covering the first
+// store section while retaining Discourse-native colors and responsive rules.
+.cstore-nav {
+  container-name: cstore-navigation;
+  container-type: inline-size;
+  position: relative;
+  z-index: 20;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0 0 var(--space-5, 1.5rem);
+  padding: var(--space-3, 0.75rem);
+  border: 1px solid var(--content-border-color, var(--primary-low));
+  border-radius: var(--d-border-radius, 0.5rem);
+  background: color-mix(in srgb, var(--primary) 2%, var(--secondary));
+  box-shadow: var(--shadow-card, 0 4px 14px rgb(0 0 0 / 8%));
+  backdrop-filter: none;
+
+  > nav,
+  > .cstore-nav__tools,
+  .cstore-nav__browse-menu {
+    min-width: 0;
+  }
+
+  > nav {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1, 0.25rem);
+  }
+
+  > nav > button,
+  .cstore-nav__browse-menu > button,
+  .cstore-nav__brand,
+  .cstore-balance {
+    min-height: 40px;
+  }
+
+  > nav > button,
+  .cstore-nav__browse-menu > button {
+    padding-inline: var(--space-3, 0.75rem);
+  }
+
+  .cstore-nav__brand {
+    align-self: stretch;
+  }
+
+  .cstore-nav__tools {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    margin-left: 0;
+  }
+
+  .cstore-nav__tools > label {
+    width: clamp(12rem, 20vw, 19rem);
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .cstore-nav__tools input {
+    min-width: 0;
+  }
+
+  .cstore-nav__dropdown {
+    top: calc(100% + var(--space-2, 0.5rem));
+    max-width: min(18rem, calc(100vw - 2rem));
+  }
+}
+
+@include container.until(lg, cstore-navigation) {
+  .cstore-nav > nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    padding-top: var(--space-2, 0.5rem);
+    border-top: 1px solid var(--content-border-color, var(--primary-low));
+  }
+
+  .cstore-nav > .cstore-nav__tools {
+    justify-self: end;
+  }
+}
+
+@include container.until(md, cstore-navigation) {
+  .cstore-nav > .cstore-nav__tools {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .cstore-nav > .cstore-nav__tools > label {
+    width: auto;
+    flex: 1 1 14rem;
+  }
+
+  .cstore-nav > nav {
+    grid-row: 3;
+  }
+
+  .cstore-nav > nav > button,
+  .cstore-nav .cstore-nav__browse-menu > button {
+    flex: 1 1 auto;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@include viewport.until(sm) {
+  .cstore-nav {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2, 0.5rem);
+    margin-bottom: var(--space-4, 1rem);
+    padding: var(--space-2, 0.5rem);
+  }
+
+  .cstore-nav > .cstore-nav__brand,
+  .cstore-nav > .cstore-nav__tools,
+  .cstore-nav > nav {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  .cstore-nav > .cstore-nav__brand {
+    grid-row: 1;
+    justify-content: flex-start;
+  }
+
+  .cstore-nav > .cstore-nav__tools {
+    grid-row: 2;
+    flex-wrap: wrap;
+  }
+
+  .cstore-nav > .cstore-nav__tools > label {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .cstore-nav .cstore-balance {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .cstore-nav > nav {
+    grid-row: 3;
+    padding-top: var(--space-2, 0.5rem);
+  }
+
+  .cstore-nav > nav > button,
+  .cstore-nav .cstore-nav__browse-menu > button {
+    min-height: 44px;
+  }
+
+  .cstore-nav__browse-menu {
+    flex: 1 1 auto;
+  }
+
+  .cstore-nav__browse-menu > button {
+    width: 100%;
+  }
+
+  .cstore-nav__dropdown {
+    right: 0;
+    left: 0;
+    width: min(100%, 22rem);
+    max-width: calc(100vw - 2rem);
+  }
+}
