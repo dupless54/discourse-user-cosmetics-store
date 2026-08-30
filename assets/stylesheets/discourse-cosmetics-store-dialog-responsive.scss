@@ -1,14 +1,111 @@
-// Responsive hardening for the storefront product dialog.
-// Loaded after the general mobile layer so purchase, gifting and preview
-// sections keep a predictable flow on tablets and narrow phones.
+@use "lib/container";
+@use "lib/viewport";
 
+// Product details now render inside Discourse's native DModal. Keep all
+// storefront-specific layout inside the modal body and let core own focus,
+// backdrop, keyboard, safe-area and viewport behavior.
 .cstore-dialog {
+  --modal-max-width: 58rem;
+  --modal-max-height: min(46rem, calc(100dvh - 2rem));
+
+  padding: 0;
+  overflow: auto;
+
+  .d-modal__container {
+    overflow: hidden;
+    border: 1px solid var(--content-border-color, var(--primary-low));
+    background: var(--secondary);
+  }
+
+  .d-modal__header {
+    background: color-mix(in srgb, var(--primary) 3%, var(--secondary));
+  }
+
+  .d-modal__title-text,
+  .d-modal__subtitle-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .cstore-dialog__body {
+    container-name: cstore-product-dialog;
+    container-type: inline-size;
+    min-width: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
   .cstore-dialog__window,
   .cstore-dialog__details,
   .cstore-dialog__live,
   .cstore-dialog__purchase,
-  .cstore-gift-form,
-  .cstore-gift-form > div {
+  .cstore-gift-panel,
+  .cstore-gift-formkit {
+    min-width: 0;
+  }
+
+  // Neutralize the legacy custom-dialog positioning. DModal owns positioning
+  // and scrolling; this element is only the product content grid now.
+  .cstore-dialog__window {
+    position: relative;
+    top: auto;
+    left: auto;
+    display: grid;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
+    border: 0;
+    border-radius: 0;
+    background: var(--secondary);
+    transform: none;
+  }
+
+  .cstore-dialog__details,
+  .cstore-dialog__live {
+    width: 100%;
+    min-height: 0;
+    overflow: visible;
+    padding: clamp(1rem, 2vw, 1.4rem);
+  }
+
+  .cstore-dialog__details {
+    background: color-mix(in srgb, var(--primary) 4%, var(--secondary));
+  }
+
+  .cstore-dialog__live {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border-left: 1px solid var(--content-border-color, var(--primary-low));
+    background: color-mix(in srgb, var(--primary) 2%, var(--secondary));
+  }
+
+  .cstore-dialog__badges {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+  }
+
+  .cstore-dialog__availability {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.7rem;
+    overflow-wrap: anywhere;
+  }
+
+  .cstore-dialog__items {
+    margin-block: 0.9rem;
+  }
+
+  .cstore-dialog__items article,
+  .cstore-dialog__purchase > div {
     min-width: 0;
   }
 
@@ -17,10 +114,10 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
     gap: 0.6rem;
+    margin-top: 1rem;
   }
 
   .cstore-dialog__purchase > div {
-    min-width: 0;
     padding: 0.75rem 0.85rem;
   }
 
@@ -31,7 +128,8 @@
     overflow-wrap: anywhere;
   }
 
-  .cstore-dialog__purchase > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
+  .cstore-dialog__purchase
+    > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
     grid-column: 1 / -1;
     width: 100%;
     min-width: 0;
@@ -42,191 +140,89 @@
   .cstore-buy,
   .cstore-owned-label,
   .cstore-gift-toggle,
-  .cstore-gift-form button {
+  .cstore-gift-formkit .btn-primary {
     min-width: 0;
     max-width: 100%;
+    min-height: 42px;
     white-space: normal;
     overflow-wrap: anywhere;
     text-align: center;
   }
 
-  .cstore-gift-form {
+  .cstore-buy,
+  .cstore-gift-toggle,
+  .cstore-gift-formkit .btn-primary {
+    justify-content: center;
+  }
+
+  // FormKit owns field markup, validation and accessibility. This panel only
+  // provides the storefront visual surface around the native form controls.
+  .cstore-gift-panel {
+    margin-top: 0.85rem;
+    padding: 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--tertiary) 30%, var(--content-border-color));
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--tertiary) 7%, var(--secondary));
+  }
+
+  .cstore-gift-formkit {
+    display: grid;
+    gap: 0.7rem;
     width: 100%;
     max-width: 100%;
   }
 
-  .cstore-gift-form > div {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) minmax(9.5rem, auto);
-    align-items: stretch;
-    gap: 0.5rem;
+  .cstore-gift-formkit .form-kit__field,
+  .cstore-gift-formkit .form-kit__control,
+  .cstore-gift-formkit .form-kit__control-input {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
-  .cstore-gift-form > div > span {
-    display: grid;
-    min-width: 2.5rem;
-    place-items: center;
-  }
-
-  .cstore-gift-form input,
-  .cstore-gift-form button {
+  .cstore-gift-formkit .btn-primary {
     width: 100%;
-    min-height: 42px;
     margin: 0;
   }
 
-  .cstore-gift-form > small {
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-
-  .cstore-dialog__live .cstore-user-card-preview-host,
-  .cstore-dialog__tags {
-    min-width: 0;
-    max-width: 100%;
-  }
-}
-
-// Tablets and compact laptop windows use a single scrolling dialog flow.
-// This removes the competing inner scroll areas that could hide actions behind
-// the preview column when the viewport was short or narrow.
-@media (max-width: 960px) {
-  .cstore-dialog {
-    overflow: hidden;
-    padding:
-      max(0.55rem, env(safe-area-inset-top))
-      max(0.55rem, env(safe-area-inset-right))
-      max(0.55rem, env(safe-area-inset-bottom))
-      max(0.55rem, env(safe-area-inset-left));
-  }
-
-  .cstore-dialog .cstore-dialog__window {
-    position: relative;
-    top: auto;
-    left: auto;
-    display: block;
-    width: min(100%, 46rem);
-    height: auto;
-    max-height: calc(100vh - 1.1rem);
-    max-height: calc(100dvh - 1.1rem);
-    margin: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
-    transform: none;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .cstore-dialog .cstore-dialog__details,
-  .cstore-dialog .cstore-dialog__live {
-    min-height: auto;
-    overflow: visible;
-  }
-
-  .cstore-dialog .cstore-dialog__details {
-    padding-bottom: 1.25rem;
-  }
-
-  .cstore-dialog .cstore-dialog__live {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--content-border-color, var(--primary-low));
-    background: color-mix(in srgb, var(--primary) 3%, var(--secondary));
-  }
-
-  .cstore-dialog .cstore-dialog__live > .cstore-eyebrow {
+  .cstore-dialog__live > .cstore-eyebrow {
     width: 100%;
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.8rem;
     text-align: center;
   }
 
-  .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
+  .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(304px, 100%);
+    max-width: 100%;
     flex: 0 0 auto;
     margin-inline: auto;
   }
 
-  .cstore-dialog .cstore-dialog__tags {
+  .cstore-dialog__tags {
     width: min(304px, 100%);
+    max-width: 100%;
     margin-inline: auto;
   }
 }
 
-@media (max-width: 700px) {
-  .cstore-dialog {
-    padding:
-      max(0.35rem, env(safe-area-inset-top))
-      max(0.35rem, env(safe-area-inset-right))
-      max(0.35rem, env(safe-area-inset-bottom))
-      max(0.35rem, env(safe-area-inset-left));
-  }
-
+// The product layout responds to its actual DModal body width rather than the
+// browser width. This is important when Discourse embeds the modal in a narrow
+// container on tablets, split-screen windows or future responsive shells.
+@include container.until(md, cstore-product-dialog) {
   .cstore-dialog .cstore-dialog__window {
-    width: 100%;
-    height: 100%;
-    max-height: none;
-    border-radius: 14px;
-    scroll-padding-bottom: max(1rem, env(safe-area-inset-bottom));
-  }
-
-  .cstore-dialog .cstore-dialog__details,
-  .cstore-dialog .cstore-dialog__live {
-    width: 100%;
-    padding-inline: clamp(0.9rem, 4.5vw, 1.25rem);
-  }
-
-  .cstore-dialog .cstore-dialog__details {
-    padding-top: 1.15rem;
-  }
-
-  .cstore-dialog .cstore-dialog__details h2 {
-    padding-right: 2.8rem;
-  }
-
-  .cstore-dialog .cstore-gift-form > div {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .cstore-dialog .cstore-gift-form > div button {
-    grid-column: 1 / -1;
-  }
-
-  .cstore-dialog .cstore-dialog__live {
-    padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
-  }
-}
-
-@media (max-width: 420px) {
-  .cstore-dialog .cstore-dialog__purchase {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cstore-dialog .cstore-dialog__purchase > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
-    grid-column: 1;
+  .cstore-dialog .cstore-dialog__live {
+    border-top: 1px solid var(--content-border-color, var(--primary-low));
+    border-left: 0;
   }
+}
 
-  .cstore-dialog .cstore-dialog__purchase > div {
-    padding: 0.7rem 0.75rem;
-  }
-
-  .cstore-dialog .cstore-buy,
-  .cstore-dialog .cstore-gift-toggle,
-  .cstore-dialog .cstore-owned-label,
-  .cstore-dialog .cstore-gift-form button {
-    min-height: 44px;
-  }
-
-  .cstore-dialog .cstore-gift-form {
-    padding: 0.8rem;
-  }
-
-  .cstore-dialog .cstore-gift-form > div {
-    grid-template-columns: auto minmax(0, 1fr);
+@include container.until(sm, cstore-product-dialog) {
+  .cstore-dialog .cstore-dialog__details,
+  .cstore-dialog .cstore-dialog__live {
+    padding: 1rem;
   }
 
   .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
@@ -234,17 +230,33 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 560px) and (max-width: 960px) {
-  .cstore-dialog .cstore-dialog__window {
-    width: min(100%, 50rem);
+@include container.until(xs, cstore-product-dialog) {
+  .cstore-dialog .cstore-dialog__purchase {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .cstore-dialog .cstore-dialog__details,
-  .cstore-dialog .cstore-dialog__live {
-    padding-block: 0.9rem;
+  .cstore-dialog .cstore-dialog__purchase
+    > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
+    grid-column: 1;
   }
 
-  .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
-    width: min(15rem, 46dvh, 100%);
+  .cstore-dialog .cstore-dialog__purchase > div {
+    padding: 0.7rem 0.75rem;
+  }
+}
+
+// Core DModal already handles mobile keyboard/safe-area behavior. These rules
+// only tune the cosmetics content while using Discourse's shared breakpoint.
+@include viewport.until(sm) {
+  .cstore-dialog {
+    --modal-max-height: calc(var(--composer-vh, 1dvh) * 85);
+
+    .d-modal__container {
+      border-radius: 14px 14px 0 0;
+    }
+
+    .d-modal__header {
+      padding-inline: 1rem 0.5rem;
+    }
   }
 }
