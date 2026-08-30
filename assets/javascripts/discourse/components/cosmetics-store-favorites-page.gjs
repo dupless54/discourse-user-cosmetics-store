@@ -33,6 +33,7 @@ export default class CosmeticsStoreFavoritesPage extends Component {
   @tracked sortBy = "popular";
   @tracked onlyAffordable = false;
   @tracked onlyOwned = false;
+  @tracked filtersOpen = false;
 
   get viewer() {
     return this.args.model?.viewer ?? {};
@@ -127,6 +128,7 @@ export default class CosmeticsStoreFavoritesPage extends Component {
 
   @action
   navigate(routeName) {
+    this.filtersOpen = false;
     this.router.transitionTo(routeName);
   }
 
@@ -279,6 +281,11 @@ export default class CosmeticsStoreFavoritesPage extends Component {
   }
 
   @action
+  toggleFilters() {
+    this.filtersOpen = !this.filtersOpen;
+  }
+
+  @action
   resetFilters() {
     this.search = "";
     this.selectedKind = "";
@@ -289,6 +296,7 @@ export default class CosmeticsStoreFavoritesPage extends Component {
     this.sortBy = "popular";
     this.onlyAffordable = false;
     this.onlyOwned = false;
+    this.filtersOpen = false;
   }
 
   <template>
@@ -350,94 +358,114 @@ export default class CosmeticsStoreFavoritesPage extends Component {
           </div>
         {{else}}
           <div class="cstore-browse-layout">
-            <aside class="cstore-filters" aria-label={{i18n "discourse_cosmetics_store.favorites_filters.filter_label"}}>
-              <div class="cstore-section__heading">
-                <div>
-                  <p class="cstore-eyebrow">{{i18n "discourse_cosmetics_store.favorites_filters.eyebrow"}}</p>
-                  <h1>{{i18n "discourse_cosmetics_store.favorites_filters.title"}}</h1>
-                  <span>{{this.favoriteCountLabel}}</span>
-                </div>
-              </div>
-
-              <label>
-                {{i18n "discourse_cosmetics_store.favorites_filters.search"}}
-                <input
-                  type="search"
-                  value={{this.search}}
-                  placeholder={{i18n "discourse_cosmetics_store.favorites_filters.search_placeholder"}}
-                  {{on "input" this.updateSearch}}
-                />
-              </label>
-
-              <label>
-                {{i18n "discourse_cosmetics_store.favorites_filters.product_type"}}
-                <select value={{this.productType}} {{on "change" this.updateProductType}}>
-                  <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
-                  <option value="item">{{i18n "discourse_cosmetics_store.favorites_filters.single"}}</option>
-                  <option value="bundle">{{i18n "discourse_cosmetics_store.favorites_filters.bundle"}}</option>
-                </select>
-              </label>
-
-              <label>
-                {{i18n "discourse_cosmetics_store.favorites_filters.kind"}}
-                <select value={{this.selectedKind}} {{on "change" this.updateKind}}>
-                  <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
-                  {{#each this.filters.kinds as |kind|}}
-                    <option value={{kind.value}}>{{kind.label}} ({{kind.count}})</option>
-                  {{/each}}
-                </select>
-              </label>
-
-              <label>
-                {{i18n "discourse_cosmetics_store.favorites_filters.rarity"}}
-                <select value={{this.selectedRarity}} {{on "change" this.updateRarity}}>
-                  <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
-                  {{#each this.filters.rarities as |rarity|}}
-                    <option value={{rarity.value}}>{{rarity.label}} ({{rarity.count}})</option>
-                  {{/each}}
-                </select>
-              </label>
-
-              <label>
-                {{i18n "discourse_cosmetics_store.favorites_filters.availability"}}
-                <select value={{this.selectedAvailability}} {{on "change" this.updateAvailability}}>
-                  <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
-                  {{#each this.filters.availability as |availability|}}
-                    <option value={{availability.value}}>{{availability.label}} ({{availability.count}})</option>
-                  {{/each}}
-                </select>
-              </label>
-
-              <label>
-                {{i18n "discourse_cosmetics_store.favorites_filters.tag"}}
-                <select value={{this.selectedTag}} {{on "change" this.updateTag}}>
-                  <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
-                  {{#each this.filters.tags as |tag|}}
-                    <option value={{tag.value}}>#{{tag.label}} ({{tag.count}})</option>
-                  {{/each}}
-                </select>
-              </label>
-
-              <label class="cstore-check">
-                <input type="checkbox" checked={{this.onlyAffordable}} {{on "change" this.toggleAffordable}} />
-                <span>{{i18n "discourse_cosmetics_store.favorites_filters.affordable"}}</span>
-              </label>
-              <label class="cstore-check">
-                <input type="checkbox" checked={{this.onlyOwned}} {{on "change" this.toggleOwned}} />
-                <span>{{i18n "discourse_cosmetics_store.favorites_filters.owned"}}</span>
-              </label>
-
-              {{#if this.hasActiveFilters}}
-                <span class="cstore-favorites-center__active-count">{{this.activeFilterLabel}}</span>
-              {{/if}}
+            <aside
+              class="cstore-filters {{if this.filtersOpen 'is-open'}}"
+              aria-label={{i18n "discourse_cosmetics_store.favorites_filters.filter_label"}}
+            >
               <button
-                class="cstore-filter-reset"
+                class="cstore-filter-toggle"
                 type="button"
-                disabled={{this.resetDisabled}}
-                {{on "click" this.resetFilters}}
+                data-testid="favorites-filter-toggle"
+                aria-expanded={{this.filtersOpen}}
+                aria-controls="cstore-favorites-filter-body"
+                {{on "click" this.toggleFilters}}
               >
-                {{i18n "discourse_cosmetics_store.favorites_filters.reset"}}
+                <span>
+                  <strong>{{i18n "discourse_cosmetics_store.favorites_filters.filter_label"}}</strong>
+                  {{#if this.hasActiveFilters}}<small>{{this.activeFilterLabel}}</small>{{/if}}
+                </span>
+                <span class="cstore-filter-toggle__chevron" aria-hidden="true">⌄</span>
               </button>
+
+              <div id="cstore-favorites-filter-body" class="cstore-filters__body">
+                <div class="cstore-section__heading">
+                  <div>
+                    <p class="cstore-eyebrow">{{i18n "discourse_cosmetics_store.favorites_filters.eyebrow"}}</p>
+                    <h1>{{i18n "discourse_cosmetics_store.favorites_filters.title"}}</h1>
+                    <span>{{this.favoriteCountLabel}}</span>
+                  </div>
+                </div>
+
+                <label>
+                  {{i18n "discourse_cosmetics_store.favorites_filters.search"}}
+                  <input
+                    type="search"
+                    value={{this.search}}
+                    placeholder={{i18n "discourse_cosmetics_store.favorites_filters.search_placeholder"}}
+                    {{on "input" this.updateSearch}}
+                  />
+                </label>
+
+                <label>
+                  {{i18n "discourse_cosmetics_store.favorites_filters.product_type"}}
+                  <select value={{this.productType}} {{on "change" this.updateProductType}}>
+                    <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
+                    <option value="item">{{i18n "discourse_cosmetics_store.favorites_filters.single"}}</option>
+                    <option value="bundle">{{i18n "discourse_cosmetics_store.favorites_filters.bundle"}}</option>
+                  </select>
+                </label>
+
+                <label>
+                  {{i18n "discourse_cosmetics_store.favorites_filters.kind"}}
+                  <select value={{this.selectedKind}} {{on "change" this.updateKind}}>
+                    <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
+                    {{#each this.filters.kinds as |kind|}}
+                      <option value={{kind.value}}>{{kind.label}} ({{kind.count}})</option>
+                    {{/each}}
+                  </select>
+                </label>
+
+                <label>
+                  {{i18n "discourse_cosmetics_store.favorites_filters.rarity"}}
+                  <select value={{this.selectedRarity}} {{on "change" this.updateRarity}}>
+                    <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
+                    {{#each this.filters.rarities as |rarity|}}
+                      <option value={{rarity.value}}>{{rarity.label}} ({{rarity.count}})</option>
+                    {{/each}}
+                  </select>
+                </label>
+
+                <label>
+                  {{i18n "discourse_cosmetics_store.favorites_filters.availability"}}
+                  <select value={{this.selectedAvailability}} {{on "change" this.updateAvailability}}>
+                    <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
+                    {{#each this.filters.availability as |availability|}}
+                      <option value={{availability.value}}>{{availability.label}} ({{availability.count}})</option>
+                    {{/each}}
+                  </select>
+                </label>
+
+                <label>
+                  {{i18n "discourse_cosmetics_store.favorites_filters.tag"}}
+                  <select value={{this.selectedTag}} {{on "change" this.updateTag}}>
+                    <option value="">{{i18n "discourse_cosmetics_store.favorites_filters.all"}}</option>
+                    {{#each this.filters.tags as |tag|}}
+                      <option value={{tag.value}}>#{{tag.label}} ({{tag.count}})</option>
+                    {{/each}}
+                  </select>
+                </label>
+
+                <label class="cstore-check">
+                  <input type="checkbox" checked={{this.onlyAffordable}} {{on "change" this.toggleAffordable}} />
+                  <span>{{i18n "discourse_cosmetics_store.favorites_filters.affordable"}}</span>
+                </label>
+                <label class="cstore-check">
+                  <input type="checkbox" checked={{this.onlyOwned}} {{on "change" this.toggleOwned}} />
+                  <span>{{i18n "discourse_cosmetics_store.favorites_filters.owned"}}</span>
+                </label>
+
+                {{#if this.hasActiveFilters}}
+                  <span class="cstore-favorites-center__active-count">{{this.activeFilterLabel}}</span>
+                {{/if}}
+                <button
+                  class="cstore-filter-reset"
+                  type="button"
+                  disabled={{this.resetDisabled}}
+                  {{on "click" this.resetFilters}}
+                >
+                  {{i18n "discourse_cosmetics_store.favorites_filters.reset"}}
+                </button>
+              </div>
             </aside>
 
             <section class="cstore-results">
