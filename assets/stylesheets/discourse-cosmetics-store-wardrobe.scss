@@ -36,6 +36,205 @@
   }
 }
 
+// Cross-page visual consistency. The Base cosmetics plugin applies avatar
+// frames with a configurable overhang; every Store preview uses the same scale.
+.cstore-shell .cstore-preview-studio-avatar__frame {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  inset: 0;
+  object-fit: contain;
+  transform: scale(var(--cstore-avatar-frame-scale, 1.28));
+  transform-origin: center;
+}
+
+.cstore-shell .cstore-preview-item > .cstore-preview__frame {
+  top: 50%;
+  left: 50%;
+  width: 74px;
+  height: 74px;
+  max-width: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%) scale(var(--cstore-avatar-frame-scale, 1.28));
+  transform-origin: center;
+}
+
+.cstore-shell .cstore-preview--single .cstore-preview-item > .cstore-preview__frame {
+  width: 128px;
+  height: 128px;
+}
+
+.cstore-shell .cstore-user-card-preview__avatar-frame {
+  top: 6px;
+  left: 6px;
+  width: 80px;
+  height: 80px;
+  max-width: none;
+  inset: auto;
+  object-fit: contain;
+  transform: scale(var(--cstore-avatar-frame-scale, 1.28));
+  transform-origin: center;
+}
+
+// Auto-fill preserves empty grid tracks, so a section with one product keeps
+// normal card proportions instead of stretching its preview across the row.
+.cstore-shell .cstore-grid,
+.cstore-shell .cstore-grid--featured {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.cstore-shell .cstore-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+}
+
+.cstore-shell :is(
+  .cstore-featured,
+  .cstore-orbs,
+  .cstore-favorites-page,
+  .cstore-collections-page,
+  .cstore-browse,
+  .cstore-loadouts,
+  .cstore-preview-studio,
+  .cstore-activity,
+  .cstore-results,
+  .cstore-filters
+) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.cstore-shell .cstore-collection-hero > div {
+  right: clamp(1.25rem, 5vw, 4rem);
+  min-width: 0;
+  max-width: calc(100% - clamp(2.5rem, 10vw, 8rem));
+}
+
+.cstore-shell .cstore-collection-hero h1,
+.cstore-shell .cstore-mission,
+.cstore-shell .cstore-ledger > article {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .cstore-shell .cstore-orbs__hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cstore-shell .cstore-orb-balance {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cstore-shell .cstore-mission-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  // The dropdown cannot escape a horizontally scrolling nav: CSS computes
+  // overflow-y: visible to auto when overflow-x is auto. Wrapping keeps the
+  // touch menu visible while still fitting every Store tab in the viewport.
+  .cstore-shell .cstore-nav {
+    grid-template-columns: minmax(0, 1fr) auto;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .cstore-shell .cstore-nav__brand {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .cstore-shell .cstore-nav__brand strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cstore-shell .cstore-nav__tools {
+    width: auto;
+    max-width: 100%;
+    justify-self: end;
+  }
+
+  .cstore-shell .cstore-balance {
+    width: auto;
+    max-width: 100%;
+  }
+
+  .cstore-shell .cstore-nav nav {
+    flex-wrap: wrap;
+    overflow: visible;
+    overscroll-behavior: auto;
+    scroll-snap-type: none;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .cstore-shell .cstore-nav__dropdown {
+    width: min(260px, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .cstore-shell .cstore-mission {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .cstore-shell .cstore-mission__reward {
+    grid-column: 2;
+    justify-items: start;
+  }
+
+  .cstore-shell .cstore-ledger > article {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .cstore-shell .cstore-ledger > article > b {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .cstore-shell .cstore-collection-hero {
+    min-height: 280px;
+  }
+
+  .cstore-shell .cstore-collection-hero > div {
+    right: 1rem;
+    bottom: 1.25rem;
+    left: 1rem;
+    max-width: none;
+  }
+
+  .cstore-shell .cstore-collection-hero h1 {
+    font-size: clamp(2rem, 12vw, 3.25rem);
+  }
+}
+
+@media (max-width: 520px) {
+  .cstore-shell .cstore-grid,
+  .cstore-shell .cstore-grid--featured,
+  .cstore-shell .cstore-grid--wide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-shell .cstore-nav {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .cstore-shell .cstore-nav nav {
+    gap: 0.2rem;
+  }
+
+  .cstore-shell .cstore-nav nav button {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 520px) {
   .cstore-inventory-card__actions {
     padding: 0.65rem 0.75rem 0.75rem;
