@@ -2,35 +2,22 @@ import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
-import { on } from "@ember/modifier";
+import { service } from "@ember/service";
+import AdminConfigAreaEmptyList from "discourse/admin/components/admin-config-area-empty-list";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
+import DButton from "discourse/ui-kit/d-button";
+import { i18n } from "discourse-i18n";
 
 const ADMIN_API_BASE = "/admin/plugins/user-cosmetics-store";
-
-const EMPTY_MISSION = {
-  key: "",
-  name: "",
-  description: "",
-  metric: "posts_created",
-  target: 1,
-  reward: 25,
-  icon: "✦",
-  sort_order: 0,
-  enabled: true,
-  available_from: "",
-  available_until: "",
-};
+const EDIT_ROUTE = "adminPlugins.show.cosmetics-store-missions.edit";
+const NEW_ROUTE = "adminPlugins.show.cosmetics-store-missions.new";
 
 export default class CosmeticsStoreMissionsAdmin extends Component {
-  @tracked missions = this.args.model?.missions ?? [];
-  @tracked editingMission = null;
-  @tracked saving = false;
-  @tracked status = null;
+  @service dialog;
 
-  get missionMetrics() {
-    return this.args.model?.mission_metrics ?? [];
-  }
+  @tracked missions = this.args.model?.missions ?? [];
+  @tracked status = null;
 
   get settings() {
     return this.args.model?.settings ?? {
@@ -40,153 +27,127 @@ export default class CosmeticsStoreMissionsAdmin extends Component {
   }
 
   @action
-  newMission() {
-    this.editingMission = { ...EMPTY_MISSION };
-    this.status = null;
-  }
+  deleteMission(mission) {
+    const message = mission.claim_count
+      ? i18n("discourse_cosmetics_store.admin.mission.disable_confirm", {
+          name: mission.name,
+        })
+      : i18n("discourse_cosmetics_store.admin.mission.delete_confirm", {
+          name: mission.name,
+        });
 
-  @action
-  editMission(mission) {
-    this.editingMission = { ...mission };
-    this.status = null;
-  }
+    return this.dialog.confirm({
+      message,
+      didConfirm: async () => {
+        try {
+          await ajax(`${ADMIN_API_BASE}/missions/${mission.id}.json`, {
+            type: "DELETE",
+          });
 
-  @action
-  cancelMission() {
-    this.editingMission = null;
-  }
-
-  @action
-  updateMission(field, event) {
-    let value =
-      event.target.type === "checkbox"
-        ? event.target.checked
-        : event.target.value;
-    if (["target", "reward", "sort_order"].includes(field)) {
-      value = Number.parseInt(value || "0", 10);
-    }
-    this.editingMission = { ...this.editingMission, [field]: value };
-  }
-
-  @action
-  async saveMission(event) {
-    event?.preventDefault();
-    if (this.saving) {
-      return;
-    }
-
-    this.saving = true;
-    const mission = this.editingMission;
-    const payload = {
-      ...mission,
-      available_from: mission.available_from || null,
-      available_until: mission.available_until || null,
-    };
-    const url = mission.id
-      ? `${ADMIN_API_BASE}/missions/${mission.id}.json`
-      : `${ADMIN_API_BASE}/missions.json`;
-
-    try {
-      const saved = await ajax(url, {
-        type: mission.id ? "PUT" : "POST",
-        data: { mission: payload },
-      });
-      this.missions = mission.id
-        ? this.missions.map((row) => (row.id === saved.id ? saved : row))
-        : [...this.missions, saved];
-      this.editingMission = null;
-      this.status = "Görev kaydedildi.";
-    } catch (error) {
-      popupAjaxError(error);
-    } finally {
-      this.saving = false;
-    }
-  }
-
-  @action
-  async deleteMission(mission) {
-    if (
-      !window.confirm(`“${mission.name}” görevini kaldırmak istediğine emin misin?`)
-    ) {
-      return;
-    }
-
-    try {
-      await ajax(`${ADMIN_API_BASE}/missions/${mission.id}.json`, {
-        type: "DELETE",
-      });
-      if (mission.claim_count > 0) {
-        this.missions = this.missions.map((row) =>
-          row.id === mission.id ? { ...row, enabled: false } : row
-        );
-        this.status = "Geçmişi olan görev pasifleştirildi.";
-      } else {
-        this.missions = this.missions.filter((row) => row.id !== mission.id);
-        this.status = "Görev silindi.";
-      }
-    } catch (error) {
-      popupAjaxError(error);
-    }
+          if (mission.claim_count > 0) {
+            const missions = this.missions.map((row) =>
+              row.id === mission.id ? { ...row, enabled: false } : row
+            );
+            this.missions = missions;
+            this.args.model.missions = missions;
+            this.status = i18n(
+              "discourse_cosmetics_store.admin.mission.disabled_with_history"
+            );
+          } else {
+            const missions = this.missions.filter(
+              (row) => row.id !== mission.id
+            );
+            this.missions = missions;
+            this.args.model.missions = missions;
+            this.status = i18n("discourse_cosmetics_store.admin.mission.deleted");
+          }
+        } catch (error) {
+          popupAjaxError(error);
+        }
+      },
+    });
   }
 
   <template>
-    <section class="cstore-admin cstore-admin__section cstore-admin-missions-section">
-      <div class="cstore-admin__section-heading">
-        <div>
-          <h2>Orbs görevleri</h2>
-          <p>İlerleme tarayıcıdan değil, Discourse kullanıcı istatistiklerinden doğrulanır.</p>
-        </div>
-        <button class="btn btn-primary" type="button" {{on "click" this.newMission}}>+ Yeni görev</button>
-      </div>
-
+    <section class="cstore-admin cstore-admin-missions-section">
       {{#if this.status}}
         <div class="cstore-admin__status" role="status">✓ {{this.status}}</div>
       {{/if}}
 
-      {{#if this.editingMission}}
-        <form class="cstore-admin-form cstore-admin-form--mission" {{on "submit" this.saveMission}}>
-          <div class="cstore-admin-form__title">
-            <h3>{{if this.editingMission.id "Görevi düzenle" "Yeni görev"}}</h3>
-            <button type="button" {{on "click" this.cancelMission}}>×</button>
-          </div>
-          <div class="cstore-admin-form__grid">
-            <label>Görev adı<input required value={{this.editingMission.name}} {{on "input" (fn this.updateMission "name")}} /></label>
-            <label>Anahtar<input value={{this.editingMission.key}} {{on "input" (fn this.updateMission "key")}} placeholder="otomatik-anahtar" /></label>
-            <label>Metrik<select value={{this.editingMission.metric}} {{on "change" (fn this.updateMission "metric")}}>{{#each this.missionMetrics as |metric|}}<option value={{metric.value}}>{{metric.label}}</option>{{/each}}</select></label>
-            <label>Hedef<input min="1" type="number" value={{this.editingMission.target}} {{on "input" (fn this.updateMission "target")}} /></label>
-            <label>Ödül<input min="0" type="number" value={{this.editingMission.reward}} {{on "input" (fn this.updateMission "reward")}} /></label>
-            <label>Simge<input maxlength="20" value={{this.editingMission.icon}} {{on "input" (fn this.updateMission "icon")}} /></label>
-            <label>Sıra<input min="0" type="number" value={{this.editingMission.sort_order}} {{on "input" (fn this.updateMission "sort_order")}} /></label>
-            <label class="cstore-admin-checkbox"><input type="checkbox" checked={{this.editingMission.enabled}} {{on "change" (fn this.updateMission "enabled")}} /> Etkin</label>
-            <label>Başlangıç<input type="datetime-local" value={{this.editingMission.available_from}} {{on "input" (fn this.updateMission "available_from")}} /></label>
-            <label>Bitiş<input type="datetime-local" value={{this.editingMission.available_until}} {{on "input" (fn this.updateMission "available_until")}} /></label>
-            <label class="is-wide">Açıklama<textarea rows="3" maxlength="500" value={{this.editingMission.description}} {{on "input" (fn this.updateMission "description")}}></textarea></label>
-          </div>
-          <div class="cstore-admin-form__actions">
-            <button class="btn" type="button" {{on "click" this.cancelMission}}>İptal</button>
-            <button class="btn btn-primary" type="submit" disabled={{this.saving}}>{{if this.saving "Kaydediliyor…" "Kaydet"}}</button>
-          </div>
-        </form>
+      {{#if this.missions.length}}
+        <div class="cstore-admin-table-wrap">
+          <table class="d-table cstore-admin-table cstore-admin-missions-table">
+            <thead class="d-table__header">
+              <tr>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.mission"}}</th>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.metric"}}</th>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.target"}}</th>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.reward"}}</th>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.claims"}}</th>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.status"}}</th>
+                <th>{{i18n "discourse_cosmetics_store.admin.mission.columns.actions"}}</th>
+              </tr>
+            </thead>
+            <tbody class="d-table__body">
+              {{#each this.missions as |mission|}}
+                <tr class="d-table__row">
+                  <td class="d-table__cell --overview">
+                    <span class="cstore-admin-missions-table__icon" aria-hidden="true">{{mission.icon}}</span>
+                    <span>
+                      <strong>{{mission.name}}</strong>
+                      {{#if mission.description}}<small>{{mission.description}}</small>{{/if}}
+                    </span>
+                  </td>
+                  <td class="d-table__cell --detail">
+                    <div class="d-table__mobile-label">{{i18n "discourse_cosmetics_store.admin.mission.columns.metric"}}</div>
+                    {{mission.metric}}
+                  </td>
+                  <td class="d-table__cell --detail">
+                    <div class="d-table__mobile-label">{{i18n "discourse_cosmetics_store.admin.mission.columns.target"}}</div>
+                    {{mission.target}}
+                  </td>
+                  <td class="d-table__cell --detail">
+                    <div class="d-table__mobile-label">{{i18n "discourse_cosmetics_store.admin.mission.columns.reward"}}</div>
+                    +{{mission.reward}} {{this.settings.currency_symbol}}
+                  </td>
+                  <td class="d-table__cell --detail">
+                    <div class="d-table__mobile-label">{{i18n "discourse_cosmetics_store.admin.mission.columns.claims"}}</div>
+                    {{mission.claim_count}}
+                  </td>
+                  <td class="d-table__cell --detail">
+                    <div class="d-table__mobile-label">{{i18n "discourse_cosmetics_store.admin.mission.columns.status"}}</div>
+                    <span class={{if mission.enabled "is-on" "is-off"}}>
+                      {{if mission.enabled (i18n "discourse_cosmetics_store.admin.mission.enabled") (i18n "discourse_cosmetics_store.admin.mission.disabled")}}
+                    </span>
+                  </td>
+                  <td class="d-table__cell --controls">
+                    <div class="d-table__cell-actions">
+                      <DButton
+                        class="btn-default btn-small"
+                        @route={{EDIT_ROUTE}}
+                        @routeModels={{mission.id}}
+                        @label="discourse_cosmetics_store.admin.mission.edit_action"
+                      />
+                      <DButton
+                        class="btn-transparent --danger btn-small"
+                        @action={{fn this.deleteMission mission}}
+                        @icon={{if mission.claim_count "ban" "trash-can"}}
+                        @label={{if mission.claim_count "discourse_cosmetics_store.admin.mission.disable" "discourse_cosmetics_store.admin.mission.delete"}}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      {{else}}
+        <AdminConfigAreaEmptyList
+          @emptyLabel="discourse_cosmetics_store.admin.mission.empty"
+          @ctaLabel="discourse_cosmetics_store.admin.mission.add"
+          @ctaRoute={{NEW_ROUTE}}
+        />
       {{/if}}
-
-      <div class="cstore-admin-missions">
-        {{#each this.missions as |mission|}}
-          <article>
-            <span>{{mission.icon}}</span>
-            <div>
-              <strong>{{mission.name}}</strong>
-              <p>{{mission.description}}</p>
-              <small>{{mission.metric}} · hedef {{mission.target}} · {{mission.claim_count}} kez alındı</small>
-            </div>
-            <b>+{{mission.reward}} {{this.settings.currency_symbol}}</b>
-            <i class={{if mission.enabled "is-on" "is-off"}}>{{if mission.enabled "Etkin" "Kapalı"}}</i>
-            <button class="btn btn-text btn-small" type="button" {{on "click" (fn this.editMission mission)}}>Düzenle</button>
-            <button class="btn btn-danger btn-small" type="button" {{on "click" (fn this.deleteMission mission)}}>{{if mission.claim_count "Kapat" "Sil"}}</button>
-          </article>
-        {{else}}
-          <p>Henüz görev yok.</p>
-        {{/each}}
-      </div>
     </section>
   </template>
 }
