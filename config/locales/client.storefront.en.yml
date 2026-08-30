@@ -35,3 +35,9 @@ en:
           one: "%{count} item"
           other: "%{count} items"
         owned: "In your collection"
+      preview:
+        fallback_user: "Community member"
+        user_card: "User card"
+        item_count:
+          one: "%{count} item"
+          other: "%{count} items"
