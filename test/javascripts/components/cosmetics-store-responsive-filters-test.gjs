@@ -96,7 +96,7 @@ module("Component | cosmetics store responsive filters", function (hooks) {
   test("browse filter disclosure exposes expanded state", async function (assert) {
     await render(<template><CosmeticsStore @model={{this.storeModel}} /></template>);
 
-    assert.dom("[data-testid='browse-filter-toggle']").hasAttribute("aria-expanded", "false");
+    assert.dom("[data-testid='browse-filter-toggle']").doesNotHaveAttribute("aria-expanded");
     assert.dom(".cstore-filters").doesNotHaveClass("is-open");
 
     await click("[data-testid='browse-filter-toggle']");
@@ -112,7 +112,7 @@ module("Component | cosmetics store responsive filters", function (hooks) {
 
     assert
       .dom("[data-testid='favorites-filter-toggle']")
-      .hasAttribute("aria-expanded", "false");
+      .doesNotHaveAttribute("aria-expanded");
 
     await click("[data-testid='favorites-filter-toggle']");
 
