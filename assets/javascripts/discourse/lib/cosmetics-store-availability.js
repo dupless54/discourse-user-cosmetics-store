@@ -1,14 +1,17 @@
+import { i18n } from "discourse-i18n";
+
 const HEX_COLOR = /^#[0-9a-f]{3}(?:[0-9a-f]{3}(?:[0-9a-f]{2})?)?$/i;
+const I18N_PREFIX = "discourse_cosmetics_store.availability";
 
 export function availabilityBadge(product) {
   if (product?.sale_state === "upcoming") {
-    return "YAKINDA";
+    return i18n(`${I18N_PREFIX}.badge.upcoming`);
   }
   if (product?.availability_type === "seasonal") {
-    return "SEZONLUK";
+    return i18n(`${I18N_PREFIX}.badge.seasonal`);
   }
   if (product?.availability_type === "limited") {
-    return "SINIRLI SÜRE";
+    return i18n(`${I18N_PREFIX}.badge.limited`);
   }
   return null;
 }
@@ -16,12 +19,16 @@ export function availabilityBadge(product) {
 export function availabilityDetail(product, now = Date.now()) {
   if (product?.sale_state === "upcoming" && product.available_from) {
     const remaining = formatRemaining(Date.parse(product.available_from) - now);
-    return remaining ? `${remaining} sonra açılıyor` : "Yakında satışta";
+    return remaining
+      ? i18n(`${I18N_PREFIX}.detail.opens_in`, { remaining })
+      : i18n(`${I18N_PREFIX}.detail.upcoming`);
   }
 
   if (product?.sale_state === "active" && product.available_until) {
     const remaining = formatRemaining(Date.parse(product.available_until) - now);
-    return remaining ? `${remaining} kaldı` : "Süre dolmak üzere";
+    return remaining
+      ? i18n(`${I18N_PREFIX}.detail.remaining`, { remaining })
+      : i18n(`${I18N_PREFIX}.detail.ending_soon`);
   }
 
   return null;
@@ -53,10 +60,14 @@ function formatRemaining(milliseconds) {
   const minutes = totalMinutes % 60;
 
   if (days > 0) {
-    return hours > 0 ? `${days}g ${hours}sa` : `${days}g`;
+    return hours > 0
+      ? i18n(`${I18N_PREFIX}.duration.days_hours`, { days, hours })
+      : i18n(`${I18N_PREFIX}.duration.days`, { days });
   }
   if (hours > 0) {
-    return minutes > 0 ? `${hours}sa ${minutes}dk` : `${hours}sa`;
+    return minutes > 0
+      ? i18n(`${I18N_PREFIX}.duration.hours_minutes`, { hours, minutes })
+      : i18n(`${I18N_PREFIX}.duration.hours`, { hours });
   }
-  return `${minutes}dk`;
+  return i18n(`${I18N_PREFIX}.duration.minutes`, { minutes });
 }
