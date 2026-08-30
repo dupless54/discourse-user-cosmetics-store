@@ -121,7 +121,7 @@ export default class CosmeticsStoreHealthAdmin extends Component {
         <strong class="cstore-health__overall">{{this.statusLabel}}</strong>
       </div>
 
-      <div class="cstore-admin-table-wrap cstore-health__grid">
+      <div class="cstore-admin-table-wrap">
         <table class="d-table cstore-admin-table cstore-health__table">
           <thead class="d-table__header">
             <tr class="d-table__row">
@@ -133,7 +133,7 @@ export default class CosmeticsStoreHealthAdmin extends Component {
           </thead>
           <tbody class="d-table__body">
             {{#each this.rows as |row|}}
-              <tr class="d-table__row cstore-health__check cstore-health__check--{{row.status}}">
+              <tr class="d-table__row">
                 <td class="d-table__cell --overview">
                   <strong>{{row.label}}</strong>
                 </td>
