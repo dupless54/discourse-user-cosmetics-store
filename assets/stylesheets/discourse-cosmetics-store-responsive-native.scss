@@ -1,0 +1,331 @@
+@use "lib/container";
+@use "lib/viewport";
+
+// Discourse-native responsive authority for storefront content. Component
+// layout follows the storefront's available inline size; viewport queries are
+// reserved for route-shell concerns such as safe-area padding.
+.cstore-shell {
+  container-name: cstore-storefront;
+  container-type: inline-size;
+}
+
+@include viewport.until(md) {
+  .cosmetics-store-route #main-outlet {
+    min-width: 0;
+    overflow-x: clip;
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+  }
+}
+
+@include container.until(lg, cstore-storefront) {
+  .cstore-preview-studio__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 21rem);
+  }
+}
+
+@include container.until(md, cstore-storefront) {
+  .cstore-section__heading:has(h1),
+  .cstore-loadouts__hero,
+  .cstore-preview-studio__hero {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .cstore-section__heading:has(h1) > div:last-child,
+  .cstore-loadouts__hero-actions,
+  .cstore-preview-studio__hero-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .cstore-section__heading:has(h1) > div:last-child .btn,
+  .cstore-loadouts__hero-actions .btn,
+  .cstore-preview-studio__hero-actions .btn {
+    flex: 1 1 10rem;
+  }
+
+  .cstore-results__bar {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .cstore-results__bar label {
+    width: 100%;
+  }
+
+  .cstore-browse {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-filters {
+    position: static;
+  }
+
+  .cstore-loadouts__create {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-loadouts__limit {
+    grid-column: 1;
+  }
+
+  .cstore-preview-studio__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-studio__stage-panel {
+    position: static;
+    order: -1;
+    width: 100%;
+  }
+
+  .cstore-preview-studio__effect-wrap {
+    width: min(100%, 18.5rem);
+  }
+
+  .cstore-featured,
+  .cstore-orbs,
+  .cstore-favorites-page,
+  .cstore-collections-page,
+  .cstore-browse {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cstore-hero {
+    min-height: auto;
+  }
+
+  .cstore-hero__copy {
+    padding: clamp(1.25rem, 5cqi, 1.75rem);
+  }
+
+  .cstore-hero__copy h1 {
+    font-size: clamp(2rem, 9cqi, 2.75rem);
+    line-height: 1.02;
+  }
+
+  .cstore-hero__copy > p:not(.cstore-eyebrow) {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .cstore-hero__preview {
+    display: none;
+  }
+
+  .cstore-product__open {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .cstore-product__actions {
+    top: auto;
+    right: 0.6rem;
+    bottom: calc(118px + 0.75rem);
+  }
+}
+
+@include container.until(sm, cstore-storefront) {
+  .cstore-section__heading:has(h1),
+  .cstore-loadouts__hero,
+  .cstore-preview-studio__hero {
+    padding: 1rem;
+    border-radius: 15px;
+  }
+
+  .cstore-section__heading:has(h1) h1,
+  .cstore-loadouts__hero h1,
+  .cstore-preview-studio__hero h1 {
+    font-size: clamp(1.75rem, 8cqi, 2.2rem);
+  }
+
+  .cstore-section {
+    margin-top: 1.25rem;
+  }
+
+  .cstore-section__heading:has(h1) > div:last-child,
+  .cstore-loadouts__hero-actions,
+  .cstore-preview-studio__hero-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-section__heading:has(h1) > div:last-child .btn,
+  .cstore-loadouts__hero-actions .btn,
+  .cstore-preview-studio__hero-actions .btn {
+    width: 100%;
+  }
+
+  .cstore-wallet-stats,
+  .cstore-activity__wallet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .cstore-wallet-stats > span,
+  .cstore-activity__wallet > div {
+    padding: 0.75rem;
+  }
+
+  .cstore-results__bar {
+    padding: 0.7rem;
+  }
+
+  .cstore-results__bar > div .btn {
+    flex: 1 1 9rem;
+    justify-content: center;
+  }
+
+  .cstore-grid,
+  .cstore-grid--featured,
+  .cstore-grid--wide,
+  .cstore-collections-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .cstore-hero {
+    border-radius: 14px;
+  }
+
+  .cstore-hero__copy {
+    padding: 1.35rem;
+  }
+
+  .cstore-hero__copy h1 {
+    font-size: clamp(2rem, 10.5cqi, 2.55rem);
+  }
+
+  .cstore-hero__copy button {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .cstore-product__actions {
+    bottom: calc(104px + 0.7rem);
+  }
+
+  .cstore-product__info {
+    min-height: 104px;
+    padding: 0.75rem;
+  }
+
+  .cstore-loadouts__create {
+    padding: 1rem;
+  }
+
+  .cstore-loadouts__create form {
+    flex-direction: column;
+  }
+
+  .cstore-loadouts__create form .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cstore-loadout-card__slots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-loadout-card__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-loadout-card__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cstore-activity__heading > div:last-child {
+    width: 100%;
+  }
+
+  .cstore-activity__heading > div:last-child .btn {
+    flex: 1 1 9rem;
+    justify-content: center;
+  }
+
+  .cstore-activity__event {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    padding: 0.8rem;
+  }
+
+  .cstore-activity__amount {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .cstore-preview-studio {
+    padding-block-end: 2rem;
+  }
+
+  .cstore-preview-studio__controls,
+  .cstore-preview-studio__stage-panel {
+    border-radius: 15px;
+  }
+
+  .cstore-preview-studio__stage-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-studio__stage-heading span {
+    text-align: start;
+  }
+
+  .cstore-preview-slot__options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-choice {
+    align-items: center;
+    flex-direction: row;
+    min-height: 58px;
+  }
+
+  .cstore-preview-studio__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-preview-studio__effect-wrap {
+    width: min(100%, 17.25rem);
+  }
+
+  .cstore-preview-studio-card__body {
+    padding-inline: 0.8rem;
+  }
+
+  .cstore-preview-studio-card__identity {
+    padding: 0.7rem;
+  }
+}
+
+@include container.until(xs, cstore-storefront) {
+  .cstore-wallet-stats,
+  .cstore-activity__wallet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cstore-activity__filters .btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .cstore-hero__copy {
+    padding: 1.1rem;
+  }
+
+  .cstore-section__heading h2 {
+    font-size: 1.35rem;
+  }
+
+  .cstore-section__heading > button {
+    min-height: 34px;
+    padding-inline: 0.6rem;
+  }
+}
