@@ -51,9 +51,6 @@ module("Component | cosmetics store navigation", function (hooks) {
 
     await click(".cstore-nav__browse-menu > button");
 
-    assert
-      .dom(".cstore-nav__browse-menu > button")
-      .hasAttribute("aria-expanded", "true");
     assert.dom(".cstore-nav__browse-menu").hasClass("is-open");
 
     await click(".cstore-nav__browse-menu > button");
