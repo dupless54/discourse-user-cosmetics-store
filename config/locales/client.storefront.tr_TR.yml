@@ -20,3 +20,18 @@ tr_TR:
         sending: "Gönderiliyor…"
         send_gift: "Hediyeyi gönder"
         preview_eyebrow: "PROFİLİNDE BÖYLE GÖRÜNÜR"
+      product_card:
+        upcoming: "Yakında"
+        purchase: "Satın al"
+        open_details: "%{name} ayrıntılarını aç"
+        live_preview: "Canlı önizleme"
+        remove_favorite: "Favoriden çıkar"
+        add_favorite: "Favoriye ekle"
+        gift_product: "%{name} ürününü hediye et"
+        editor_pick: "EDİTÖR SEÇİMİ"
+        bundle: "Paket"
+        cosmetic: "Kozmetik"
+        item_count:
+          one: "%{count} parça"
+          other: "%{count} parça"
+        owned: "Koleksiyonunda"
