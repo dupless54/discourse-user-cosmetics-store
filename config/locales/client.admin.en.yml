@@ -1,0 +1,15 @@
+en:
+  js:
+    discourse_cosmetics_store:
+      admin:
+        overview: "Overview"
+        overview_description: "Review Store integration health and recent administrative activity."
+        products: "Products"
+        products_description: "Manage cosmetic products and bundles shown in the Store."
+        missions: "Missions"
+        missions_description: "Manage Orb missions verified against Discourse user activity."
+        payments: "Payments"
+        payments_description: "Manage Orb packages, provider status, payments, and refund reconciliation."
+        wallets: "Wallets"
+        wallets_description: "Inspect user wallets and make audited manual balance adjustments."
+        open_store: "Open Store"
