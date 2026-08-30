@@ -31,5 +31,7 @@ tr_TR:
         editor_pick: "EDİTÖR SEÇİMİ"
         bundle: "Paket"
         cosmetic: "Kozmetik"
-        item_count: "%{count} parça"
+        item_count:
+          one: "%{count} parça"
+          other: "%{count} parça"
         owned: "Koleksiyonunda"
