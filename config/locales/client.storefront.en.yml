@@ -41,3 +41,19 @@ en:
         item_count:
           one: "%{count} item"
           other: "%{count} items"
+      availability:
+        badge:
+          upcoming: "COMING SOON"
+          seasonal: "SEASONAL"
+          limited: "LIMITED TIME"
+        detail:
+          opens_in: "Opens in %{remaining}"
+          upcoming: "Coming soon"
+          remaining: "%{remaining} left"
+          ending_soon: "Ending soon"
+        duration:
+          days_hours: "%{days}d %{hours}h"
+          days: "%{days}d"
+          hours_minutes: "%{hours}h %{minutes}m"
+          hours: "%{hours}h"
+          minutes: "%{minutes}m"
