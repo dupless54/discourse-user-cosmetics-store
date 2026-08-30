@@ -37,18 +37,20 @@ module("Component | CosmeticsStoreAuditAdmin", function (hooks) {
       <template><CosmeticsStoreAuditAdmin @entries={{this.entries}} /></template>
     );
 
+    assert.dom("table.d-table.cstore-audit__table").exists();
     assert.dom(".cstore-audit__entry").exists({ count: 2 });
+    assert.dom(".d-table__mobile-label").exists();
     assert.dom(".cstore-audit").includesText("Cüzdan ayarlandı");
     assert.dom(".cstore-audit").includesText("Ürün oluşturuldu");
     assert.dom(".cstore-audit").doesNotIncludeText("secret");
 
-    await fillIn('.cstore-audit__filters input[type="search"]', "alice");
+    await fillIn(".d-filter-controls__input", "alice");
 
     assert.dom(".cstore-audit__entry").exists({ count: 1 });
     assert.dom(".cstore-audit").includesText("@alice");
     assert.dom(".cstore-audit").doesNotIncludeText("@bob");
 
-    await click(".cstore-audit__filters button");
+    await click(".d-filter-controls__reset");
 
     assert.dom(".cstore-audit__entry").exists({ count: 2 });
   });
