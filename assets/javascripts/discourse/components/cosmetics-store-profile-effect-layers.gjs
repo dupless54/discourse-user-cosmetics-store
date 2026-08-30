@@ -13,6 +13,46 @@ function nonNegativeNumber(value, fallback = 0) {
   return Number.isFinite(number) && number >= 0 ? number : fallback;
 }
 
+export function profileEffectGeometry(effect = {}) {
+  const innerWidth = Math.max(
+    nonNegativeNumber(
+      effect.effect_inner_width ?? effect.inner_width,
+      DEFAULT_INNER_WIDTH,
+    ),
+    1,
+  );
+  const overflowTop = nonNegativeNumber(
+    effect.effect_overflow_top ?? effect.overflow_top,
+  );
+  const overflowBottom = nonNegativeNumber(
+    effect.effect_overflow_bottom ?? effect.overflow_bottom,
+  );
+  const overflowHorizontal = nonNegativeNumber(
+    effect.effect_overflow_horizontal ?? effect.overflow_horizontal,
+  );
+  const sideOffsetTop = nonNegativeNumber(
+    effect.effect_side_offset_top ?? effect.side_offset_top,
+  );
+  const sideOffsetBottom = nonNegativeNumber(
+    effect.effect_side_offset_bottom ?? effect.side_offset_bottom,
+  );
+  const cardHeight = innerWidth * (CARD_HEIGHT / CARD_WIDTH);
+  const stageWidth = innerWidth + overflowHorizontal * 2;
+  const stageHeight = cardHeight + overflowTop + overflowBottom;
+
+  return {
+    innerWidth,
+    overflowTop,
+    overflowBottom,
+    overflowHorizontal,
+    sideOffsetTop,
+    sideOffsetBottom,
+    cardHeight,
+    stageWidth,
+    stageHeight,
+  };
+}
+
 export default class CosmeticsStoreProfileEffectLayers extends Component {
   get effect() {
     return this.args.effect ?? {};
@@ -35,40 +75,15 @@ export default class CosmeticsStoreProfileEffectLayers extends Component {
   }
 
   get geometryStyle() {
-    const innerWidth = Math.max(
-      nonNegativeNumber(
-        this.effect.effect_inner_width ?? this.effect.inner_width,
-        DEFAULT_INNER_WIDTH,
-      ),
-      1,
-    );
-    const overflowTop = nonNegativeNumber(
-      this.effect.effect_overflow_top ?? this.effect.overflow_top,
-    );
-    const overflowBottom = nonNegativeNumber(
-      this.effect.effect_overflow_bottom ?? this.effect.overflow_bottom,
-    );
-    const overflowHorizontal = nonNegativeNumber(
-      this.effect.effect_overflow_horizontal ??
-        this.effect.overflow_horizontal,
-    );
-    const sideOffsetTop = nonNegativeNumber(
-      this.effect.effect_side_offset_top ?? this.effect.side_offset_top,
-    );
-    const sideOffsetBottom = nonNegativeNumber(
-      this.effect.effect_side_offset_bottom ?? this.effect.side_offset_bottom,
-    );
-    const cardHeight = innerWidth * (CARD_HEIGHT / CARD_WIDTH);
-    const stageWidth = innerWidth + overflowHorizontal * 2;
-    const stageHeight = cardHeight + overflowTop + overflowBottom;
+    const geometry = profileEffectGeometry(this.effect);
 
     return htmlSafe(
-      `--cstore-effect-left:${(-overflowHorizontal / innerWidth) * 100}%;` +
-        `--cstore-effect-width:${(stageWidth / innerWidth) * 100}%;` +
-        `--cstore-effect-ratio:${stageWidth} / ${stageHeight};` +
-        `--cstore-effect-shift-y:${(-overflowTop / stageHeight) * 100}%;` +
-        `--cstore-effect-side-top:${(sideOffsetTop / stageHeight) * 100}%;` +
-        `--cstore-effect-side-bottom:${(sideOffsetBottom / stageHeight) * 100}%`,
+      `--cstore-effect-left:${(-geometry.overflowHorizontal / geometry.innerWidth) * 100}%;` +
+        `--cstore-effect-width:${(geometry.stageWidth / geometry.innerWidth) * 100}%;` +
+        `--cstore-effect-ratio:${geometry.stageWidth} / ${geometry.stageHeight};` +
+        `--cstore-effect-shift-y:${(-geometry.overflowTop / geometry.stageHeight) * 100}%;` +
+        `--cstore-effect-side-top:${(geometry.sideOffsetTop / geometry.stageHeight) * 100}%;` +
+        `--cstore-effect-side-bottom:${(geometry.sideOffsetBottom / geometry.stageHeight) * 100}%`,
     );
   }
 

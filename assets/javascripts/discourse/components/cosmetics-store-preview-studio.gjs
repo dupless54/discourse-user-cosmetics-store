@@ -10,7 +10,9 @@ import { eq } from "discourse/truth-helpers";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { prefersReducedMotion } from "../lib/cosmetics-store-motion";
-import CosmeticsStoreProfileEffectLayers from "./cosmetics-store-profile-effect-layers";
+import CosmeticsStoreProfileEffectLayers, {
+  profileEffectGeometry,
+} from "./cosmetics-store-profile-effect-layers";
 
 const SLOT_KINDS = [
   "avatar_frame",
@@ -19,12 +21,7 @@ const SLOT_KINDS = [
   "profile_effect",
 ];
 const MOTION_HEAVY_KINDS = new Set(["card_decoration", "profile_effect"]);
-const DEFAULT_EFFECT_INNER_WIDTH = 1200;
-
-function nonNegativeNumber(value, fallback = 0) {
-  const number = Number(value);
-  return Number.isFinite(number) && number >= 0 ? number : fallback;
-}
+const PREVIEW_CARD_WIDTH_REM = 19;
 
 export default class CosmeticsStorePreviewStudio extends Component {
   @tracked selections;
@@ -83,6 +80,10 @@ export default class CosmeticsStorePreviewStudio extends Component {
     return template ? String(template).replace("{size}", "160") : null;
   }
 
+  get previewName() {
+    return this.args.viewer?.name || this.args.viewer?.username || "";
+  }
+
   get hasChanges() {
     return SLOT_KINDS.some(
       (kind) => this.selections[kind] !== this.savedSelections[kind]
@@ -99,64 +100,45 @@ export default class CosmeticsStorePreviewStudio extends Component {
       return htmlSafe("");
     }
 
-    let background = "";
-    if (item.image_url) {
-      background = `background-image:url("${item.image_url}")`;
-    } else if (item.gradient_from && item.gradient_to) {
-      background = `background-image:linear-gradient(90deg,${item.gradient_from},${item.gradient_to})`;
-    } else {
-      return htmlSafe("");
-    }
+    const styles = [];
 
-    const glow = item.glow_color
-      ? `box-shadow:0 0 18px ${item.glow_color};`
-      : "";
-
-    return htmlSafe(
-      `${background};background-size:cover;background-position:center;` +
-        `background-repeat:no-repeat;${glow}`
-    );
-  }
-
-  get previewEffectCanvasStyle() {
-    const effect = this.profileEffect;
-    if (!effect || prefersReducedMotion()) {
-      return htmlSafe(
-        "--cstore-preview-effect-pad-top:0%;--cstore-preview-effect-pad-bottom:0%"
+    if (!item.image_url && item.gradient_from && item.gradient_to) {
+      styles.push(
+        `background-image:linear-gradient(90deg,${item.gradient_from},${item.gradient_to})`,
       );
     }
 
-    const innerWidth = Math.max(
-      nonNegativeNumber(
-        effect.effect_inner_width ?? effect.inner_width,
-        DEFAULT_EFFECT_INNER_WIDTH
-      ),
-      1
-    );
-    const overflowTop = nonNegativeNumber(
-      effect.effect_overflow_top ?? effect.overflow_top
-    );
-    const overflowBottom = nonNegativeNumber(
-      effect.effect_overflow_bottom ?? effect.overflow_bottom
-    );
-    const topPercent = ((overflowTop / innerWidth) * 100).toFixed(4);
-    const bottomPercent = ((overflowBottom / innerWidth) * 100).toFixed(4);
+    if (item.glow_color) {
+      styles.push(`box-shadow:0 0 18px ${item.glow_color}`);
+    }
+
+    return htmlSafe(styles.join(";"));
+  }
+
+  get effectStageStyle() {
+    const geometry = profileEffectGeometry(this.profileEffect ?? {});
+    const stageMaxWidth =
+      PREVIEW_CARD_WIDTH_REM * (geometry.stageWidth / geometry.innerWidth);
 
     return htmlSafe(
-      `--cstore-preview-effect-pad-top:${topPercent}%;` +
-        `--cstore-preview-effect-pad-bottom:${bottomPercent}%`
+      `--cstore-preview-stage-ratio:${geometry.stageWidth} / ${geometry.stageHeight};` +
+        `--cstore-preview-stage-max-width:${stageMaxWidth}rem;` +
+        `--cstore-preview-card-left:${(geometry.overflowHorizontal / geometry.stageWidth) * 100}%;` +
+        `--cstore-preview-card-top:${(geometry.overflowTop / geometry.stageHeight) * 100}%;` +
+        `--cstore-preview-card-width:${(geometry.innerWidth / geometry.stageWidth) * 100}%;` +
+        `--cstore-preview-card-height:${(geometry.cardHeight / geometry.stageHeight) * 100}%`,
     );
   }
 
   get showCardDecorationImage() {
     return Boolean(
-      this.cardDecoration?.image_url && !prefersReducedMotion()
+      this.cardDecoration?.image_url && !prefersReducedMotion(),
     );
   }
 
   get hasCardDecorationGradient() {
     return Boolean(
-      this.cardDecoration?.gradient_from && this.cardDecoration?.gradient_to
+      this.cardDecoration?.gradient_from && this.cardDecoration?.gradient_to,
     );
   }
 
@@ -323,8 +305,9 @@ export default class CosmeticsStorePreviewStudio extends Component {
           </div>
 
           <div
-            class="cstore-preview-studio__effect-canvas"
-            style={{this.previewEffectCanvasStyle}}
+            class="cstore-preview-studio__effect-stage"
+            style={{this.effectStageStyle}}
+            data-testid="preview-effect-stage"
           >
             <div class="cstore-preview-studio__effect-wrap">
               {{#if this.profileEffect}}
@@ -385,11 +368,21 @@ export default class CosmeticsStorePreviewStudio extends Component {
                         style={{this.nameplateStyle}}
                         title={{this.nameplate.name}}
                       >
-                        {{@viewer.username}}
+                        {{#if this.nameplate.image_url}}
+                          <img
+                            class="cstore-preview-studio-nameplate__image"
+                            src={{this.nameplate.image_url}}
+                            alt=""
+                            aria-hidden="true"
+                          />
+                        {{/if}}
+                        <span class="cstore-preview-studio-nameplate__label">
+                          {{this.previewName}}
+                        </span>
                       </span>
                     {{else}}
                       <span class="cstore-preview-studio-card__plain-name">
-                        {{@viewer.username}}
+                        {{this.previewName}}
                       </span>
                     {{/if}}
                     <p>{{i18n "discourse_cosmetics_store.preview.sample_bio"}}</p>

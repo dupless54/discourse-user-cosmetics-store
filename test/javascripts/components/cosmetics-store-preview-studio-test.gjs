@@ -36,13 +36,15 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
         kind: "nameplate",
         name: "Night plate",
         image_url: "/images/night-plate.png",
+        gradient_from: "#111111",
+        gradient_to: "#333333",
       },
       {
         id: 6,
         kind: "nameplate",
-        name: "Purple gradient",
-        gradient_from: "#5b21b6",
-        gradient_to: "#2563eb",
+        name: "Gradient plate",
+        gradient_from: "#111111",
+        gradient_to: "#333333",
       },
       {
         id: 3,
@@ -89,20 +91,10 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
     assert
       .dom(".cstore-preview-studio-avatar__frame")
       .hasAttribute("src", "/images/gold-frame.png");
-    assert.dom(".cstore-preview-studio-nameplate").includesText("eviltrout");
-    assert.dom(".cstore-preview-studio-nameplate").doesNotIncludeText("Night plate");
     assert
-      .dom(".cstore-preview-studio-nameplate")
-      .hasAttribute(
-        "style",
-        /background-image:\s*url\(["']?\/images\/night-plate\.png["']?\)/
-      );
-    assert
-      .dom(".cstore-preview-studio__effect-canvas")
-      .hasAttribute(
-        "style",
-        /--cstore-preview-effect-pad-top:\s*8\.3333%.*--cstore-preview-effect-pad-bottom:\s*8\.3333%/
-      );
+      .dom(".cstore-preview-studio-nameplate__image")
+      .hasAttribute("src", "/images/night-plate.png");
+    assert.dom(".cstore-preview-studio-nameplate__label").hasText("eviltrout");
     assert
       .dom(".cstore-preview-studio-card__decoration")
       .hasAttribute("src", "/images/card-glow.png");
@@ -110,7 +102,7 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
     assert.dom(".cstore-profile-effect-layers--front img").exists({ count: 1 });
   });
 
-  test("updates nameplate artwork immediately inside the preview", async function (assert) {
+  test("reserves the profile effect overflow inside the preview stage", async function (assert) {
     await render(
       <template>
         <CosmeticsStorePreviewStudio
@@ -121,17 +113,50 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
       </template>
     );
 
+    const stage = document.querySelector("[data-testid='preview-effect-stage']");
+    const cardWidth = Number.parseFloat(
+      stage.style.getPropertyValue("--cstore-preview-card-width"),
+    );
+    const cardTop = Number.parseFloat(
+      stage.style.getPropertyValue("--cstore-preview-card-top"),
+    );
+    const cardLeft = Number.parseFloat(
+      stage.style.getPropertyValue("--cstore-preview-card-left"),
+    );
+
+    assert.ok(cardWidth < 100, "horizontal overflow reserves stage width");
+    assert.ok(cardTop > 0, "top overflow reserves stage height");
+    assert.ok(cardLeft > 0, "horizontal overflow offsets the card inside the stage");
+    assert
+      .dom(".cstore-preview-studio__effect-stage .cstore-preview-studio-card")
+      .exists("the user card stays inside the reserved effect stage");
+  });
+
+  test("uses an image nameplate first and keeps the gradient fallback", async function (assert) {
+    await render(
+      <template>
+        <CosmeticsStorePreviewStudio
+          @items={{this.items}}
+          @selections={{this.selections}}
+          @viewer={{this.viewer}}
+        />
+      </template>
+    );
+
+    assert.dom(".cstore-preview-studio-nameplate__image").exists();
+    assert.dom(".cstore-preview-studio-nameplate__label").hasText("eviltrout");
+
     await click("[data-slot-kind='nameplate'] [data-item-id='6']");
 
-    assert.dom("[data-slot-kind='nameplate'] [data-item-id='6']").hasClass("is-selected");
-    assert.dom(".cstore-preview-studio-nameplate").includesText("eviltrout");
-    assert
-      .dom(".cstore-preview-studio-nameplate")
-      .hasAttribute(
-        "style",
-        /linear-gradient\(90deg,\s*#5b21b6,\s*#2563eb\)/
-      );
-    assert.dom("[data-testid='apply-preview']").isEnabled();
+    assert.dom(".cstore-preview-studio-nameplate__image").doesNotExist();
+    assert.dom(".cstore-preview-studio-nameplate__label").hasText("eviltrout");
+    assert.true(
+      document
+        .querySelector(".cstore-preview-studio-nameplate")
+        .getAttribute("style")
+        .includes("linear-gradient(90deg,#111111,#333333)"),
+      "gradient-only nameplates keep their visual fallback",
+    );
   });
 
   test("keeps changes temporary and reset restores the server selection", async function (assert) {
