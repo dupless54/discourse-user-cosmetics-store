@@ -95,12 +95,15 @@ module("Component | Store admin sections", function (hooks) {
     assert.dom(".cstore-admin-form--mission").doesNotExist();
   });
 
-  test("wallets render as an independent admin section", async function (assert) {
+  test("wallets use a native FormKit lookup without legacy input handlers", async function (assert) {
     await render(
       <template><CosmeticsStoreWalletsAdmin @model={{this.model}} /></template>
     );
 
     assert.dom(".cstore-admin-wallets").exists();
     assert.dom(".cstore-admin__tabs").doesNotExist();
+    assert.dom('input[name="username"]').exists();
+    assert.dom(".cstore-wallet-search").doesNotExist();
+    assert.dom(".cstore-wallet-card").doesNotExist();
   });
 });
