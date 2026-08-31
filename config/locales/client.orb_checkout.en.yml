@@ -1,0 +1,30 @@
+en:
+  js:
+    discourse_cosmetics_store:
+      storefront:
+        orb_checkout:
+          secure_payment: "SECURE PAYMENT"
+          top_up_title: "Top up %{currency}"
+          provider_notice: "Card details are never sent to the forum server; payment is completed on the secure page of your selected provider."
+          recommended: "RECOMMENDED"
+          package_action: "Top up for %{price} %{currency}"
+          unavailable_title: "Orb top-ups are currently unavailable"
+          unavailable_admin: "Enable Shopier in payment settings and publish at least one Orb package from the Payments tab."
+          unavailable_user: "There are currently no active Orb packages available to purchase. Packages will appear here when they become available."
+          history_eyebrow: "PAYMENT HISTORY"
+          history_title: "Recent top-ups"
+          refunded_amount: "−%{amount} refunded"
+          modal_eyebrow: "TOP UP ORBS"
+          payment_method: "Payment method"
+          billing_legend: "Billing details required by the provider"
+          billing:
+            name: "Full name"
+            phone: "Phone"
+            address: "Address"
+            city: "City"
+            country: "Country"
+            postal_code: "Postal code"
+            identity_number: "Identity number"
+          server_validation_notice: "The amount, currency, and provider signature are revalidated on the server before any balance is credited."
+          preparing: "Preparing secure payment…"
+          continue_to_payment: "Continue to payment"

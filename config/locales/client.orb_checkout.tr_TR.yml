@@ -1,0 +1,30 @@
+tr_TR:
+  js:
+    discourse_cosmetics_store:
+      storefront:
+        orb_checkout:
+          secure_payment: "GÜVENLİ ÖDEME"
+          top_up_title: "%{currency} yükle"
+          provider_notice: "Kart bilgilerin forum sunucusuna gönderilmez; ödeme seçtiğin sağlayıcının güvenli sayfasında tamamlanır."
+          recommended: "ÖNERİLEN"
+          package_action: "%{price} %{currency} ile yükle"
+          unavailable_title: "Orb yükleme şu anda kapalı"
+          unavailable_admin: "Ödeme ayarlarından Shopier'i etkinleştirip Ödemeler sekmesinde en az bir Orb paketini yayına alın."
+          unavailable_user: "Şu anda satın alınabilir aktif bir Orb paketi bulunmuyor. Paketler açıldığında burada görünecek."
+          history_eyebrow: "ÖDEME GEÇMİŞİ"
+          history_title: "Son yüklemeler"
+          refunded_amount: "−%{amount} iade"
+          modal_eyebrow: "ORB YÜKLE"
+          payment_method: "Ödeme yöntemi"
+          billing_legend: "Sağlayıcı için gerekli fatura bilgileri"
+          billing:
+            name: "Ad soyad"
+            phone: "Telefon"
+            address: "Adres"
+            city: "Şehir"
+            country: "Ülke"
+            postal_code: "Posta kodu"
+            identity_number: "Kimlik numarası"
+          server_validation_notice: "Tutar, para birimi ve sağlayıcı imzası sunucuda tekrar doğrulanmadan bakiye yüklenmez."
+          preparing: "Güvenli ödeme hazırlanıyor…"
+          continue_to_payment: "Ödemeye devam et"

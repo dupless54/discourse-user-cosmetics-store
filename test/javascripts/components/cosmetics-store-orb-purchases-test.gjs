@@ -23,8 +23,8 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
       {
         id: "shopier",
         label: "Shopier",
-        requires_billing: false,
-        requires_identity: false,
+        requires_billing: true,
+        requires_identity: true,
       },
       {
         id: "stripe",
@@ -38,7 +38,7 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
     this.settings = { currency_symbol: "◈", currency_name: "SeninCoin" };
   });
 
-  test("opens checkout in native DModal and keeps provider controls interactive", async function (assert) {
+  test("opens localized checkout in native DModal and keeps provider controls interactive", async function (assert) {
     await render(
       <template>
         <CosmeticsStoreOrbPurchases
@@ -52,11 +52,23 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
       </template>
     );
 
+    assert.dom(".cstore-section__heading").includesText("SECURE PAYMENT");
+    assert.dom(".cstore-section__heading").includesText("Top up SeninCoin");
+    assert.dom("[data-testid='orb-package-open']").includesText("Top up for 4.99 EUR");
+    assert.dom(".cstore-cash-packages__badge").hasText("RECOMMENDED");
+
     await click("[data-testid='orb-package-open']");
 
     assert.dom(".d-modal.cstore-payment-dialog").exists();
     assert.dom(".cstore-payment-dialog__backdrop").doesNotExist();
     assert.dom(".cstore-payment-dialog__close").doesNotExist();
+    assert.dom(".cstore-payment-dialog__window").includesText("Payment method");
+    assert.dom(".cstore-payment-billing").includesText("Billing details required by the provider");
+    assert.dom(".cstore-payment-billing").includesText("Full name");
+    assert.dom(".cstore-payment-billing").includesText("Identity number");
+    assert
+      .dom(".cstore-payment-dialog__notice")
+      .includesText("revalidated on the server");
     assert.dom("[data-testid='payment-provider']").exists({ count: 2 });
     assert.dom("[data-testid='payment-provider']:first-child").hasClass("btn");
     assert.dom("[data-testid='payment-provider']:first-child").hasClass("is-active");
@@ -69,6 +81,7 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
       .hasAttribute("aria-pressed", "false");
     assert.dom("[data-testid='payment-submit']").hasClass("btn");
     assert.dom("[data-testid='payment-submit']").hasAttribute("type", "submit");
+    assert.dom("[data-testid='payment-submit']").hasText("Continue to payment");
     assert.dom("[data-testid='payment-submit']").isEnabled();
 
     await click("[data-testid='payment-provider']:last-child");
@@ -81,5 +94,6 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
     assert
       .dom("[data-testid='payment-provider']:first-child")
       .hasAttribute("aria-pressed", "false");
+    assert.dom(".cstore-payment-billing").doesNotExist();
   });
 });
