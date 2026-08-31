@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { fn } from "@ember/helper";
 import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import {
@@ -95,14 +96,15 @@ export default class CosmeticsStoreProductCard extends Component {
       </button>
 
       {{#if @favoritesEnabled}}
-        <button
+        <DButton
           class="cstore-favorite {{if @product.favorite 'is-active'}}"
-          type="button"
-          aria-label={{this.favoriteLabel}}
-          aria-pressed={{@product.favorite}}
-          disabled={{this.favoriteDisabled}}
-          {{on "click" (fn @onFavorite @product)}}
-        >{{dIcon "heart"}}</button>
+          @icon="heart"
+          @translatedAriaLabel={{this.favoriteLabel}}
+          @ariaPressed={{@product.favorite}}
+          @disabled={{this.favoriteDisabled}}
+          @action={{@onFavorite}}
+          @actionParam={{@product}}
+        />
       {{/if}}
 
       <div class="cstore-product__actions">
@@ -111,7 +113,14 @@ export default class CosmeticsStoreProductCard extends Component {
             <span>{{@currencySymbol}} {{@product.price}}</span><b>{{dIcon "cart-shopping"}} {{this.primaryActionLabel}}</b>
           </button>
         {{/unless}}
-        <button class="cstore-product__gift" type="button" disabled={{this.giftDisabled}} aria-label={{this.giftLabel}} {{on "click" (fn @onGift @product)}}>{{dIcon "gift"}}</button>
+        <DButton
+          class="cstore-product__gift"
+          @icon="gift"
+          @disabled={{this.giftDisabled}}
+          @translatedAriaLabel={{this.giftLabel}}
+          @action={{@onGift}}
+          @actionParam={{@product}}
+        />
       </div>
 
       <button class="cstore-product__info" type="button" {{on "click" (fn @onOpen @product)}}>
