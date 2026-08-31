@@ -55,12 +55,14 @@ module("Component | CosmeticsStoreInventory", function (hooks) {
     };
   });
 
-  test("defaults to direct ownership and keeps preview navigation", async function (assert) {
+  test("defaults to direct ownership and keeps native preview navigation", async function (assert) {
     await renderInventory(this);
 
     assert.dom("[data-testid='inventory-owned-count'] strong").hasText("1", "owned count is rendered");
     assert.dom("[data-testid='inventory-unlocked-count'] strong").hasText("2", "unlocked count is rendered");
-    assert.dom("a[href='/store/preview']").exists("preview studio remains reachable");
+    assert.dom("a.btn[href='/store/preview']").exists("preview studio remains reachable through a native button link");
+    assert.dom("[data-testid='inventory-mode-owned']").hasAria("pressed", "true");
+    assert.dom("[data-testid='inventory-mode-unlocked']").hasAria("pressed", "false");
     assert.dom("[data-item-id='11']").exists("directly owned item is shown");
     assert
       .dom("[data-item-id='22']")
@@ -68,6 +70,8 @@ module("Component | CosmeticsStoreInventory", function (hooks) {
 
     await click("[data-testid='inventory-mode-unlocked']");
 
+    assert.dom("[data-testid='inventory-mode-owned']").hasAria("pressed", "false");
+    assert.dom("[data-testid='inventory-mode-unlocked']").hasAria("pressed", "true");
     assert.dom("[data-item-id='11']").exists("owned item remains available");
     assert.dom("[data-item-id='22']").exists("access-only item appears in unlocked mode");
   });
@@ -152,7 +156,7 @@ module("Component | CosmeticsStoreInventory", function (hooks) {
     await renderInventory(this);
 
     assert.dom("[data-testid='equip-cosmetic']").doesNotExist("no client action is exposed without server capability");
-    assert.dom("a[href='/my/preferences/cosmetics']").exists("advanced Base settings remain available");
+    assert.dom("a.btn[href='/my/preferences/cosmetics']").exists("advanced Base settings remain available through a native button link");
   });
 });
 
