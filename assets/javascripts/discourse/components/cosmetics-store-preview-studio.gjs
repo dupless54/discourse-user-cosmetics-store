@@ -7,6 +7,7 @@ import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { prefersReducedMotion } from "../lib/cosmetics-store-motion";
@@ -92,6 +93,14 @@ export default class CosmeticsStorePreviewStudio extends Component {
 
   get applyDisabled() {
     return this.applying || !this.hasChanges;
+  }
+
+  get applyLabel() {
+    return i18n(
+      this.applying
+        ? "discourse_cosmetics_store.preview.applying"
+        : "discourse_cosmetics_store.preview.apply_action"
+    );
   }
 
   get nameplateStyle() {
@@ -224,12 +233,18 @@ export default class CosmeticsStorePreviewStudio extends Component {
           <p>{{i18n "discourse_cosmetics_store.preview.subtitle"}}</p>
         </div>
         <div class="cstore-preview-studio__hero-actions">
-          <a class="btn btn-default" href="/store/inventory">
-            {{i18n "discourse_cosmetics_store.nav.inventory"}}
-          </a>
-          <a class="btn btn-default" href="/store/loadouts">
-            {{i18n "discourse_cosmetics_store.nav.loadouts"}}
-          </a>
+          <DButton
+            class="btn-default"
+            data-testid="preview-inventory-link"
+            @href="/store/inventory"
+            @label="discourse_cosmetics_store.nav.inventory"
+          />
+          <DButton
+            class="btn-default"
+            data-testid="preview-loadouts-link"
+            @href="/store/loadouts"
+            @label="discourse_cosmetics_store.nav.loadouts"
+          />
         </div>
       </section>
 
@@ -400,28 +415,20 @@ export default class CosmeticsStorePreviewStudio extends Component {
           </div>
 
           <div class="cstore-preview-studio__actions">
-            <button
-              type="button"
-              class="btn btn-primary"
+            <DButton
+              class="btn-primary"
               data-testid="apply-preview"
-              disabled={{this.applyDisabled}}
-              {{on "click" this.applyPreview}}
-            >
-              {{#if this.applying}}
-                {{i18n "discourse_cosmetics_store.preview.applying"}}
-              {{else}}
-                {{i18n "discourse_cosmetics_store.preview.apply_action"}}
-              {{/if}}
-            </button>
-            <button
-              type="button"
-              class="btn btn-default"
+              @action={{this.applyPreview}}
+              @disabled={{this.applyDisabled}}
+              @translatedLabel={{this.applyLabel}}
+            />
+            <DButton
+              class="btn-default"
               data-testid="reset-preview"
-              disabled={{this.applying}}
-              {{on "click" this.resetPreview}}
-            >
-              {{i18n "discourse_cosmetics_store.preview.reset_action"}}
-            </button>
+              @action={{this.resetPreview}}
+              @disabled={{this.applying}}
+              @label="discourse_cosmetics_store.preview.reset_action"
+            />
           </div>
         </aside>
       </div>

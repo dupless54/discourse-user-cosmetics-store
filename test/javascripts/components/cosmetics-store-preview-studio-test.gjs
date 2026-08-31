@@ -76,7 +76,7 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
     ];
   });
 
-  test("previews four equipped cosmetic types without applying them", async function (assert) {
+  test("previews four equipped cosmetic types with native standard actions", async function (assert) {
     await render(
       <template>
         <CosmeticsStorePreviewStudio
@@ -87,6 +87,16 @@ module("Component | CosmeticsStorePreviewStudio", function (hooks) {
       </template>
     );
 
+    assert.dom("[data-testid='preview-inventory-link']").hasClass("btn");
+    assert
+      .dom("[data-testid='preview-inventory-link']")
+      .hasAttribute("href", "/store/inventory");
+    assert.dom("[data-testid='preview-loadouts-link']").hasClass("btn");
+    assert
+      .dom("[data-testid='preview-loadouts-link']")
+      .hasAttribute("href", "/store/loadouts");
+    assert.dom("[data-testid='apply-preview']").hasClass("btn-primary");
+    assert.dom("[data-testid='reset-preview']").hasClass("btn-default");
     assert.dom("[data-testid='apply-preview']").isDisabled();
     assert
       .dom(".cstore-preview-studio-avatar__frame")
