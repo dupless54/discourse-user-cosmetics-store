@@ -8,6 +8,7 @@ import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
+import { i18n } from "discourse-i18n";
 
 export default class CosmeticsStoreOrbPurchases extends Component {
   @tracked selectedPackage = null;
@@ -101,19 +102,43 @@ export default class CosmeticsStoreOrbPurchases extends Component {
   <template>
     <section id="orb-yukle" class="cstore-cash-packages" tabindex="-1">
       <div class="cstore-section__heading">
-        <div><p class="cstore-eyebrow">GÜVENLİ ÖDEME</p><h2>{{@settings.currency_name}} yükle</h2></div>
-        <p>Kart bilgilerin forum sunucusuna gönderilmez; ödeme seçtiğin sağlayıcının güvenli sayfasında tamamlanır.</p>
+        <div>
+          <p class="cstore-eyebrow">
+            {{i18n "discourse_cosmetics_store.storefront.orb_checkout.secure_payment"}}
+          </p>
+          <h2>
+            {{i18n
+              "discourse_cosmetics_store.storefront.orb_checkout.top_up_title"
+              currency=@settings.currency_name
+            }}
+          </h2>
+        </div>
+        <p>{{i18n "discourse_cosmetics_store.storefront.orb_checkout.provider_notice"}}</p>
       </div>
       {{#if this.packages.length}}
         <div class="cstore-cash-packages__grid">
           {{#each this.packages as |packageRow|}}
             <article class={{if packageRow.featured "is-featured"}}>
-              {{#if packageRow.featured}}<span class="cstore-cash-packages__badge">ÖNERİLEN</span>{{/if}}
-              <div class="cstore-cash-packages__orb"><i>{{@settings.currency_symbol}}</i><strong>{{packageRow.orb_amount}}</strong></div>
+              {{#if packageRow.featured}}
+                <span class="cstore-cash-packages__badge">
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.recommended"}}
+                </span>
+              {{/if}}
+              <div class="cstore-cash-packages__orb">
+                <i>{{@settings.currency_symbol}}</i><strong>{{packageRow.orb_amount}}</strong>
+              </div>
               <h3>{{packageRow.name}}</h3>
               <p>{{packageRow.description}}</p>
-              <button type="button" data-testid="orb-package-open" {{on "click" (fn this.open packageRow)}}>
-                {{packageRow.price}} {{packageRow.currency}} ile yükle
+              <button
+                type="button"
+                data-testid="orb-package-open"
+                {{on "click" (fn this.open packageRow)}}
+              >
+                {{i18n
+                  "discourse_cosmetics_store.storefront.orb_checkout.package_action"
+                  price=packageRow.price
+                  currency=packageRow.currency
+                }}
               </button>
             </article>
           {{/each}}
@@ -122,11 +147,13 @@ export default class CosmeticsStoreOrbPurchases extends Component {
         <div class="cstore-cash-packages__empty" role="status">
           <span aria-hidden="true">{{@settings.currency_symbol}}</span>
           <div>
-            <strong>Orb yükleme şu anda kapalı</strong>
+            <strong>
+              {{i18n "discourse_cosmetics_store.storefront.orb_checkout.unavailable_title"}}
+            </strong>
             {{#if @viewer.is_admin}}
-              <p>Ödeme ayarlarından Shopier'i etkinleştirip Ödemeler sekmesinde en az bir Orb paketini yayına alın.</p>
+              <p>{{i18n "discourse_cosmetics_store.storefront.orb_checkout.unavailable_admin"}}</p>
             {{else}}
-              <p>Şu anda satın alınabilir aktif bir Orb paketi bulunmuyor. Paketler açıldığında burada görünecek.</p>
+              <p>{{i18n "discourse_cosmetics_store.storefront.orb_checkout.unavailable_user"}}</p>
             {{/if}}
           </div>
         </div>
@@ -135,10 +162,29 @@ export default class CosmeticsStoreOrbPurchases extends Component {
 
     {{#if @payments.length}}
       <section class="cstore-payment-history">
-        <div><p class="cstore-eyebrow">ÖDEME GEÇMİŞİ</p><h2>Son yüklemeler</h2></div>
+        <div>
+          <p class="cstore-eyebrow">
+            {{i18n "discourse_cosmetics_store.storefront.orb_checkout.history_eyebrow"}}
+          </p>
+          <h2>{{i18n "discourse_cosmetics_store.storefront.orb_checkout.history_title"}}</h2>
+        </div>
         <div>
           {{#each @payments as |payment|}}
-            <article><strong>+{{payment.orb_amount}} {{@settings.currency_symbol}}{{#if payment.refunded_orb_amount}} <small>−{{payment.refunded_orb_amount}} iade</small>{{/if}}</strong><span>{{payment.provider}}</span><i class="is-{{payment.status}}">{{payment.status}}</i></article>
+            <article>
+              <strong>
+                +{{payment.orb_amount}} {{@settings.currency_symbol}}
+                {{#if payment.refunded_orb_amount}}
+                  <small>
+                    {{i18n
+                      "discourse_cosmetics_store.storefront.orb_checkout.refunded_amount"
+                      amount=payment.refunded_orb_amount
+                    }}
+                  </small>
+                {{/if}}
+              </strong>
+              <span>{{payment.provider}}</span>
+              <i class="is-{{payment.status}}">{{payment.status}}</i>
+            </article>
           {{/each}}
         </div>
       </section>
@@ -154,10 +200,17 @@ export default class CosmeticsStoreOrbPurchases extends Component {
       >
         <:body>
           <form class="cstore-payment-dialog__window" {{on "submit" this.checkout}}>
-            <p class="cstore-eyebrow">ORB YÜKLE</p>
-            <div class="cstore-payment-dialog__summary"><strong>{{@settings.currency_symbol}} {{this.selectedPackage.orb_amount}}</strong><span>{{this.selectedPackage.price}} {{this.selectedPackage.currency}}</span></div>
+            <p class="cstore-eyebrow">
+              {{i18n "discourse_cosmetics_store.storefront.orb_checkout.modal_eyebrow"}}
+            </p>
+            <div class="cstore-payment-dialog__summary">
+              <strong>{{@settings.currency_symbol}} {{this.selectedPackage.orb_amount}}</strong>
+              <span>{{this.selectedPackage.price}} {{this.selectedPackage.currency}}</span>
+            </div>
             <fieldset>
-              <legend>Ödeme yöntemi</legend>
+              <legend>
+                {{i18n "discourse_cosmetics_store.storefront.orb_checkout.payment_method"}}
+              </legend>
               <div class="cstore-payment-providers">
                 {{#each this.availableProviders as |provider|}}
                   <DButton
@@ -173,23 +226,54 @@ export default class CosmeticsStoreOrbPurchases extends Component {
             </fieldset>
             {{#if this.requiresBilling}}
               <fieldset class="cstore-payment-billing">
-                <legend>Sağlayıcı için gerekli fatura bilgileri</legend>
-                <label>Ad soyad<input required value={{this.billing.name}} autocomplete="name" {{on "input" (fn this.updateBilling "name")}} /></label>
-                <label>Telefon<input required value={{this.billing.phone}} autocomplete="tel" {{on "input" (fn this.updateBilling "phone")}} /></label>
-                <label class="is-wide">Adres<input required value={{this.billing.address}} autocomplete="street-address" {{on "input" (fn this.updateBilling "address")}} /></label>
-                <label>Şehir<input required value={{this.billing.city}} autocomplete="address-level2" {{on "input" (fn this.updateBilling "city")}} /></label>
-                <label>Ülke<input required value={{this.billing.country}} autocomplete="country-name" {{on "input" (fn this.updateBilling "country")}} /></label>
-                <label>Posta kodu<input value={{this.billing.zip_code}} autocomplete="postal-code" {{on "input" (fn this.updateBilling "zip_code")}} /></label>
-                {{#if this.requiresIdentity}}<label>Kimlik numarası<input required inputmode="numeric" maxlength="20" value={{this.billing.identity_number}} autocomplete="off" {{on "input" (fn this.updateBilling "identity_number")}} /></label>{{/if}}
+                <legend>
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing_legend"}}
+                </legend>
+                <label>
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.name"}}
+                  <input required value={{this.billing.name}} autocomplete="name" {{on "input" (fn this.updateBilling "name")}} />
+                </label>
+                <label>
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.phone"}}
+                  <input required value={{this.billing.phone}} autocomplete="tel" {{on "input" (fn this.updateBilling "phone")}} />
+                </label>
+                <label class="is-wide">
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.address"}}
+                  <input required value={{this.billing.address}} autocomplete="street-address" {{on "input" (fn this.updateBilling "address")}} />
+                </label>
+                <label>
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.city"}}
+                  <input required value={{this.billing.city}} autocomplete="address-level2" {{on "input" (fn this.updateBilling "city")}} />
+                </label>
+                <label>
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.country"}}
+                  <input required value={{this.billing.country}} autocomplete="country-name" {{on "input" (fn this.updateBilling "country")}} />
+                </label>
+                <label>
+                  {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.postal_code"}}
+                  <input value={{this.billing.zip_code}} autocomplete="postal-code" {{on "input" (fn this.updateBilling "zip_code")}} />
+                </label>
+                {{#if this.requiresIdentity}}
+                  <label>
+                    {{i18n "discourse_cosmetics_store.storefront.orb_checkout.billing.identity_number"}}
+                    <input required inputmode="numeric" maxlength="20" value={{this.billing.identity_number}} autocomplete="off" {{on "input" (fn this.updateBilling "identity_number")}} />
+                  </label>
+                {{/if}}
               </fieldset>
             {{/if}}
-            <p class="cstore-payment-dialog__notice">Tutar, para birimi ve sağlayıcı imzası sunucuda tekrar doğrulanmadan bakiye yüklenmez.</p>
+            <p class="cstore-payment-dialog__notice">
+              {{i18n "discourse_cosmetics_store.storefront.orb_checkout.server_validation_notice"}}
+            </p>
             <DButton
               class="cstore-buy"
               data-testid="payment-submit"
               @type="submit"
               @disabled={{this.busy}}
-              @translatedLabel={{if this.busy "Güvenli ödeme hazırlanıyor…" "Ödemeye devam et"}}
+              @label={{if
+                this.busy
+                "discourse_cosmetics_store.storefront.orb_checkout.preparing"
+                "discourse_cosmetics_store.storefront.orb_checkout.continue_to_payment"
+              }}
             />
           </form>
         </:body>
