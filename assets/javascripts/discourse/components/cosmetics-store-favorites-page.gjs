@@ -1,12 +1,12 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { fn } from "@ember/helper";
 import { action } from "@ember/object";
 import { on } from "@ember/modifier";
 import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
 import {
   activeProductFilterCount,
@@ -311,31 +311,50 @@ export default class CosmeticsStoreFavoritesPage extends Component {
         </button>
 
         <nav aria-label={{i18n "discourse_cosmetics_store.favorites_filters.store_sections"}}>
-          <button type="button" {{on "click" (fn this.navigate "cosmetics-store")}}>
-            {{i18n "discourse_cosmetics_store.favorites_filters.featured"}}
-          </button>
-          <button type="button" {{on "click" (fn this.navigate "cosmetics-store-browse")}}>
-            {{i18n "discourse_cosmetics_store.favorites_filters.browse"}}
-          </button>
-          <button type="button" {{on "click" (fn this.navigate "cosmetics-store-collections")}}>
-            {{i18n "discourse_cosmetics_store.favorites_filters.collections"}}
-          </button>
-          <button type="button" {{on "click" (fn this.navigate "cosmetics-store-orbs")}}>
-            {{i18n "discourse_cosmetics_store.favorites_filters.orbs"}}
-          </button>
-          <button class="is-active" type="button">
-            {{i18n "discourse_cosmetics_store.favorites_filters.favorites"}}
-          </button>
+          <DButton
+            class="btn-flat"
+            data-testid="favorites-nav-featured"
+            @action={{this.navigate}}
+            @actionParam="cosmetics-store"
+            @label="discourse_cosmetics_store.favorites_filters.featured"
+          />
+          <DButton
+            class="btn-flat"
+            data-testid="favorites-nav-browse"
+            @action={{this.navigate}}
+            @actionParam="cosmetics-store-browse"
+            @label="discourse_cosmetics_store.favorites_filters.browse"
+          />
+          <DButton
+            class="btn-flat"
+            data-testid="favorites-nav-collections"
+            @action={{this.navigate}}
+            @actionParam="cosmetics-store-collections"
+            @label="discourse_cosmetics_store.favorites_filters.collections"
+          />
+          <DButton
+            class="btn-flat"
+            data-testid="favorites-nav-orbs"
+            @action={{this.navigate}}
+            @actionParam="cosmetics-store-orbs"
+            @label="discourse_cosmetics_store.favorites_filters.orbs"
+          />
+          <DButton
+            class="btn-flat is-active"
+            data-testid="favorites-nav-current"
+            @ariaPressed={{true}}
+            @label="discourse_cosmetics_store.favorites_filters.favorites"
+          />
         </nav>
 
         <div class="cstore-nav__tools">
-          <button
-            class="cstore-balance"
-            type="button"
-            {{on "click" (fn this.navigate "cosmetics-store-orbs")}}
-          >
-            {{this.settings.currency_symbol}} {{this.wallet.balance}}
-          </button>
+          <DButton
+            class="cstore-balance btn-flat"
+            data-testid="favorites-balance"
+            @action={{this.navigate}}
+            @actionParam="cosmetics-store-orbs"
+            @translatedLabel={{concat this.settings.currency_symbol " " this.wallet.balance}}
+          />
         </div>
       </header>
 
@@ -344,17 +363,24 @@ export default class CosmeticsStoreFavoritesPage extends Component {
           <div class="cstore-empty">
             <strong>{{i18n "discourse_cosmetics_store.favorites_filters.login_title"}}</strong>
             <p>{{i18n "discourse_cosmetics_store.favorites_filters.login_description"}}</p>
-            <a class="btn btn-primary" href="/login?return_path=%2Fstore%2Ffavorites">
-              {{i18n "discourse_cosmetics_store.favorites_filters.login_action"}}
-            </a>
+            <DButton
+              class="btn-primary"
+              data-testid="favorites-login"
+              @href="/login?return_path=%2Fstore%2Ffavorites"
+              @label="discourse_cosmetics_store.favorites_filters.login_action"
+            />
           </div>
         {{else if (eq this.rawFavoriteCount 0)}}
           <div class="cstore-empty">
             <strong>{{i18n "discourse_cosmetics_store.favorites_filters.empty_title"}}</strong>
             <p>{{i18n "discourse_cosmetics_store.favorites_filters.empty_description"}}</p>
-            <button type="button" {{on "click" (fn this.navigate "cosmetics-store-browse")}}>
-              {{i18n "discourse_cosmetics_store.favorites_filters.browse_action"}}
-            </button>
+            <DButton
+              class="btn-primary"
+              data-testid="favorites-empty-browse"
+              @action={{this.navigate}}
+              @actionParam="cosmetics-store-browse"
+              @label="discourse_cosmetics_store.favorites_filters.browse_action"
+            />
           </div>
         {{else}}
           <div class="cstore-browse-layout">
@@ -457,14 +483,13 @@ export default class CosmeticsStoreFavoritesPage extends Component {
                 {{#if this.hasActiveFilters}}
                   <span class="cstore-favorites-center__active-count">{{this.activeFilterLabel}}</span>
                 {{/if}}
-                <button
-                  class="cstore-filter-reset"
-                  type="button"
-                  disabled={{this.resetDisabled}}
-                  {{on "click" this.resetFilters}}
-                >
-                  {{i18n "discourse_cosmetics_store.favorites_filters.reset"}}
-                </button>
+                <DButton
+                  class="cstore-filter-reset btn-default"
+                  data-testid="favorites-filter-reset"
+                  @action={{this.resetFilters}}
+                  @disabled={{this.resetDisabled}}
+                  @label="discourse_cosmetics_store.favorites_filters.reset"
+                />
               </div>
             </aside>
 
@@ -506,9 +531,12 @@ export default class CosmeticsStoreFavoritesPage extends Component {
                 <div class="cstore-empty">
                   <strong>{{i18n "discourse_cosmetics_store.favorites_filters.no_matches_title"}}</strong>
                   <p>{{i18n "discourse_cosmetics_store.favorites_filters.no_matches_description"}}</p>
-                  <button type="button" {{on "click" this.resetFilters}}>
-                    {{i18n "discourse_cosmetics_store.favorites_filters.reset"}}
-                  </button>
+                  <DButton
+                    class="btn-default"
+                    data-testid="favorites-no-matches-reset"
+                    @action={{this.resetFilters}}
+                    @label="discourse_cosmetics_store.favorites_filters.reset"
+                  />
                 </div>
               {{/if}}
             </section>
