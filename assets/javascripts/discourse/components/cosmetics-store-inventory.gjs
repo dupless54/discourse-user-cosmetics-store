@@ -6,6 +6,7 @@ import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
@@ -158,20 +159,28 @@ export default class CosmeticsStoreInventory extends Component {
               <span>{{i18n "discourse_cosmetics_store.inventory.subtitle"}}</span>
             </div>
             <div>
-              <a class="btn btn-default" href="/store">
-                {{i18n "discourse_cosmetics_store.title"}}
-              </a>
-              <a class="btn btn-default" href="/store/loadouts">
-                {{i18n "discourse_cosmetics_store.nav.loadouts"}}
-              </a>
-              <a class="btn btn-default" href="/store/preview">
-                {{dIcon "palette"}}
-                {{i18n "discourse_cosmetics_store.nav.preview"}}
-              </a>
-              <a class="btn btn-primary" href="/my/preferences/cosmetics">
-                {{dIcon "check"}}
-                {{i18n "discourse_cosmetics_store.inventory.manage_action"}}
-              </a>
+              <DButton
+                class="btn-default"
+                @href="/store"
+                @label="discourse_cosmetics_store.title"
+              />
+              <DButton
+                class="btn-default"
+                @href="/store/loadouts"
+                @label="discourse_cosmetics_store.nav.loadouts"
+              />
+              <DButton
+                class="btn-default"
+                @href="/store/preview"
+                @icon="palette"
+                @label="discourse_cosmetics_store.nav.preview"
+              />
+              <DButton
+                class="btn-primary"
+                @href="/my/preferences/cosmetics"
+                @icon="check"
+                @label="discourse_cosmetics_store.inventory.manage_action"
+              />
             </div>
           </div>
 
@@ -196,24 +205,20 @@ export default class CosmeticsStoreInventory extends Component {
 
           <div class="cstore-results__bar">
             <div>
-              <button
-                type="button"
+              <DButton
+                class={{if (eq this.mode "owned") "btn-primary" "btn-default"}}
                 data-testid="inventory-mode-owned"
-                class={{if (eq this.mode "owned") "btn btn-primary" "btn btn-default"}}
-                aria-pressed={{eq this.mode "owned"}}
-                {{on "click" (fn this.setMode "owned")}}
-              >
-                {{i18n "discourse_cosmetics_store.inventory.mode_owned"}}
-              </button>
-              <button
-                type="button"
+                @action={{fn this.setMode "owned"}}
+                @ariaPressed={{eq this.mode "owned"}}
+                @label="discourse_cosmetics_store.inventory.mode_owned"
+              />
+              <DButton
+                class={{if (eq this.mode "unlocked") "btn-primary" "btn-default"}}
                 data-testid="inventory-mode-unlocked"
-                class={{if (eq this.mode "unlocked") "btn btn-primary" "btn btn-default"}}
-                aria-pressed={{eq this.mode "unlocked"}}
-                {{on "click" (fn this.setMode "unlocked")}}
-              >
-                {{i18n "discourse_cosmetics_store.inventory.mode_unlocked"}}
-              </button>
+                @action={{fn this.setMode "unlocked"}}
+                @ariaPressed={{eq this.mode "unlocked"}}
+                @label="discourse_cosmetics_store.inventory.mode_unlocked"
+              />
             </div>
 
             <label>
@@ -273,27 +278,23 @@ export default class CosmeticsStoreInventory extends Component {
                   {{#if @viewer.can_manage_selection}}
                     <div class="cstore-inventory-card__actions">
                       {{#if item.equipped}}
-                        <button
-                          class="btn btn-default"
+                        <DButton
+                          class="btn-default"
                           data-testid="unequip-cosmetic"
-                          type="button"
-                          disabled={{item.action_disabled}}
-                          {{on "click" (fn this.unequipItem item)}}
-                        >
-                          {{dIcon "xmark"}}
-                          {{i18n "discourse_cosmetics_store.inventory.unequip_action"}}
-                        </button>
+                          @action={{fn this.unequipItem item}}
+                          @disabled={{item.action_disabled}}
+                          @icon="xmark"
+                          @label="discourse_cosmetics_store.inventory.unequip_action"
+                        />
                       {{else}}
-                        <button
-                          class="btn btn-primary"
+                        <DButton
+                          class="btn-primary"
                           data-testid="equip-cosmetic"
-                          type="button"
-                          disabled={{item.action_disabled}}
-                          {{on "click" (fn this.equipItem item)}}
-                        >
-                          {{dIcon "check"}}
-                          {{i18n "discourse_cosmetics_store.inventory.equip_action"}}
-                        </button>
+                          @action={{fn this.equipItem item}}
+                          @disabled={{item.action_disabled}}
+                          @icon="check"
+                          @label="discourse_cosmetics_store.inventory.equip_action"
+                        />
                       {{/if}}
                     </div>
                   {{/if}}
@@ -312,9 +313,11 @@ export default class CosmeticsStoreInventory extends Component {
           <section class="cstore-empty">
             <strong>{{i18n "discourse_cosmetics_store.inventory.login_title"}}</strong>
             <p>{{i18n "discourse_cosmetics_store.inventory.login_description"}}</p>
-            <a class="btn btn-primary" href="/login?return_path=%2Fstore%2Finventory">
-              {{i18n "discourse_cosmetics_store.inventory.login_action"}}
-            </a>
+            <DButton
+              class="btn-primary"
+              @href="/login?return_path=%2Fstore%2Finventory"
+              @label="discourse_cosmetics_store.inventory.login_action"
+            />
           </section>
         </main>
       {{/if}}
