@@ -1,7 +1,13 @@
 import { click, fillIn, render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import CosmeticsStoreDialog from "discourse/plugins/discourse-user-cosmetics-store/discourse/components/cosmetics-store-dialog";
+import {
+  CLOSE_INITIATED_BY_BUTTON,
+  CLOSE_INITIATED_BY_CLICK_OUTSIDE,
+} from "discourse/ui-kit/d-modal";
+import CosmeticsStoreDialog, {
+  shouldCloseProductModal,
+} from "discourse/plugins/discourse-user-cosmetics-store/discourse/components/cosmetics-store-dialog";
 
 module("Component | cosmetics store dialog", function (hooks) {
   setupRenderingTest(hooks);
@@ -43,7 +49,7 @@ module("Component | cosmetics store dialog", function (hooks) {
     };
   });
 
-  test("uses Discourse DModal instead of a custom dialog shell", async function (assert) {
+  test("uses an isolated Discourse DModal wrapper instead of the legacy dialog shell", async function (assert) {
     await render(
       <template>
         <CosmeticsStoreDialog
@@ -61,7 +67,8 @@ module("Component | cosmetics store dialog", function (hooks) {
       </template>
     );
 
-    assert.dom(".d-modal.cstore-dialog").exists();
+    assert.dom(".d-modal.cstore-product-modal").exists();
+    assert.dom(".d-modal.cstore-dialog").doesNotExist();
     assert.dom(".d-modal__title-text").hasText("Ölülerin Efendisi (Mavi)");
     assert.dom(".cstore-dialog__backdrop").doesNotExist();
     assert.dom(".cstore-dialog__close").doesNotExist();
@@ -76,7 +83,20 @@ module("Component | cosmetics store dialog", function (hooks) {
     assert.deepEqual(this.purchaseCalls, [42]);
   });
 
-  test("gift flow uses FormKit validation and normalizes the recipient", async function (assert) {
+  test("blocks click-out dismissal while preserving explicit native dismissal", function (assert) {
+    assert.false(
+      shouldCloseProductModal({
+        initiatedBy: CLOSE_INITIATED_BY_CLICK_OUTSIDE,
+      }),
+      "clicking outside does not dismiss the product modal"
+    );
+    assert.true(
+      shouldCloseProductModal({ initiatedBy: CLOSE_INITIATED_BY_BUTTON }),
+      "the native close button can still dismiss the product modal"
+    );
+  });
+
+  test("gift flow stays interactive and normalizes the recipient", async function (assert) {
     await render(
       <template>
         <CosmeticsStoreDialog
@@ -96,9 +116,11 @@ module("Component | cosmetics store dialog", function (hooks) {
 
     await click(".cstore-gift-toggle");
 
+    assert.dom(".cstore-gift-panel").exists();
     assert.dom(".cstore-gift-formkit").exists();
     assert.dom(".cstore-gift-formkit input").exists();
     assert.dom(".cstore-gift-formkit").includesText("Gift recipient");
+    assert.false(this.closed, "an action inside the modal does not close it");
 
     await fillIn(".cstore-gift-formkit input", "  @gift-user  ");
     await click(".cstore-gift-formkit .btn-primary");
