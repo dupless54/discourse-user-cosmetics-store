@@ -58,13 +58,28 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
     assert.dom(".cstore-payment-dialog__backdrop").doesNotExist();
     assert.dom(".cstore-payment-dialog__close").doesNotExist();
     assert.dom("[data-testid='payment-provider']").exists({ count: 2 });
+    assert.dom("[data-testid='payment-provider']:first-child").hasClass("btn");
     assert.dom("[data-testid='payment-provider']:first-child").hasClass("is-active");
+    assert
+      .dom("[data-testid='payment-provider']:first-child")
+      .hasAttribute("aria-pressed", "true");
     assert.dom("[data-testid='payment-provider']:last-child").doesNotHaveClass("is-active");
+    assert
+      .dom("[data-testid='payment-provider']:last-child")
+      .hasAttribute("aria-pressed", "false");
+    assert.dom("[data-testid='payment-submit']").hasClass("btn");
+    assert.dom("[data-testid='payment-submit']").hasAttribute("type", "submit");
     assert.dom("[data-testid='payment-submit']").isEnabled();
 
     await click("[data-testid='payment-provider']:last-child");
 
     assert.dom("[data-testid='payment-provider']:last-child").hasClass("is-active");
+    assert
+      .dom("[data-testid='payment-provider']:last-child")
+      .hasAttribute("aria-pressed", "true");
     assert.dom("[data-testid='payment-provider']:first-child").doesNotHaveClass("is-active");
+    assert
+      .dom("[data-testid='payment-provider']:first-child")
+      .hasAttribute("aria-pressed", "false");
   });
 });
