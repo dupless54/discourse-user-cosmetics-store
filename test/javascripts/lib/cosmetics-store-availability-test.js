@@ -9,15 +9,15 @@ module("Unit | discourse-user-cosmetics-store | availability", function () {
   test("classifies badges for upcoming, seasonal, and limited products", function (assert) {
     assert.strictEqual(
       availabilityBadge({ sale_state: "upcoming", availability_type: "seasonal" }),
-      "YAKINDA"
+      "COMING SOON"
     );
     assert.strictEqual(
       availabilityBadge({ sale_state: "active", availability_type: "seasonal" }),
-      "SEZONLUK"
+      "SEASONAL"
     );
     assert.strictEqual(
       availabilityBadge({ sale_state: "active", availability_type: "limited" }),
-      "SINIRLI SÜRE"
+      "LIMITED TIME"
     );
     assert.strictEqual(
       availabilityBadge({ sale_state: "active", availability_type: "standard" }),
@@ -25,7 +25,7 @@ module("Unit | discourse-user-cosmetics-store | availability", function () {
     );
   });
 
-  test("formats deterministic remaining-time copy", function (assert) {
+  test("formats deterministic remaining-time copy through client i18n", function (assert) {
     const now = Date.parse("2026-08-29T09:00:00Z");
 
     assert.strictEqual(
@@ -36,7 +36,7 @@ module("Unit | discourse-user-cosmetics-store | availability", function () {
         },
         now
       ),
-      "1g 2sa sonra açılıyor"
+      "Opens in 1d 2h"
     );
     assert.strictEqual(
       availabilityDetail(
@@ -46,7 +46,7 @@ module("Unit | discourse-user-cosmetics-store | availability", function () {
         },
         now
       ),
-      "1sa 15dk kaldı"
+      "1h 15m left"
     );
   });
 
