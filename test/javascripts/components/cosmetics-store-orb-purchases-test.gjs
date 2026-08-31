@@ -54,6 +54,7 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
 
     assert.dom(".cstore-section__heading").includesText("SECURE PAYMENT");
     assert.dom(".cstore-section__heading").includesText("Top up SeninCoin");
+    assert.dom("[data-testid='orb-package-open']").hasClass("btn");
     assert.dom("[data-testid='orb-package-open']").includesText("Top up for 4.99 EUR");
     assert.dom(".cstore-cash-packages__badge").hasText("RECOMMENDED");
 
