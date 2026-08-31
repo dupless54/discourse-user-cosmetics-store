@@ -1,22 +1,31 @@
 @use "lib/container";
 @use "lib/viewport";
 
-// Product details render inside Discourse's native DModal. Keep all
-// storefront-specific layout inside the modal content and let core own focus,
-// backdrop, keyboard, safe-area, root positioning and viewport scrolling.
-// Match core's two-class DModal size selector so this Store-specific limit wins
-// over the generic --max preset without resorting to !important.
-.d-modal.cstore-dialog {
+// Product details render inside Discourse's native DModal. The DModal wrapper
+// intentionally uses a dedicated class (`cstore-product-modal`) instead of the
+// old `.cstore-dialog` custom-shell class. This prevents legacy storefront rules
+// from changing core modal positioning, pointer routing or viewport sizing.
+.d-modal.cstore-product-modal {
   --modal-max-width: 58rem;
   --modal-max-height: min(46rem, calc(100dvh - 2rem));
 
+  // Re-assert the official Discourse modal layer locally. This protects the
+  // Store modal from theme/component rules which restyle generic modal classes.
+  z-index: z("modal", "content");
+  pointer-events: none;
+
   .d-modal__container {
+    position: relative;
+    z-index: 1;
     overflow: hidden;
+    pointer-events: auto;
+    isolation: isolate;
     border: 1px solid var(--content-border-color, var(--primary-low));
     background: var(--secondary);
   }
 
   .d-modal__header {
+    flex: 0 0 auto;
     background: color-mix(in srgb, var(--primary) 3%, var(--secondary));
   }
 
@@ -30,7 +39,10 @@
     container-name: cstore-product-dialog;
     container-type: inline-size;
     min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: 0;
+    overscroll-behavior: contain;
   }
 
   .cstore-dialog__window,
@@ -42,8 +54,8 @@
     min-width: 0;
   }
 
-  // Neutralize the legacy custom-dialog positioning. DModal owns positioning
-  // and scrolling; this element is only the product content grid now.
+  // DModal owns positioning and scrolling; this element is only the product
+  // content grid. Explicitly neutralize the old fixed custom-dialog geometry.
   .cstore-dialog__window {
     position: relative;
     top: auto;
@@ -51,12 +63,14 @@
     display: grid;
     width: 100%;
     height: auto;
+    max-width: 100%;
     max-height: none;
     overflow: visible;
     grid-template-columns: minmax(0, 1.08fr) minmax(18rem, 0.92fr);
     border: 0;
     border-radius: 0;
     background: var(--secondary);
+    box-shadow: none;
     transform: none;
   }
 
@@ -159,8 +173,6 @@
     touch-action: manipulation;
   }
 
-  // FormKit owns field markup, validation and accessibility. This panel only
-  // provides the storefront visual surface around the native form controls.
   .cstore-gift-panel {
     position: relative;
     z-index: 3;
@@ -211,9 +223,15 @@
   }
 }
 
-// Orb checkout used to provide its own fixed backdrop/window. It now uses the
-// same native DModal shell as product details so core owns focus, pointer
-// routing, escape/backdrop handling and safe-area behavior on mobile.
+// DModal renders its backdrop as the next sibling of the modal wrapper. Keep
+// it below the product modal so a theme cannot accidentally place the backdrop
+// over the Store content and turn every click into a click-out dismissal.
+.d-modal.cstore-product-modal + .d-modal__backdrop {
+  z-index: z("modal", "overlay");
+}
+
+// Orb checkout uses the same native DModal shell. It keeps a separate class
+// because its layout and form constraints differ from the product dialog.
 .d-modal.cstore-payment-dialog {
   --modal-max-width: 40rem;
   --modal-max-height: min(48rem, calc(100dvh - 2rem));
@@ -272,42 +290,41 @@
   }
 }
 
-// The product layout responds to its actual DModal body width rather than the
-// browser width. This is important when Discourse embeds the modal in a narrow
-// container on tablets, split-screen windows or future responsive shells.
+// The product layout responds to its actual DModal body width. Keep these
+// container rules for narrow desktop/tablet modal surfaces.
 @include container.until(md, cstore-product-dialog) {
-  .cstore-dialog .cstore-dialog__window {
+  .cstore-product-modal .cstore-dialog__window {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cstore-dialog .cstore-dialog__live {
+  .cstore-product-modal .cstore-dialog__live {
     border-top: 1px solid var(--content-border-color, var(--primary-low));
     border-left: 0;
   }
 }
 
 @include container.until(sm, cstore-product-dialog) {
-  .cstore-dialog .cstore-dialog__details,
-  .cstore-dialog .cstore-dialog__live {
+  .cstore-product-modal .cstore-dialog__details,
+  .cstore-product-modal .cstore-dialog__live {
     padding: 1rem;
   }
 
-  .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
+  .cstore-product-modal .cstore-dialog__live .cstore-user-card-preview-host {
     width: min(15.75rem, 100%);
   }
 }
 
 @include container.until(xs, cstore-product-dialog) {
-  .cstore-dialog .cstore-dialog__purchase {
+  .cstore-product-modal .cstore-dialog__purchase {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .cstore-dialog .cstore-dialog__purchase
+  .cstore-product-modal .cstore-dialog__purchase
     > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
     grid-column: 1;
   }
 
-  .cstore-dialog .cstore-dialog__purchase > div {
+  .cstore-product-modal .cstore-dialog__purchase > div {
     padding: 0.7rem 0.75rem;
   }
 }
@@ -327,10 +344,81 @@
   }
 }
 
-// Core DModal handles mobile keyboard/safe-area behavior. These rules only tune
-// Store content while using Discourse's shared breakpoint.
+// Core DModal handles keyboard/safe-area behavior. These Store rules are
+// intentionally scoped to the portaled modal class so they still work after
+// DModal leaves `.cstore-shell` in the document tree.
 @include viewport.until(sm) {
-  .d-modal.cstore-dialog,
+  .d-modal.cstore-product-modal {
+    --modal-max-height: calc(var(--composer-vh, 1dvh) * 94);
+
+    align-items: flex-end;
+    overflow: hidden;
+
+    .d-modal__container {
+      width: 100%;
+      max-width: 100%;
+      max-height: calc(var(--composer-vh, 1dvh) * 94);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .d-modal__header {
+      padding-inline: 0.9rem 0.45rem;
+    }
+
+    .cstore-dialog__body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .cstore-dialog__window {
+      display: grid;
+      width: 100%;
+      max-width: 100%;
+      grid-template-columns: minmax(0, 1fr);
+      overflow: visible;
+    }
+
+    .cstore-dialog__live {
+      order: -1;
+      padding: 0.9rem 0.85rem 1rem;
+      border-top: 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--content-border-color, var(--primary-low));
+      border-left: 0;
+    }
+
+    .cstore-dialog__details {
+      order: 0;
+      padding: 1rem 0.85rem max(1.25rem, env(safe-area-inset-bottom));
+    }
+
+    .cstore-dialog__live .cstore-user-card-preview-host {
+      width: min(15.75rem, calc(100% - 0.5rem));
+      max-width: 100%;
+    }
+
+    .cstore-dialog__purchase {
+      width: 100%;
+      max-width: 100%;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cstore-dialog__purchase
+      > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
+      grid-column: 1 / -1;
+      width: 100%;
+    }
+
+    .cstore-gift-panel,
+    .cstore-gift-formkit,
+    .cstore-gift-formkit .btn-primary {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
   .d-modal.cstore-payment-dialog {
     --modal-max-height: calc(var(--composer-vh, 1dvh) * 90);
 
@@ -342,9 +430,25 @@
       padding-inline: 1rem 0.5rem;
     }
   }
+}
 
-  .cstore-dialog .cstore-dialog__details,
-  .cstore-dialog .cstore-dialog__live {
-    padding-inline: 0.85rem;
+@media (width <= 480px) {
+  .d-modal.cstore-product-modal {
+    .cstore-dialog__purchase {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cstore-dialog__purchase
+      > :is(.cstore-buy, .cstore-owned-label, .cstore-gift-toggle) {
+      grid-column: 1;
+    }
+
+    .cstore-dialog__purchase > div {
+      padding: 0.7rem 0.75rem;
+    }
+
+    .cstore-dialog__live .cstore-user-card-preview-host {
+      width: min(14.5rem, calc(100% - 0.5rem));
+    }
   }
 }
