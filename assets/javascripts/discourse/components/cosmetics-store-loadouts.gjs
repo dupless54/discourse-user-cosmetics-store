@@ -174,9 +174,7 @@ export default class CosmeticsStoreLoadouts extends Component {
     }
 
     return this.dialog.confirm({
-      message: i18n("discourse_cosmetics_store.loadouts.delete_confirm", {
-        name: loadout.name,
-      }),
+      message: `${i18n("discourse_cosmetics_store.loadouts.delete_action")}: ${loadout.name}`,
       didConfirm: () => this.performDeleteLoadout(loadout),
     });
   }
