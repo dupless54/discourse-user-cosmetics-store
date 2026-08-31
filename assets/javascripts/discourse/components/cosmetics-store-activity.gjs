@@ -1,9 +1,8 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { fn } from "@ember/helper";
 import { action } from "@ember/object";
-import { on } from "@ember/modifier";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
@@ -146,13 +145,17 @@ export default class CosmeticsStoreActivity extends Component {
               <span>{{i18n "discourse_cosmetics_store.activity.subtitle"}}</span>
             </div>
             <div>
-              <a class="btn btn-default" href="/store">
-                {{i18n "discourse_cosmetics_store.title"}}
-              </a>
-              <a class="btn btn-default" href="/store/inventory">
-                {{dIcon "image"}}
-                {{i18n "discourse_cosmetics_store.nav.inventory"}}
-              </a>
+              <DButton
+                class="btn-default"
+                @href="/store"
+                @label="discourse_cosmetics_store.title"
+              />
+              <DButton
+                class="btn-default"
+                @href="/store/inventory"
+                @icon="image"
+                @label="discourse_cosmetics_store.nav.inventory"
+              />
             </div>
           </div>
 
@@ -185,42 +188,38 @@ export default class CosmeticsStoreActivity extends Component {
           </section>
 
           <div class="cstore-activity__filters" role="group" aria-label={{i18n "discourse_cosmetics_store.activity.filters.label"}}>
-            <button
-              type="button"
-              class={{if (eq this.filter "all") "btn btn-primary" "btn btn-default"}}
-              aria-pressed={{eq this.filter "all"}}
+            <DButton
+              class={{if (eq this.filter "all") "btn-primary" "btn-default"}}
               data-testid="activity-filter-all"
-              {{on "click" (fn this.setFilter "all")}}
-            >
-              {{i18n "discourse_cosmetics_store.activity.filters.all"}}
-            </button>
-            <button
-              type="button"
-              class={{if (eq this.filter "purchase") "btn btn-primary" "btn btn-default"}}
-              aria-pressed={{eq this.filter "purchase"}}
+              @action={{this.setFilter}}
+              @actionParam="all"
+              @ariaPressed={{eq this.filter "all"}}
+              @label="discourse_cosmetics_store.activity.filters.all"
+            />
+            <DButton
+              class={{if (eq this.filter "purchase") "btn-primary" "btn-default"}}
               data-testid="activity-filter-purchase"
-              {{on "click" (fn this.setFilter "purchase")}}
-            >
-              {{i18n "discourse_cosmetics_store.activity.filters.purchase"}}
-            </button>
-            <button
-              type="button"
-              class={{if (eq this.filter "gifts") "btn btn-primary" "btn btn-default"}}
-              aria-pressed={{eq this.filter "gifts"}}
+              @action={{this.setFilter}}
+              @actionParam="purchase"
+              @ariaPressed={{eq this.filter "purchase"}}
+              @label="discourse_cosmetics_store.activity.filters.purchase"
+            />
+            <DButton
+              class={{if (eq this.filter "gifts") "btn-primary" "btn-default"}}
               data-testid="activity-filter-gifts"
-              {{on "click" (fn this.setFilter "gifts")}}
-            >
-              {{i18n "discourse_cosmetics_store.activity.filters.gifts"}}
-            </button>
-            <button
-              type="button"
-              class={{if (eq this.filter "orb") "btn btn-primary" "btn btn-default"}}
-              aria-pressed={{eq this.filter "orb"}}
+              @action={{this.setFilter}}
+              @actionParam="gifts"
+              @ariaPressed={{eq this.filter "gifts"}}
+              @label="discourse_cosmetics_store.activity.filters.gifts"
+            />
+            <DButton
+              class={{if (eq this.filter "orb") "btn-primary" "btn-default"}}
               data-testid="activity-filter-orb"
-              {{on "click" (fn this.setFilter "orb")}}
-            >
-              {{i18n "discourse_cosmetics_store.activity.filters.orb"}}
-            </button>
+              @action={{this.setFilter}}
+              @actionParam="orb"
+              @ariaPressed={{eq this.filter "orb"}}
+              @label="discourse_cosmetics_store.activity.filters.orb"
+            />
           </div>
 
           {{#if this.visibleEvents.length}}
@@ -280,9 +279,11 @@ export default class CosmeticsStoreActivity extends Component {
           <section class="cstore-empty">
             <strong>{{i18n "discourse_cosmetics_store.activity.login_title"}}</strong>
             <p>{{i18n "discourse_cosmetics_store.activity.login_description"}}</p>
-            <a class="btn btn-primary" href="/login?return_path=%2Fstore%2Factivity">
-              {{i18n "discourse_cosmetics_store.activity.login_action"}}
-            </a>
+            <DButton
+              class="btn-primary"
+              @href="/login?return_path=%2Fstore%2Factivity"
+              @label="discourse_cosmetics_store.activity.login_action"
+            />
           </section>
         </main>
       {{/if}}

@@ -51,10 +51,12 @@ module("Component | CosmeticsStoreActivity", function (hooks) {
     };
   });
 
-  test("renders the server-provided wallet summary and timeline", async function (assert) {
+  test("renders the server-provided wallet summary, timeline, and native navigation", async function (assert) {
     await renderActivity(this);
 
     assert.dom("[data-testid='activity-balance']").hasText("400");
+    assert.dom("a[href='/store']").hasClass("btn");
+    assert.dom("a[href='/store/inventory']").hasClass("btn");
     assert.dom("[data-event-kind='purchase']").exists();
     assert.dom("[data-event-kind='gift_received']").exists();
     assert.dom("[data-event-kind='orb']").exists();
@@ -62,15 +64,22 @@ module("Component | CosmeticsStoreActivity", function (hooks) {
     assert.dom(".cstore-activity__amount.is-positive").includesText("+25");
   });
 
-  test("filters gifts and Orb events without changing server data", async function (assert) {
+  test("filters gifts and Orb events with native pressed-state semantics", async function (assert) {
     await renderActivity(this);
 
+    assert.dom("[data-testid='activity-filter-all']").hasAria("pressed", "true");
+    assert.dom("[data-testid='activity-filter-gifts']").hasAria("pressed", "false");
+
     await click("[data-testid='activity-filter-gifts']");
+    assert.dom("[data-testid='activity-filter-all']").hasAria("pressed", "false");
+    assert.dom("[data-testid='activity-filter-gifts']").hasAria("pressed", "true");
     assert.dom("[data-event-kind='gift_received']").exists();
     assert.dom("[data-event-kind='purchase']").doesNotExist();
     assert.dom("[data-event-kind='orb']").doesNotExist();
 
     await click("[data-testid='activity-filter-orb']");
+    assert.dom("[data-testid='activity-filter-gifts']").hasAria("pressed", "false");
+    assert.dom("[data-testid='activity-filter-orb']").hasAria("pressed", "true");
     assert.dom("[data-event-kind='orb']").exists();
     assert.dom("[data-event-kind='gift_received']").doesNotExist();
   });
@@ -81,7 +90,9 @@ module("Component | CosmeticsStoreActivity", function (hooks) {
     await renderActivity(this);
 
     assert.dom("[data-event-kind]").doesNotExist();
-    assert.dom("a[href='/login?return_path=%2Fstore%2Factivity']").exists();
+    assert
+      .dom("a[href='/login?return_path=%2Fstore%2Factivity']")
+      .hasClass("btn-primary");
   });
 });
 
