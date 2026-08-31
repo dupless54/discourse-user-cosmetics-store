@@ -6,6 +6,7 @@ import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import DModal from "discourse/ui-kit/d-modal";
 
 export default class CosmeticsStoreOrbPurchases extends Component {
@@ -155,7 +156,21 @@ export default class CosmeticsStoreOrbPurchases extends Component {
           <form class="cstore-payment-dialog__window" {{on "submit" this.checkout}}>
             <p class="cstore-eyebrow">ORB YÜKLE</p>
             <div class="cstore-payment-dialog__summary"><strong>{{@settings.currency_symbol}} {{this.selectedPackage.orb_amount}}</strong><span>{{this.selectedPackage.price}} {{this.selectedPackage.currency}}</span></div>
-            <fieldset><legend>Ödeme yöntemi</legend><div class="cstore-payment-providers">{{#each this.availableProviders as |provider|}}<button class={{if (eq provider.id this.selectedProvider) "is-active"}} type="button" aria-pressed={{eq provider.id this.selectedProvider}} data-testid="payment-provider" {{on "click" (fn this.chooseProvider provider.id)}}>{{provider.label}}</button>{{/each}}</div></fieldset>
+            <fieldset>
+              <legend>Ödeme yöntemi</legend>
+              <div class="cstore-payment-providers">
+                {{#each this.availableProviders as |provider|}}
+                  <DButton
+                    class={{if (eq provider.id this.selectedProvider) "is-active"}}
+                    data-testid="payment-provider"
+                    @translatedLabel={{provider.label}}
+                    @ariaPressed={{eq provider.id this.selectedProvider}}
+                    @action={{this.chooseProvider}}
+                    @actionParam={{provider.id}}
+                  />
+                {{/each}}
+              </div>
+            </fieldset>
             {{#if this.requiresBilling}}
               <fieldset class="cstore-payment-billing">
                 <legend>Sağlayıcı için gerekli fatura bilgileri</legend>
@@ -169,7 +184,13 @@ export default class CosmeticsStoreOrbPurchases extends Component {
               </fieldset>
             {{/if}}
             <p class="cstore-payment-dialog__notice">Tutar, para birimi ve sağlayıcı imzası sunucuda tekrar doğrulanmadan bakiye yüklenmez.</p>
-            <button class="cstore-buy" data-testid="payment-submit" type="submit" disabled={{this.busy}}>{{if this.busy "Güvenli ödeme hazırlanıyor…" "Ödemeye devam et"}}</button>
+            <DButton
+              class="cstore-buy"
+              data-testid="payment-submit"
+              @type="submit"
+              @disabled={{this.busy}}
+              @translatedLabel={{if this.busy "Güvenli ödeme hazırlanıyor…" "Ödemeye devam et"}}
+            />
           </form>
         </:body>
       </DModal>
