@@ -129,17 +129,16 @@ export default class CosmeticsStoreOrbPurchases extends Component {
               </div>
               <h3>{{packageRow.name}}</h3>
               <p>{{packageRow.description}}</p>
-              <button
-                type="button"
+              <DButton
                 data-testid="orb-package-open"
-                {{on "click" (fn this.open packageRow)}}
-              >
-                {{i18n
+                @translatedLabel={{i18n
                   "discourse_cosmetics_store.storefront.orb_checkout.package_action"
                   price=packageRow.price
                   currency=packageRow.currency
                 }}
-              </button>
+                @action={{this.open}}
+                @actionParam={{packageRow}}
+              />
             </article>
           {{/each}}
         </div>
