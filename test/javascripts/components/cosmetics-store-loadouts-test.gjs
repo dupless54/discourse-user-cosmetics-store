@@ -1,5 +1,6 @@
 import { click, fillIn, render } from "@ember/test-helpers";
 import { module, test } from "qunit";
+import DialogHolder from "discourse/dialog-holder/components/dialog-holder";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import CosmeticsStoreLoadouts from "discourse/plugins/discourse-user-cosmetics-store/discourse/components/cosmetics-store-loadouts";
 
@@ -78,5 +79,27 @@ module("Component | CosmeticsStoreLoadouts", function (hooks) {
 
     await click("[data-loadout-id='7'] [data-testid='rename-loadout']");
     assert.dom("[data-loadout-id='7'] [data-testid='rename-loadout-input']").hasValue("Night set");
+  });
+
+  test("requires native confirmation before deleting a loadout", async function (assert) {
+    await render(
+      <template>
+        <DialogHolder />
+        <CosmeticsStoreLoadouts
+          @loadouts={{this.loadouts}}
+          @viewer={{this.viewer}}
+        />
+      </template>
+    );
+
+    await click("[data-loadout-id='7'] [data-testid='delete-loadout']");
+
+    assert.dom(".dialog-body").exists().includesText("Night set");
+    assert.dom("[data-loadout-id='7']").exists();
+
+    await click(".dialog-footer .btn-default");
+
+    assert.dom("#dialog-holder").doesNotExist();
+    assert.dom("[data-loadout-id='7']").exists();
   });
 });

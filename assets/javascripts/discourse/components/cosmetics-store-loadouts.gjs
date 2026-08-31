@@ -1,11 +1,14 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { Input } from "@ember/component";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
 import { on } from "@ember/modifier";
+import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { eq } from "discourse/truth-helpers";
+import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
 
 const MAX_LOADOUTS = 10;
@@ -17,6 +20,8 @@ const SLOT_KINDS = [
 ];
 
 export default class CosmeticsStoreLoadouts extends Component {
+  @service dialog;
+
   @tracked loadouts = this.args.loadouts ?? [];
   @tracked newName = "";
   @tracked editingId = null;
@@ -70,16 +75,6 @@ export default class CosmeticsStoreLoadouts extends Component {
       count: this.loadouts.length,
       max: MAX_LOADOUTS,
     });
-  }
-
-  @action
-  updateNewName(event) {
-    this.newName = event.target.value;
-  }
-
-  @action
-  updateEditingName(event) {
-    this.editingName = event.target.value;
   }
 
   @action
@@ -173,11 +168,18 @@ export default class CosmeticsStoreLoadouts extends Component {
   }
 
   @action
-  async deleteLoadout(loadout) {
+  deleteLoadout(loadout) {
     if (this.busyId) {
       return;
     }
 
+    return this.dialog.confirm({
+      message: `${i18n("discourse_cosmetics_store.loadouts.delete_action")}: ${loadout.name}`,
+      didConfirm: () => this.performDeleteLoadout(loadout),
+    });
+  }
+
+  async performDeleteLoadout(loadout) {
     this.busyId = loadout.id;
     this.notice = null;
     try {
@@ -208,9 +210,11 @@ export default class CosmeticsStoreLoadouts extends Component {
         </div>
         <div class="cstore-loadouts__hero-actions">
           <span data-testid="loadout-count">{{this.countLabel}}</span>
-          <a class="btn btn-default" href="/store/inventory">
-            {{i18n "discourse_cosmetics_store.nav.inventory"}}
-          </a>
+          <DButton
+            class="btn-default"
+            @href="/store/inventory"
+            @label="discourse_cosmetics_store.nav.inventory"
+          />
         </div>
       </section>
 
@@ -224,27 +228,25 @@ export default class CosmeticsStoreLoadouts extends Component {
           <p>{{i18n "discourse_cosmetics_store.loadouts.create_description"}}</p>
         </div>
         <form {{on "submit" this.createLoadout}}>
-          <input
+          <Input
             data-testid="loadout-name-input"
-            type="text"
+            @type="text"
+            @value={{this.newName}}
             maxlength="80"
-            value={{this.newName}}
             placeholder={{i18n "discourse_cosmetics_store.loadouts.name_placeholder"}}
             disabled={{this.creating}}
-            {{on "input" this.updateNewName}}
           />
-          <button
-            class="btn btn-primary"
+          <DButton
+            class="btn-primary"
             data-testid="create-loadout"
-            type="submit"
-            disabled={{this.createDisabled}}
-          >
-            {{#if this.creating}}
-              {{i18n "discourse_cosmetics_store.loadouts.saving"}}
-            {{else}}
-              {{i18n "discourse_cosmetics_store.loadouts.create_action"}}
-            {{/if}}
-          </button>
+            @type="submit"
+            @disabled={{this.createDisabled}}
+            @label={{if
+              this.creating
+              "discourse_cosmetics_store.loadouts.saving"
+              "discourse_cosmetics_store.loadouts.create_action"
+            }}
+          />
         </form>
         {{#if this.atLimit}}
           <small class="cstore-loadouts__limit">
@@ -263,12 +265,11 @@ export default class CosmeticsStoreLoadouts extends Component {
               <header class="cstore-loadout-card__header">
                 <div>
                   {{#if (eq this.editingId loadout.id)}}
-                    <input
+                    <Input
                       data-testid="rename-loadout-input"
-                      type="text"
+                      @type="text"
+                      @value={{this.editingName}}
                       maxlength="80"
-                      value={{this.editingName}}
-                      {{on "input" this.updateEditingName}}
                     />
                   {{else}}
                     <h2>{{loadout.name}}</h2>
@@ -322,50 +323,41 @@ export default class CosmeticsStoreLoadouts extends Component {
 
               <footer class="cstore-loadout-card__actions">
                 {{#if (eq this.editingId loadout.id)}}
-                  <button
-                    class="btn btn-primary"
-                    type="button"
-                    disabled={{this.renameSaveDisabled}}
-                    {{on "click" (fn this.saveRename loadout)}}
-                  >
-                    {{i18n "discourse_cosmetics_store.loadouts.save_name"}}
-                  </button>
-                  <button
-                    class="btn btn-default"
-                    type="button"
-                    disabled={{loadout.actions_disabled}}
-                    {{on "click" this.cancelRename}}
-                  >
-                    {{i18n "discourse_cosmetics_store.loadouts.cancel"}}
-                  </button>
+                  <DButton
+                    class="btn-primary"
+                    @action={{fn this.saveRename loadout}}
+                    @disabled={{this.renameSaveDisabled}}
+                    @label="discourse_cosmetics_store.loadouts.save_name"
+                  />
+                  <DButton
+                    class="btn-default"
+                    @action={{this.cancelRename}}
+                    @disabled={{loadout.actions_disabled}}
+                    @label="discourse_cosmetics_store.loadouts.cancel"
+                  />
                 {{else}}
-                  <button
-                    class="btn btn-primary"
+                  <DButton
+                    class="btn-primary"
                     data-testid="apply-loadout"
-                    type="button"
-                    disabled={{loadout.apply_disabled}}
-                    {{on "click" (fn this.applyLoadout loadout)}}
-                  >
-                    {{i18n "discourse_cosmetics_store.loadouts.apply_action"}}
-                  </button>
-                  <button
-                    class="btn btn-default"
+                    @action={{fn this.applyLoadout loadout}}
+                    @disabled={{loadout.apply_disabled}}
+                    @label="discourse_cosmetics_store.loadouts.apply_action"
+                  />
+                  <DButton
+                    class="btn-default"
                     data-testid="rename-loadout"
-                    type="button"
-                    disabled={{loadout.actions_disabled}}
-                    {{on "click" (fn this.startRename loadout)}}
-                  >
-                    {{i18n "discourse_cosmetics_store.loadouts.rename_action"}}
-                  </button>
-                  <button
-                    class="btn btn-danger"
+                    @action={{fn this.startRename loadout}}
+                    @disabled={{loadout.actions_disabled}}
+                    @label="discourse_cosmetics_store.loadouts.rename_action"
+                  />
+                  <DButton
+                    class="btn-danger"
                     data-testid="delete-loadout"
-                    type="button"
-                    disabled={{loadout.actions_disabled}}
-                    {{on "click" (fn this.deleteLoadout loadout)}}
-                  >
-                    {{i18n "discourse_cosmetics_store.loadouts.delete_action"}}
-                  </button>
+                    @action={{fn this.deleteLoadout loadout}}
+                    @disabled={{loadout.actions_disabled}}
+                    @icon="trash-can"
+                    @label="discourse_cosmetics_store.loadouts.delete_action"
+                  />
                 {{/if}}
               </footer>
             </article>

@@ -96,11 +96,13 @@ module("Component | CosmeticsStoreFavoritesPage", function (hooks) {
     };
   });
 
-  test("shows only favorites and combines search with active-filter feedback", async function (assert) {
-    await render(
-      <template><CosmeticsStoreFavoritesPage @model={{this.model}} /></template>
-    );
+  test("shows favorites with native navigation and reset controls", async function (assert) {
+    await renderFavorites(this);
 
+    assert.dom("[data-testid='favorites-nav-featured']").hasClass("btn");
+    assert.dom("[data-testid='favorites-nav-current']").hasClass("btn");
+    assert.dom("[data-testid='favorites-nav-current']").hasAria("pressed", "true");
+    assert.dom("[data-testid='favorites-balance']").includesText("100");
     assert.dom(".cstore-product").exists({ count: 2 });
     assert.dom(".cstore-results").doesNotIncludeText("Blue Frame");
 
@@ -110,15 +112,14 @@ module("Component | CosmeticsStoreFavoritesPage", function (hooks) {
     assert.dom(".cstore-results").includesText("Gold Frame");
     assert.dom(".cstore-results").doesNotIncludeText("Night Frame");
     assert.dom(".cstore-favorites-center__active-count").includesText("1");
+    assert.dom("[data-testid='favorites-filter-reset']").hasClass("btn");
 
-    await click(".cstore-filter-reset");
+    await click("[data-testid='favorites-filter-reset']");
     assert.dom(".cstore-product").exists({ count: 2 });
   });
 
   test("removing a favorite immediately removes it from the saved set", async function (assert) {
-    await render(
-      <template><CosmeticsStoreFavoritesPage @model={{this.model}} /></template>
-    );
+    await renderFavorites(this);
 
     await click(".cstore-product:first-child .cstore-favorite");
 
@@ -127,4 +128,28 @@ module("Component | CosmeticsStoreFavoritesPage", function (hooks) {
     assert.dom(".cstore-results").doesNotIncludeText("Gold Frame");
     assert.dom(".cstore-results").includesText("Night Frame");
   });
+
+  test("uses the native sign-in action for logged-out viewers", async function (assert) {
+    this.model = {
+      ...this.model,
+      viewer: {
+        ...this.model.viewer,
+        logged_in: false,
+      },
+    };
+
+    await renderFavorites(this);
+
+    assert
+      .dom("a[href='/login?return_path=%2Fstore%2Ffavorites']")
+      .hasClass("btn-primary");
+    assert.dom("[data-testid='favorites-login']").exists();
+    assert.dom(".cstore-product").doesNotExist();
+  });
 });
+
+async function renderFavorites(context) {
+  await render(
+    <template><CosmeticsStoreFavoritesPage @model={{context.model}} /></template>
+  );
+}

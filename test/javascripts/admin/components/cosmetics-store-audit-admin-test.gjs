@@ -2,11 +2,12 @@ import { click, fillIn, render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import CosmeticsStoreAuditAdmin from "discourse/plugins/discourse-user-cosmetics-store/admin/components/cosmetics-store-audit-admin";
+import { i18n } from "discourse-i18n";
 
 module("Component | CosmeticsStoreAuditAdmin", function (hooks) {
   setupRenderingTest(hooks);
 
-  test("renders safe audit rows and filters them by actor or action", async function (assert) {
+  test("renders safe native audit rows, filters by actor, and resets", async function (assert) {
     this.entries = [
       {
         id: 2,
@@ -37,19 +38,29 @@ module("Component | CosmeticsStoreAuditAdmin", function (hooks) {
       <template><CosmeticsStoreAuditAdmin @entries={{this.entries}} /></template>
     );
 
-    assert.dom(".cstore-audit__entry").exists({ count: 2 });
-    assert.dom(".cstore-audit").includesText("Cüzdan ayarlandı");
-    assert.dom(".cstore-audit").includesText("Ürün oluşturuldu");
+    assert.dom("table.d-table.cstore-audit__table").exists();
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 2 });
+    assert.dom(".d-table__mobile-label").exists();
+    assert
+      .dom(".cstore-audit")
+      .includesText(
+        i18n("discourse_cosmetics_store.admin.audit.actions.wallet_adjusted")
+      );
+    assert
+      .dom(".cstore-audit")
+      .includesText(
+        i18n("discourse_cosmetics_store.admin.audit.actions.product_created")
+      );
     assert.dom(".cstore-audit").doesNotIncludeText("secret");
 
-    await fillIn('.cstore-audit__filters input[type="search"]', "alice");
+    await fillIn(".d-filter-controls__input", "alice");
 
-    assert.dom(".cstore-audit__entry").exists({ count: 1 });
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 1 });
     assert.dom(".cstore-audit").includesText("@alice");
     assert.dom(".cstore-audit").doesNotIncludeText("@bob");
 
-    await click(".cstore-audit__filters button");
+    await click(".d-filter-controls__reset");
 
-    assert.dom(".cstore-audit__entry").exists({ count: 2 });
+    assert.dom("tbody.d-table__body tr.d-table__row").exists({ count: 2 });
   });
 });
