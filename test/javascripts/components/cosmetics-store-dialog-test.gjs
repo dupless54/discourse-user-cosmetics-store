@@ -43,7 +43,7 @@ module("Component | cosmetics store dialog", function (hooks) {
     };
   });
 
-  test("uses Discourse DModal instead of a custom dialog shell", async function (assert) {
+  test("uses an isolated Discourse DModal wrapper instead of the legacy dialog shell", async function (assert) {
     await render(
       <template>
         <CosmeticsStoreDialog
@@ -61,7 +61,8 @@ module("Component | cosmetics store dialog", function (hooks) {
       </template>
     );
 
-    assert.dom(".d-modal.cstore-dialog").exists();
+    assert.dom(".d-modal.cstore-product-modal").exists();
+    assert.dom(".d-modal.cstore-dialog").doesNotExist();
     assert.dom(".d-modal__title-text").hasText("Ölülerin Efendisi (Mavi)");
     assert.dom(".cstore-dialog__backdrop").doesNotExist();
     assert.dom(".cstore-dialog__close").doesNotExist();
@@ -74,6 +75,41 @@ module("Component | cosmetics store dialog", function (hooks) {
     await click(".cstore-buy");
 
     assert.deepEqual(this.purchaseCalls, [42]);
+  });
+
+  test("real DModal keeps content interactive and ignores accidental backdrop dismissal", async function (assert) {
+    await render(
+      <template>
+        <CosmeticsStoreDialog
+          @product={{this.product}}
+          @viewer={{this.viewer}}
+          @settings={{this.settings}}
+          @balance={{3744}}
+          @busy={{false}}
+          @giftBusy={{false}}
+          @onPurchase={{this.purchase}}
+          @onGift={{this.gift}}
+          @onClose={{this.close}}
+        />
+      </template>
+    );
+
+    assert.dom(".d-modal.cstore-product-modal").exists();
+    assert.dom(".d-modal__backdrop").exists();
+
+    await click(".cstore-gift-toggle");
+
+    assert.dom(".cstore-gift-panel").exists();
+    assert.false(this.closed, "an action inside the modal does not close it");
+
+    await click(".d-modal__backdrop");
+
+    assert.false(this.closed, "click-out dismissal is vetoed");
+    assert.dom(".d-modal.cstore-product-modal").exists();
+
+    await click(".d-modal.cstore-product-modal .modal-close");
+
+    assert.true(this.closed, "the native close button still closes the modal");
   });
 
   test("gift flow uses FormKit validation and normalizes the recipient", async function (assert) {
