@@ -33,6 +33,7 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
         requires_identity: false,
       },
     ];
+    this.payments = [];
     this.viewer = { logged_in: true, is_admin: false };
     this.settings = { currency_symbol: "◈", currency_name: "SeninCoin" };
   });
@@ -43,7 +44,7 @@ module("Component | CosmeticsStoreOrbPurchases", function (hooks) {
         <CosmeticsStoreOrbPurchases
           @packages={{this.packages}}
           @providers={{this.providers}}
-          @payments={{array}}
+          @payments={{this.payments}}
           @viewer={{this.viewer}}
           @settings={{this.settings}}
           @inline={{true}}
