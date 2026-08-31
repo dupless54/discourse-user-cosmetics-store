@@ -18,6 +18,10 @@ import CosmeticsStoreUserCardPreview from "./cosmetics-store-user-card-preview";
 
 const I18N_PREFIX = "discourse_cosmetics_store.dialog";
 
+export function shouldCloseProductModal({ initiatedBy }) {
+  return initiatedBy !== CLOSE_INITIATED_BY_CLICK_OUTSIDE;
+}
+
 export default class CosmeticsStoreDialog extends Component {
   @tracked giftMode = this.args.startGift ?? false;
 
@@ -111,8 +115,8 @@ export default class CosmeticsStoreDialog extends Component {
   }
 
   @action
-  beforeClose({ initiatedBy }) {
-    return initiatedBy !== CLOSE_INITIATED_BY_CLICK_OUTSIDE;
+  beforeClose(closeArgs) {
+    return shouldCloseProductModal(closeArgs);
   }
 
   @action
