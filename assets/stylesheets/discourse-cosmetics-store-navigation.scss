@@ -79,6 +79,20 @@
   }
 }
 
+// Store pages have their own navigation immediately below the Discourse
+// header. Core mobile outlet padding is useful for ordinary pages, but it
+// created a screenshot-visible blank band before this page chrome.
+@include viewport.until(lg) {
+  .cosmetics-store-route {
+    --main-outlet-padding-top: 0px;
+  }
+
+  .cosmetics-store-route #main-outlet {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+
 @include container.until(lg, cstore-navigation) {
   .cstore-nav > nav {
     grid-column: 1 / -1;
@@ -118,64 +132,128 @@
   }
 }
 
+// On phones keep the brand affordance and balance in one compact row, then
+// allow the section tabs to wrap beneath them. This replaces the previous
+// three full-width rows which produced a large empty panel above every page.
 @include viewport.until(sm) {
   .cstore-nav {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
     gap: var(--space-2, 0.5rem);
-    margin-bottom: var(--space-4, 1rem);
+    margin-bottom: var(--space-3, 0.75rem);
     padding: var(--space-2, 0.5rem);
   }
 
-  .cstore-nav > .cstore-nav__brand,
-  .cstore-nav > .cstore-nav__tools,
-  .cstore-nav > nav {
+  .cstore-nav > .cstore-nav__brand {
     grid-column: 1;
-    width: 100%;
+    grid-row: 1;
+    width: auto;
+    min-width: 40px;
+    min-height: 40px;
+    align-self: center;
+    justify-content: flex-start;
+    padding: 0;
   }
 
-  .cstore-nav > .cstore-nav__brand {
-    grid-row: 1;
-    justify-content: flex-start;
+  .cstore-nav > .cstore-nav__brand strong {
+    display: none;
   }
 
   .cstore-nav > .cstore-nav__tools {
-    grid-row: 2;
-    flex-wrap: wrap;
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    min-width: 0;
+    flex-wrap: nowrap;
+    justify-self: end;
+    justify-content: flex-end;
   }
 
   .cstore-nav > .cstore-nav__tools > label {
-    width: 100%;
-    flex: 1 1 100%;
+    display: none;
   }
 
   .cstore-nav .cstore-balance {
-    width: 100%;
-    min-height: 44px;
+    width: auto;
+    min-width: max-content;
+    min-height: 40px;
     justify-content: center;
   }
 
   .cstore-nav > nav {
-    grid-row: 3;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1, 0.25rem);
+    overflow: visible;
     padding-top: var(--space-2, 0.5rem);
+    border-top: 1px solid var(--content-border-color, var(--primary-low));
   }
 
   .cstore-nav > nav > button,
   .cstore-nav .cstore-nav__browse-menu > button {
-    min-height: 44px;
+    min-height: 38px;
+    flex: 0 1 auto;
+    padding-inline: var(--space-3, 0.75rem);
+    justify-content: center;
+    white-space: nowrap;
   }
 
   .cstore-nav__browse-menu {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
   }
 
   .cstore-nav__browse-menu > button {
-    width: 100%;
+    width: auto;
   }
 
   .cstore-nav__dropdown {
-    right: 0;
+    right: auto;
     left: 0;
-    width: min(100%, 22rem);
+    z-index: 5;
+    width: min(18rem, calc(100vw - 2rem));
     max-width: calc(100vw - 2rem);
+    max-height: min(22rem, calc(100dvh - var(--header-offset, 0px) - 8rem));
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  // Keep the Store content in a lower stacking context than the navigation.
+  // The closed navigation therefore never paints across filter disclosures,
+  // while an intentionally opened Browse dropdown can still appear above it.
+  .cstore-nav + :is(
+      .cstore-featured,
+      .cstore-orbs,
+      .cstore-browse,
+      .cstore-favorites-page,
+      .cstore-collections-page
+    ) {
+    position: relative;
+    z-index: 0;
+    clear: both;
+  }
+
+  // The screenshot showed the top-up surface but not its label. Give this CTA
+  // an explicit readable foreground instead of inheriting the theme link color.
+  .cstore-orb-balance__topup {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary) !important;
+    text-decoration: none !important;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .cstore-orb-balance__topup:hover,
+  .cstore-orb-balance__topup:focus-visible {
+    color: var(--secondary) !important;
+    outline: 2px solid color-mix(in srgb, var(--tertiary) 55%, transparent);
+    outline-offset: 2px;
   }
 }

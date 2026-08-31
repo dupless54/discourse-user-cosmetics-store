@@ -21,6 +21,7 @@ module("Component | cosmetics store navigation", function (hooks) {
       sections: {},
       settings: {
         currency_symbol: "◈",
+        currency_name: "SeninCoin",
         hover_preview: false,
       },
       wallet: {
@@ -62,5 +63,15 @@ module("Component | cosmetics store navigation", function (hooks) {
     await click(".cstore-nav__browse-menu > button");
 
     assert.dom(".cstore-nav__browse-menu").doesNotHaveClass("is-open");
+  });
+
+  test("Orbs view keeps the top-up CTA label in the rendered control", async function (assert) {
+    this.storeModel = { ...this.storeModel, route_tab: "orbs" };
+
+    await render(<template><CosmeticsStore @model={{this.storeModel}} /></template>);
+
+    assert.dom(".cstore-orb-balance__topup").exists();
+    assert.dom(".cstore-orb-balance__topup").includesText("Top up Orbs");
+    assert.dom(".cstore-orb-balance__topup").hasAttribute("href", "#orb-yukle");
   });
 });

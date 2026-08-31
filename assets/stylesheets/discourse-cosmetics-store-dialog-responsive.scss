@@ -1,15 +1,14 @@
 @use "lib/container";
 @use "lib/viewport";
 
-// Product details now render inside Discourse's native DModal. Keep all
-// storefront-specific layout inside the modal body and let core own focus,
-// backdrop, keyboard, safe-area and viewport behavior.
-.cstore-dialog {
+// Product details render inside Discourse's native DModal. Keep all
+// storefront-specific layout inside the modal content and let core own focus,
+// backdrop, keyboard, safe-area, root positioning and viewport scrolling.
+// Match core's two-class DModal size selector so this Store-specific limit wins
+// over the generic --max preset without resorting to !important.
+.d-modal.cstore-dialog {
   --modal-max-width: 58rem;
   --modal-max-height: min(46rem, calc(100dvh - 2rem));
-
-  padding: 0;
-  overflow: auto;
 
   .d-modal__container {
     overflow: hidden;
@@ -32,7 +31,6 @@
     container-type: inline-size;
     min-width: 0;
     padding: 0;
-    overflow-x: hidden;
   }
 
   .cstore-dialog__window,
@@ -64,6 +62,7 @@
 
   .cstore-dialog__details,
   .cstore-dialog__live {
+    position: relative;
     width: 100%;
     min-height: 0;
     overflow: visible;
@@ -71,10 +70,12 @@
   }
 
   .cstore-dialog__details {
+    z-index: 2;
     background: color-mix(in srgb, var(--primary) 4%, var(--secondary));
   }
 
   .cstore-dialog__live {
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -110,6 +111,8 @@
   }
 
   .cstore-dialog__purchase {
+    position: relative;
+    z-index: 3;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
@@ -153,11 +156,14 @@
   .cstore-gift-toggle,
   .cstore-gift-formkit .btn-primary {
     justify-content: center;
+    touch-action: manipulation;
   }
 
   // FormKit owns field markup, validation and accessibility. This panel only
   // provides the storefront visual surface around the native form controls.
   .cstore-gift-panel {
+    position: relative;
+    z-index: 3;
     margin-top: 0.85rem;
     padding: 0.9rem;
     border: 1px solid color-mix(in srgb, var(--tertiary) 30%, var(--content-border-color));
@@ -205,6 +211,67 @@
   }
 }
 
+// Orb checkout used to provide its own fixed backdrop/window. It now uses the
+// same native DModal shell as product details so core owns focus, pointer
+// routing, escape/backdrop handling and safe-area behavior on mobile.
+.d-modal.cstore-payment-dialog {
+  --modal-max-width: 40rem;
+  --modal-max-height: min(48rem, calc(100dvh - 2rem));
+
+  .d-modal__container {
+    overflow: hidden;
+    border: 1px solid var(--content-border-color, var(--primary-low));
+    background: var(--secondary);
+  }
+
+  .cstore-payment-dialog__body {
+    container-name: cstore-payment-dialog;
+    container-type: inline-size;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .cstore-payment-dialog__window {
+    position: static;
+    top: auto;
+    left: auto;
+    display: grid;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    gap: 1rem;
+    overflow: visible;
+    margin: 0;
+    padding: clamp(1rem, 2.5vw, 1.35rem);
+    border: 0;
+    border-radius: 0;
+    background: var(--secondary);
+    box-shadow: none;
+    transform: none;
+  }
+
+  .cstore-payment-dialog__summary,
+  fieldset,
+  .cstore-payment-providers,
+  .cstore-payment-billing,
+  .cstore-payment-billing label,
+  .cstore-payment-billing input {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .cstore-payment-providers button,
+  .cstore-payment-dialog__window > .cstore-buy {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .cstore-payment-dialog__window > .cstore-buy {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 // The product layout responds to its actual DModal body width rather than the
 // browser width. This is important when Discourse embeds the modal in a narrow
 // container on tablets, split-screen windows or future responsive shells.
@@ -226,7 +293,7 @@
   }
 
   .cstore-dialog .cstore-dialog__live .cstore-user-card-preview-host {
-    width: min(17.25rem, 100%);
+    width: min(15.75rem, 100%);
   }
 }
 
@@ -245,11 +312,27 @@
   }
 }
 
-// Core DModal already handles mobile keyboard/safe-area behavior. These rules
-// only tune the cosmetics content while using Discourse's shared breakpoint.
+@include container.until(sm, cstore-payment-dialog) {
+  .d-modal.cstore-payment-dialog .cstore-payment-dialog__window {
+    padding: 1rem;
+  }
+
+  .d-modal.cstore-payment-dialog .cstore-payment-providers,
+  .d-modal.cstore-payment-dialog .cstore-payment-billing {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .d-modal.cstore-payment-dialog .cstore-payment-billing .is-wide {
+    grid-column: 1;
+  }
+}
+
+// Core DModal handles mobile keyboard/safe-area behavior. These rules only tune
+// Store content while using Discourse's shared breakpoint.
 @include viewport.until(sm) {
-  .cstore-dialog {
-    --modal-max-height: calc(var(--composer-vh, 1dvh) * 85);
+  .d-modal.cstore-dialog,
+  .d-modal.cstore-payment-dialog {
+    --modal-max-height: calc(var(--composer-vh, 1dvh) * 90);
 
     .d-modal__container {
       border-radius: 14px 14px 0 0;
@@ -258,5 +341,10 @@
     .d-modal__header {
       padding-inline: 1rem 0.5rem;
     }
+  }
+
+  .cstore-dialog .cstore-dialog__details,
+  .cstore-dialog .cstore-dialog__live {
+    padding-inline: 0.85rem;
   }
 }
