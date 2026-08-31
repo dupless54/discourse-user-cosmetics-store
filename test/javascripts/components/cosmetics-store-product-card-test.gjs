@@ -58,9 +58,12 @@ module("Component | cosmetics store product card", function (hooks) {
     assert.dom(".cstore-product__buy").includesText("Buy");
     assert.dom(".cstore-product__meta").includesText("EDITOR'S PICK");
     assert.dom(".cstore-product__info").includesText("Cosmetic · 1 item");
+    assert.dom(".cstore-favorite").hasClass("btn");
     assert
       .dom(".cstore-favorite")
       .hasAttribute("aria-label", "Add to favorites");
+    assert.dom(".cstore-favorite").hasAttribute("aria-pressed", "false");
+    assert.dom(".cstore-product__gift").hasClass("btn");
     assert
       .dom(".cstore-product__gift")
       .hasAttribute("aria-label", "Gift Aurora Frame");
