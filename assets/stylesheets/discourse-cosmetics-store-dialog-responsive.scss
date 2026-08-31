@@ -4,7 +4,9 @@
 // Product details render inside Discourse's native DModal. Keep all
 // storefront-specific layout inside the modal content and let core own focus,
 // backdrop, keyboard, safe-area, root positioning and viewport scrolling.
-.cstore-dialog {
+// Match core's two-class DModal size selector so this Store-specific limit wins
+// over the generic --max preset without resorting to !important.
+.d-modal.cstore-dialog {
   --modal-max-width: 58rem;
   --modal-max-height: min(46rem, calc(100dvh - 2rem));
 
@@ -328,7 +330,7 @@
 // Core DModal handles mobile keyboard/safe-area behavior. These rules only tune
 // Store content while using Discourse's shared breakpoint.
 @include viewport.until(sm) {
-  .cstore-dialog,
+  .d-modal.cstore-dialog,
   .d-modal.cstore-payment-dialog {
     --modal-max-height: calc(var(--composer-vh, 1dvh) * 90);
 
