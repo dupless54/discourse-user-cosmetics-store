@@ -1,5 +1,6 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
+import { fn } from "@ember/helper";
 import { action } from "@ember/object";
 import { on } from "@ember/modifier";
 import { service } from "@ember/service";
@@ -108,6 +109,10 @@ export default class CosmeticsStoreFavoritesPage extends Component {
     return i18n("discourse_cosmetics_store.favorites_filters.active_filter_count", {
       count: this.activeFilterCount,
     });
+  }
+
+  get balanceLabel() {
+    return `${this.settings.currency_symbol} ${this.wallet.balance}`;
   }
 
   replaceProduct(productId, attributes) {
@@ -353,7 +358,7 @@ export default class CosmeticsStoreFavoritesPage extends Component {
             data-testid="favorites-balance"
             @action={{this.navigate}}
             @actionParam="cosmetics-store-orbs"
-            @translatedLabel={{concat this.settings.currency_symbol " " this.wallet.balance}}
+            @translatedLabel={{this.balanceLabel}}
           />
         </div>
       </header>
