@@ -5,7 +5,9 @@ import { action } from "@ember/object";
 import Form from "discourse/components/form";
 import { eq } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
-import DModal from "discourse/ui-kit/d-modal";
+import DModal, {
+  CLOSE_INITIATED_BY_CLICK_OUTSIDE,
+} from "discourse/ui-kit/d-modal";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import {
@@ -109,6 +111,11 @@ export default class CosmeticsStoreDialog extends Component {
   }
 
   @action
+  beforeClose({ initiatedBy }) {
+    return initiatedBy !== CLOSE_INITIATED_BY_CLICK_OUTSIDE;
+  }
+
+  @action
   toggleGift() {
     if (this.giftDisabled) {
       return;
@@ -134,9 +141,10 @@ export default class CosmeticsStoreDialog extends Component {
       @title={{@product.name}}
       @subtitle={{@product.description}}
       @closeModal={{@onClose}}
+      @beforeClose={{this.beforeClose}}
       @bodyClass="cstore-dialog__body"
       @inline={{@inline}}
-      class="cstore-dialog --max"
+      class="cstore-product-modal --max"
     >
       <:body>
         <div class="cstore-dialog__window">
